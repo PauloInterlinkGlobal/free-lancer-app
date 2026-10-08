@@ -50,7 +50,7 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
 
   return (
     <Modal id="GENERATE_REPORT" onClose={handleClose}>
-      <div className="relative flex w-full max-w-md max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100vh-3.5rem)] flex-col overflow-hidden rounded-2xl border border-border-ui bg-surface shadow-2xl sm:rounded-3xl">
+      <div className="relative flex w-full max-w-lg max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100vh-3.5rem)] flex-col overflow-hidden rounded-2xl border border-border-ui bg-surface shadow-2xl sm:rounded-3xl">
         {/* Header - Fixed / shrink-0 */}
         <div className="flex shrink-0 items-start justify-between border-b border-divider px-4 py-3.5 sm:px-6 sm:py-5">
           <div className="flex items-start gap-3">
@@ -86,7 +86,7 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
 
             <div
               role="radiogroup"
-              className="flex flex-col gap-2 sm:gap-2.5"
+              className="grid grid-cols-2 gap-2.5 sm:gap-3"
             >
               {REPORT_EXPORT_PERIODS.map((option) => {
                 const isSelected = option.value === period;
@@ -99,13 +99,13 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
                     role="radio"
                     aria-checked={isSelected}
                     onClick={() => setPeriod(option.value)}
-                    className={`flex items-center justify-between gap-3 rounded-xl p-3 text-left transition-all sm:rounded-2xl sm:p-4 ${
+                    className={`flex items-center justify-between gap-2 rounded-xl p-2.5 text-left transition-all sm:rounded-2xl sm:p-3.5 ${
                       isSelected
                         ? "border-2 border-primary bg-primary/[0.04] shadow-sm"
                         : "border border-border-ui bg-surface hover:border-primary/40 hover:bg-item-hover"
                     }`}
                   >
-                    <div className="flex min-w-0 items-center gap-3 sm:gap-3.5">
+                    <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                       <Icon
                         size={18}
                         className={`shrink-0 sm:h-5 sm:w-5 ${isSelected ? "text-primary" : "text-muted-content"}`}
@@ -119,7 +119,7 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
                         >
                           {option.label}
                         </span>
-                        <span className="mt-0.5 block truncate text-[11px] text-muted-content sm:text-xs">
+                        <span className="mt-0.5 block truncate text-[10px] text-muted-content sm:text-xs">
                           {option.description}
                         </span>
                       </div>
