@@ -2772,11 +2772,7 @@ mongoose@^9.11.0:
 
 motion-dom@14.0.0:
   version "14.0.0"
-<<<<<<< Updated upstream
   resolved "https://registry.yarnpkg.com/motion-dom/-/motion-dom-14.0.0.tgz#d99ce3f514950c2e456b8fd30483855ba9450e96"
-=======
-  resolved "https://registry.npmjs.org/motion-dom/-/motion-dom-14.0.0.tgz"
->>>>>>> Stashed changes
   integrity sha512-aU3ApXo1yTpeUi3JU+jbDk2TELjxPE3MbBMUP7nZHlARb6RweJK+ojmLjpuB0YsY6zhbBl1YWGo8LMsI1/Llqw==
   dependencies:
     motion-utils "14.0.0"
