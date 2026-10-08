@@ -1,7 +1,11 @@
 export type CampaignStatus =
   'COMPLETED' | 'IN_PROGRESS' | 'SCHEDULED' | 'FAILED';
 
-export type ReportExportPeriod = 'daily' | 'weekly' | 'monthly';
+export type ReportExportPeriod =
+  | 'daily'
+  | 'weekly'
+  | 'monthly'
+  | 'last_month';
 
 export interface IReportStatItem {
   id: string;

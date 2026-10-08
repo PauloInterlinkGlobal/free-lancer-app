@@ -33,12 +33,26 @@ export function getReportDateRange(
   now: Date = new Date(),
 ) {
   const endDate = formatDateKey(now);
-  const startDate = new Date(`${endDate}T00:00:00.000Z`);
+  const currentDate = new Date(`${endDate}T00:00:00.000Z`);
+
+  if (period === 'last_month') {
+    const startDate = new Date(
+      Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth() - 1, 1),
+    );
+    const endOfPreviousMonth = new Date(
+      Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), 0),
+    );
+    return {
+      startDate: startDate.toISOString().slice(0, 10),
+      endDate: endOfPreviousMonth.toISOString().slice(0, 10),
+    };
+  }
+
   const daysBack = { daily: 0, weekly: 6, monthly: 29 }[period];
-  startDate.setUTCDate(startDate.getUTCDate() - daysBack);
+  currentDate.setUTCDate(currentDate.getUTCDate() - daysBack);
 
   return {
-    startDate: startDate.toISOString().slice(0, 10),
+    startDate: currentDate.toISOString().slice(0, 10),
     endDate,
   };
 }
