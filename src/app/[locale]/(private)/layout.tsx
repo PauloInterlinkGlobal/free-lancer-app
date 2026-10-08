@@ -1,3 +1,4 @@
+import { Breadcrumb } from '@/core/components/Breadcrumb';
 import { Header } from '@/core/components/Header';
 import { NavigationProgress } from '@/core/components/Loading/NavigationProgress';
 import { Sidebar } from '@/core/components/SideBar/index';
@@ -17,7 +18,10 @@ export default function PrivateLayout({
         <Header />
         <Toaster />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-          <div className="flex flex-col gap-6">{children}</div>
+          <div className="flex flex-col gap-6">
+            <Breadcrumb />
+            {children}
+          </div>
         </main>
       </div>
     </div>

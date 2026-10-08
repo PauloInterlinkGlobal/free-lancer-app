@@ -3,7 +3,7 @@
 import { Modal } from "@/core/components/Modal";
 import { useModalStore } from "@/core/store/useModalStore";
 import { useToastStore } from "@/core/store";
-import { Check, FileBarChart, X } from "lucide-react";
+import { Calendar, Clock, FileSpreadsheet, X } from "lucide-react";
 import { useState } from "react";
 import { REPORT_EXPORT_PERIODS } from "../constants/reports";
 import type {
@@ -43,20 +43,26 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
     }
   };
 
+  const getPeriodIcon = (val: ReportExportPeriod) => {
+    if (val === "daily") return Clock;
+    return Calendar;
+  };
+
   return (
     <Modal id="GENERATE_REPORT" onClose={handleClose}>
-      <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-ui bg-surface shadow-2xl">
-        <div className="flex items-start justify-between border-b border-divider px-6 py-5">
+      <div className="relative flex w-full max-w-md max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100vh-3.5rem)] flex-col overflow-hidden rounded-2xl border border-border-ui bg-surface shadow-2xl sm:rounded-3xl">
+        {/* Header - Fixed / shrink-0 */}
+        <div className="flex shrink-0 items-start justify-between border-b border-divider px-4 py-3.5 sm:px-6 sm:py-5">
           <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <FileBarChart size={20} aria-hidden />
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-12 sm:w-12 sm:rounded-2xl">
+              <FileSpreadsheet size={20} className="sm:h-6 sm:w-6" aria-hidden />
             </span>
             <div>
-              <h2 className="text-lg font-semibold text-primary-content">
+              <h2 className="text-base font-bold text-primary-content sm:text-lg">
                 Gerar relatório
               </h2>
-              <p className="mt-1 text-xs text-muted-content">
-                Escolha o período para exportar o relatório em CSV.
+              <p className="mt-0.5 text-xs text-muted-content sm:mt-1">
+                Selecione o período para exportar o relatório em formato CSV.
               </p>
             </div>
           </div>
@@ -65,24 +71,26 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
             type="button"
             onClick={handleClose}
             aria-label="Fechar"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-content transition-colors hover:bg-item-hover hover:text-primary-content"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-content transition-colors hover:bg-item-hover hover:text-primary-content"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="px-6 py-5">
-          <fieldset className="flex flex-col gap-2">
-            <legend className="mb-2 text-sm font-medium text-primary-content">
+        {/* Body - Scrollable / overflow-y-auto / flex-1 */}
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5">
+          <fieldset className="flex flex-col gap-2.5 sm:gap-3">
+            <legend className="mb-1 text-xs font-semibold text-primary-content sm:mb-2 sm:text-sm">
               Tipo de período
             </legend>
 
             <div
               role="radiogroup"
-              className="grid grid-cols-1 gap-2 sm:grid-cols-3"
+              className="flex flex-col gap-2 sm:gap-2.5"
             >
               {REPORT_EXPORT_PERIODS.map((option) => {
                 const isSelected = option.value === period;
+                const Icon = getPeriodIcon(option.value);
 
                 return (
                   <button
@@ -91,39 +99,62 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
                     role="radio"
                     aria-checked={isSelected}
                     onClick={() => setPeriod(option.value)}
-                    className={`relative flex min-h-20 flex-col items-start justify-center rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                    className={`flex items-center justify-between gap-3 rounded-xl p-3 text-left transition-all sm:rounded-2xl sm:p-4 ${
                       isSelected
-                        ? "border-primary bg-primary/5"
-                        : "border-ui bg-surface hover:bg-item-hover"
+                        ? "border-2 border-primary bg-primary/[0.04] shadow-sm"
+                        : "border border-border-ui bg-surface hover:border-primary/40 hover:bg-item-hover"
                     }`}
                   >
-                    <span
-                      className={`text-sm font-medium ${isSelected ? "text-primary" : "text-primary-content"}`}
-                    >
-                      {option.label}
-                    </span>
-                    <span className="text-[11px] text-muted-content">
-                      {option.description}
-                    </span>
-                    {isSelected && (
-                      <Check
-                        size={14}
+                    <div className="flex min-w-0 items-center gap-3 sm:gap-3.5">
+                      <Icon
+                        size={18}
+                        className={`shrink-0 sm:h-5 sm:w-5 ${isSelected ? "text-primary" : "text-muted-content"}`}
                         aria-hidden
-                        className="absolute right-2 top-2 text-primary"
                       />
-                    )}
+                      <div className="min-w-0">
+                        <span
+                          className={`block truncate text-xs font-bold sm:text-sm ${
+                            isSelected ? "text-primary" : "text-primary-content"
+                          }`}
+                        >
+                          {option.label}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[11px] text-muted-content sm:text-xs">
+                          {option.description}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Radio indicator */}
+                    <span
+                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-all sm:h-5 sm:w-5 ${
+                        isSelected
+                          ? "border-primary"
+                          : "border-border-ui"
+                      }`}
+                    >
+                      {isSelected && (
+                        <span className="h-2 w-2 rounded-full bg-primary sm:h-2.5 sm:w-2.5" />
+                      )}
+                    </span>
                   </button>
                 );
               })}
             </div>
+
+            {/* Aviso CSV */}
+            <div className="mt-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5 text-center text-[11px] font-medium text-primary sm:rounded-2xl sm:px-4 sm:py-3 sm:text-xs">
+              O ficheiro será descarregado diretamente em formato CSV.
+            </div>
           </fieldset>
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-divider px-6 py-4">
+        {/* Footer - Fixed / shrink-0 */}
+        <div className="flex shrink-0 items-center justify-end gap-2 border-t border-divider px-4 py-3 sm:px-6 sm:py-4">
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-xl px-5 py-2.5 text-sm font-medium text-muted-content transition-colors hover:bg-item-hover hover:text-primary-content"
+            className="rounded-xl px-4 py-2 text-xs font-medium text-muted-content transition-colors hover:bg-item-hover hover:text-primary-content sm:px-5 sm:py-2.5 sm:text-sm"
           >
             Cancelar
           </button>
@@ -131,10 +162,10 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
           <button
             type="button"
             onClick={handleGenerate}
-            className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm"
           >
-            <FileBarChart size={16} aria-hidden />
-            Gerar CSV
+            <FileSpreadsheet size={15} aria-hidden />
+            Descarregar CSV
           </button>
         </div>
       </div>

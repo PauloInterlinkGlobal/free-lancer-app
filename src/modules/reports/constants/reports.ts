@@ -12,7 +12,7 @@ export const REPORT_EXPORT_PERIODS: {
   { value: 'daily', label: 'Diário', description: 'Atividade de hoje' },
   { value: 'weekly', label: 'Semanal', description: 'Últimos 7 dias' },
   { value: 'monthly', label: 'Mensal', description: 'Últimos 30 dias' },
-  { value: 'last_month', label: 'Mês passado', description: 'Mês civil anterior' },
+  { value: 'last_month', label: 'Mês passado', description: 'Mês anterior completo' },
 ];
 
 export const PERIOD_OPTIONS: SelectOption[] = [
