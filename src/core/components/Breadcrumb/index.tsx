@@ -1,9 +1,3 @@
-<<<<<<< Updated upstream
-import { BreadcrumbClient } from './BreadcrumbClient';
-
-export function Breadcrumb() {
-  return <BreadcrumbClient />;
-=======
 "use client";
 
 import { ChevronRight, Menu } from "lucide-react";
@@ -143,5 +137,4 @@ export function Breadcrumb() {
       <div className="flex-shrink-0">{renderActions()}</div>
     </div>
   );
->>>>>>> Stashed changes
 }
