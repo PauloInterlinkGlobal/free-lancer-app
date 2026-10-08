@@ -18,7 +18,15 @@ const SANDBOX_PREFIXES = ['sandboxapp.', 'sandboxadmin.', 'sandboxweb.'];
 
 export function middleware(request: NextRequest) {
   try {
-    if (process.env.MODE !== 'production') {
+    const host = request.headers.get('host');
+    const isSandbox = SANDBOX_PREFIXES.some((prefix) =>
+      host?.startsWith(prefix)
+    );
+
+    // Preview and local sandbox requests come through a Vercel proxy, so the
+    // observed address is not the developer's address. Never apply the
+    // development IP allowlist to those environments.
+    if (process.env.MODE !== 'production' && !isSandbox && allowedIPs.size > 2) {
       const forwarded = request.headers.get('x-forwarded-for');
       const realIp = request.headers.get('x-real-ip');
 
@@ -32,24 +40,6 @@ export function middleware(request: NextRequest) {
 
       if (!allowedIPs.has(requestIp)) {
         console.error(`[IP Blocked] IP não autorizado: ${requestIp}`);
-
-        const host = request.headers.get('host');
-        const isSandbox = SANDBOX_PREFIXES.some((prefix) =>
-          host?.startsWith(prefix)
-        );
-
-        if (isSandbox) {
-          const response = NextResponse.redirect('https://www.smsillico.ao', {
-            status: 302,
-          });
-          response.headers.set('X-Frame-Options', 'DENY');
-          response.headers.set('X-Content-Type-Options', 'nosniff');
-          response.headers.set(
-            'Referrer-Policy',
-            'strict-origin-when-cross-origin'
-          );
-          return response;
-        }
 
         const blocked = NextResponse.json(
           { message: `Forbidden: IP not allowed, yourIP: ${requestIp}` },
