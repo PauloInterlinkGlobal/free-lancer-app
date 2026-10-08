@@ -258,7 +258,7 @@ export function SmsForm({
                 </span>
               )}
 
-              {contacts.map((contact) => (
+              {contacts.slice(0, 6).map((contact) => (
                 <span
                   key={contact}
                   className="inline-flex items-center gap-1.5 rounded-full bg-surface py-1 pl-3 pr-2 text-xs font-medium text-primary-content shadow-sm ring-1 ring-border-ui"
@@ -275,10 +275,16 @@ export function SmsForm({
                 </span>
               ))}
 
+              {contacts.length > 6 && (
+                <span className="inline-flex h-7 items-center rounded-full bg-primary/10 px-2.5 text-xs font-semibold text-primary ring-1 ring-primary/20">
+                  +{contacts.length - 6}
+                </span>
+              )}
+
               <button
                 type="button"
                 onClick={() => openModal('SELECT_CONTACT_SMS')}
-                className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+                className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-white transition-opacity hover:opacity-90"
               >
                 <UserPlus size={14} aria-hidden />
                 Adicionar
@@ -294,6 +300,21 @@ export function SmsForm({
           description="Escreva o texto ou parta de um modelo."
         >
           <TemplatesCard templates={templates} onSelect={setMessage} />
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 -mt-2">
+            <Link
+              href="/sms-template"
+              className="text-xs font-semibold text-primary underline-offset-2 transition-colors hover:text-primary/80 hover:underline"
+            >
+              Ver todos os modelos
+            </Link>
+            <Link
+              href="/sms-template?create=true"
+              className="text-xs font-semibold text-muted-content underline-offset-2 transition-colors hover:text-primary hover:underline"
+            >
+              Criar novo modelo
+            </Link>
+          </div>
 
           <MessageEditor
             value={message}

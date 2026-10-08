@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
+import { List } from 'lucide-react';
 
 import { usePathBreadcrumb } from '@/core/hooks/use-path-breadcrumb';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
@@ -19,9 +19,6 @@ export function BreadcrumbClient() {
 
   const segments = pathname.split('/').filter(Boolean);
   const lastSegment = segments[segments.length - 1];
-
-  const backHref =
-    segments.length > 1 ? `/${segments.slice(0, -1).join('/')}` : '/menu';
 
   const isHistory = lastSegment === 'history';
   const isContactsPage =
@@ -71,14 +68,14 @@ export function BreadcrumbClient() {
     <div className="flex w-full flex-col justify-between gap-4 md:flex-row md:items-center">
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex items-center gap-2">
-          {/* Mobile e tablet: seta de voltar */}
+          {/* Em telas menores, o botão abre o menu principal. */}
           <button
             type="button"
-            onClick={() => router.push(backHref)}
-            aria-label="Voltar"
+            onClick={() => router.push('/menu')}
+            aria-label="Abrir menu"
             className="-ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-primary-content transition-colors hover:bg-surface-raised active:bg-surface-subtle lg:hidden"
           >
-            <ArrowLeft size={24} />
+            <List size={24} />
           </button>
 
           <div className="flex min-w-0 flex-1 flex-col gap-1">
