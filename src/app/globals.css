@@ -1,0 +1,266 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::selection {
+  background: rgb(var(--color-primary)) !important;
+  color: white !important;
+}
+
+::-moz-selection {
+  background: #004ac6 !important;
+  color: white !important;
+}
+
+:root {
+  /* Página */
+  --background: #f6f8fb; /* fundo geral neutro, ligeiramente frio */
+  --foreground: #0b1c30; /* texto padrão = navy escuro */
+
+  /* Cor primária */
+  --color-primary: 55 150 210; /* azul do logo #3796D2 */
+
+  /* Superfícies */
+  --color-surface: 255 255 255; /* branco puro — cards principais */
+  --color-surface-raised: 238 243 249; /* #eef3f9 — seções alternadas */
+  --color-surface-subtle: 220 232 244; /* #dce8f4 — fundo muito suave */
+
+  /* Bordas */
+  --color-border-ui: 200 210 222; /* #c8d2de */
+  --color-divider: 200 210 222;
+
+  /* Texto */
+  --color-text-primary: 11 28 48; /* #0b1c30 */
+  --color-text-secondary: 67 70 85; /* #434655 */
+  --color-text-muted: 77 85 107; /* #4d556b */
+
+  /* Interações */
+  --color-item-hover: 238 243 249; /* #eef3f9 */
+  --color-icon-bg: 238 243 249;
+
+  /* Aliases */
+  --color-bg-card: 255 255 255;
+
+  /* Bento / cards */
+  --color-bento-section: 246 248 251; /* fundo de seção */
+  --color-bento-card: 255 255 255;
+  --color-bento-card-secondary: 220 232 244; /* #dce8f4 */
+  --color-bento-border: 200 210 222; /* #c8d2de */
+
+  /* Chart */
+  --color-chart-grid: 200 210 222;
+  --color-chart-tick: 77 85 107;
+  --color-chart-line-primary: 55 150 210; /* azul do logo */
+  --color-chart-line-secondary: 232 87 29; /* laranja do logo #E8571D */
+}
+
+.dark {
+  --background: #0d1117;
+  --foreground: #e8eaf6;
+
+  /* Cor primária — laranja do logo */
+  --color-primary: 232 87 29; /* #E8571D */
+
+  /* Superfícies */
+  --color-surface: 19 27 40; /* #131b28 — cards principais */
+  --color-surface-raised: 24 34 52; /* #18223a — seções alternadas */
+  --color-surface-subtle: 30 42 64; /* #1e2a40 — fundo suave */
+
+  /* Bordas */
+  --color-border-ui: 42 54 78; /* sutil, azul escuro */
+  --color-divider: 42 54 78;
+
+  /* Texto */
+  --color-text-primary: 232 234 246; /* #e8eaf6 */
+  --color-text-secondary: 163 171 196; /* #a3abc4 */
+  --color-text-muted: 115 122 145; /* neutro médio */
+
+  /* Interações */
+  --color-item-hover: 30 42 64;
+  --color-icon-bg: 30 42 64;
+
+  /* Aliases */
+  --color-bg-card: 19 27 40;
+
+  /* Bento / cards */
+  --color-bento-section: 13 17 23;
+  --color-bento-card: 19 27 40;
+  --color-bento-card-secondary: 24 34 52;
+  --color-bento-border: 42 54 78;
+
+  /* Chart */
+  --color-chart-grid: 42 54 78;
+  --color-chart-tick: 115 122 145;
+  --color-chart-line-primary: 232 87 29; /* laranja do logo */
+  --color-chart-line-secondary: 55 150 210; /* azul do logo */
+}
+
+@layer utilities {
+  .bg-surface {
+    background-color: rgb(var(--color-surface));
+  }
+  .bg-surface-raised {
+    background-color: rgb(var(--color-surface-raised));
+  }
+  .bg-surface-subtle {
+    background-color: rgb(var(--color-surface-subtle));
+  }
+
+  /* Bordas */
+  .border-ui {
+    border-color: rgb(var(--color-border-ui));
+  }
+  .divide-ui {
+    border-color: rgb(var(--color-divider));
+  }
+
+  /* Texto */
+  .text-primary-content {
+    color: rgb(var(--color-text-primary));
+  }
+  .text-secondary-content {
+    color: rgb(var(--color-text-secondary));
+  }
+  .text-muted-content {
+    color: rgb(var(--color-text-muted));
+  }
+
+  /* Hover */
+  .hover\:bg-item-hover:hover {
+    background-color: rgb(var(--color-item-hover));
+  }
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  scroll-behavior: smooth;
+  min-width: 0;
+}
+
+.grecaptcha-badge {
+}
+
+html {
+  background-color: var(--background);
+  color: var(--foreground);
+  scrollbar-gutter: stable;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-border-ui));
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-text-muted) / 0.6);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html.cookie-consent-open {
+  overflow: hidden !important;
+}
+
+html.cookie-consent-open::before {
+  display: none;
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.glass-effect:hover {
+  transform: scale(1.01);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+/* progress bar */
+@keyframes nav-progress-1 {
+  0% {
+    left: -35%;
+    right: 100%;
+  }
+  60% {
+    left: 100%;
+    right: -90%;
+  }
+  100% {
+    left: 100%;
+    right: -90%;
+  }
+}
+
+@keyframes nav-progress-2 {
+  0% {
+    left: -200%;
+    right: 100%;
+  }
+  60% {
+    left: 107%;
+    right: -8%;
+  }
+  100% {
+    left: 107%;
+    right: -8%;
+  }
+}
+
+.nav-progress-bar-1 {
+  animation: nav-progress-1 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395)
+    infinite;
+}
+
+.nav-progress-bar-2 {
+  animation: nav-progress-2 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) 1.15s
+    infinite;
+}

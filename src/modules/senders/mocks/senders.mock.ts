@@ -1,0 +1,68 @@
+import { ISender } from '../interfaces/senders';
+
+export const sendersMock: ISender[] = [
+  {
+    id: '1',
+    sender: 'SMSILLICO',
+    createdAt: '2025-01-10T09:30:00.000Z',
+    validatedAt: '2025-01-11T14:20:00.000Z',
+    status: 'validated',
+    description: 'Remetente principal institucional da plataforma.',
+  },
+  {
+    id: '2',
+    sender: 'ZENO',
+    createdAt: '2025-01-15T11:00:00.000Z',
+    validatedAt: '2025-01-16T10:00:00.000Z',
+    status: 'validated',
+    description: 'Envio de notificações de transações e alertas.',
+  },
+  {
+    id: '3',
+    sender: 'LOJAX',
+    createdAt: '2025-02-01T15:45:00.000Z',
+    validatedAt: null,
+    status: 'pending',
+    description: 'SMS promocionais da Loja X.',
+  },
+  {
+    id: '4',
+    sender: 'ESCOLA',
+    createdAt: '2025-02-10T08:15:00.000Z',
+    validatedAt: '2025-02-12T16:30:00.000Z',
+    status: 'validated',
+    description: 'Comunicados para encarregados de educação.',
+  },
+  {
+    id: '5',
+    sender: 'CLINICA',
+    createdAt: '2025-02-18T10:20:00.000Z',
+    validatedAt: null,
+    status: 'pending',
+    description: 'Lembretes de consultas médicas e exames.',
+  },
+  {
+    id: '6',
+    sender: 'PROMO_ANG',
+    createdAt: '2025-02-20T17:00:00.000Z',
+    validatedAt: '2025-02-21T09:00:00.000Z',
+    status: 'rejected',
+    description: 'Sender recusado por inconformidade na documentação.',
+  },
+  {
+    id: '7',
+    sender: 'BANCO_XYZ',
+    createdAt: '2025-03-01T14:10:00.000Z',
+    validatedAt: '2025-03-02T11:45:00.000Z',
+    status: 'validated',
+    description: 'Códigos OTP e avisos de segurança bancária.',
+  },
+  {
+    id: '8',
+    sender: 'FARMACIA_LUA',
+    createdAt: '2025-03-05T12:00:00.000Z',
+    validatedAt: null,
+    status: 'pending',
+    description: 'Alertas de pedidos prontos para levantamento.',
+  },
+];
