@@ -85,7 +85,7 @@ export function GenerateReportModal() {
             </span>
             <div>
               <h2 className="text-lg font-semibold text-primary-content">
-                Gerar relatório
+                Exportar relatório
               </h2>
               <p className="mt-1 text-xs text-muted-content">
                 Escolha o período e exporte o resumo do dashboard em SVG.

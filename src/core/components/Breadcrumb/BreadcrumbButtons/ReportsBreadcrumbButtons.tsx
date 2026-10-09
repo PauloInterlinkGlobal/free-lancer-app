@@ -14,7 +14,7 @@ export function ReportsBreadcrumbButtons() {
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 active:scale-[0.98] sm:w-auto"
       >
         <FileSpreadsheet size={17} aria-hidden />
-        Gerar relatório
+        Exportar relatório
       </button>
     </div>
   );

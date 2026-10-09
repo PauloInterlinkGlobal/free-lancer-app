@@ -59,7 +59,7 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
             </span>
             <div>
               <h2 className="text-base font-bold text-primary-content sm:text-lg">
-                Gerar relatório
+                Exportar relatório
               </h2>
               <p className="mt-0.5 text-xs text-muted-content sm:mt-1">
                 Selecione o período para exportar o relatório em formato CSV.

@@ -14,7 +14,7 @@ export function DashboardBreadcrumbButtons() {
         className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
       >
         <FileBarChart size={16} aria-hidden />
-        Gerar relatório
+        Exportar relatório
       </button>
     </div>
   );
