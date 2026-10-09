@@ -5,13 +5,14 @@ import { useModalStore } from '@/core/store/useModalStore';
 import type { IContact } from '@/modules/contacts/contacts-geral/interfaces/contacts';
 import type { ILink } from '@/modules/links/interfaces/links';
 import { SelectContactsModal } from '@/modules/send-sms/send-sms-geral/components/Modal/AddContactsModal';
+import { ResourcePickerModal, type ResourcePickerItem } from '@/modules/send-sms/send-sms-geral/components/Modal/ResourcePickerModal';
 import { MessageEditor } from '@/modules/send-sms/send-sms-geral/components/SmsForm/MessageEditor';
 import {
   fillVariables,
   formatKz,
   getSmsInfo,
 } from '@/modules/send-sms/send-sms-geral/sms-utils';
-import { MessageSquare, Send, UserPlus, X, Zap } from 'lucide-react';
+import { MessageSquare, Send, UserPlus, X, Zap, ListFilter } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import type {
@@ -83,6 +84,7 @@ export function SmsForm({
   const [time, setTime] = useState('');
   const [isDesktop, setIsDesktop] = useState(false);
   const { openModal, closeModal } = useModalStore();
+  const [pickerType, setPickerType] = useState<'groups' | 'templates' | 'links'>('groups');
 
   useEffect(() => {
     setTime(
@@ -262,6 +264,7 @@ export function SmsForm({
             selectedIds={groupIds}
             onToggle={toggleGroup}
           />
+          <button type="button" onClick={() => { setPickerType('groups'); openModal('SELECT_SMS_RESOURCE'); }} className="inline-flex w-fit items-center gap-2 text-xs font-semibold text-primary hover:underline"><ListFilter size={14} /> Ver todos os grupos</button>
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
@@ -327,8 +330,10 @@ export function SmsForm({
           description="Escreva o texto ou parta de um modelo."
         >
           <TemplatesCard templates={templates} onSelect={setMessage} />
+          <button type="button" onClick={() => { setPickerType('templates'); openModal('SELECT_SMS_RESOURCE'); }} className="inline-flex w-fit items-center gap-2 text-xs font-semibold text-primary hover:underline"><ListFilter size={14} /> Ver todos os modelos</button>
 
           <LinksCard links={links} onInsertLink={handleInsertLink} />
+          <button type="button" onClick={() => { setPickerType('links'); openModal('SELECT_SMS_RESOURCE'); }} className="inline-flex w-fit items-center gap-2 text-xs font-semibold text-primary hover:underline"><ListFilter size={14} /> Ver todos os links</button>
 
           <MessageEditor
             value={message}
@@ -451,6 +456,19 @@ export function SmsForm({
         contacts={availableContacts}
         selected={contacts}
         onConfirm={handleConfirmContacts}
+      />
+      <ResourcePickerModal
+        type={pickerType}
+        items={pickerType === 'groups'
+          ? groups.map((group) => ({ id: group.id, title: group.name, meta: `${group.total} contactos` }))
+          : pickerType === 'templates'
+            ? templates.map((template) => ({ id: template.id, title: template.title, description: template.content }))
+            : (links ?? []).map((link) => ({ id: link.id, title: link.description, description: link.url }))}
+        onSelect={(item: ResourcePickerItem) => {
+          if (pickerType === 'groups') toggleGroup(item.id);
+          if (pickerType === 'templates') setMessage((current) => current ? `${current} ${item.description ?? ''}` : item.description ?? '');
+          if (pickerType === 'links') handleInsertLink(item.description ?? '');
+        }}
       />
     </form>
   );
