@@ -16,7 +16,17 @@ export function ResourcePickerModal({ type, items, onSelect }: Props) {
   const { activeModal, closeModal } = useModalStore();
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
-  const filtered = useMemo(() => items.filter((item) => `${item.title} ${item.description ?? ''} ${item.meta ?? ''}`.toLowerCase().includes(query.toLowerCase())), [items, query]);
+  const normalize = (value: string) =>
+    value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const filtered = useMemo(() => {
+    const normalizedQuery = normalize(query.trim());
+    if (!normalizedQuery) return items;
+    return items.filter((item) =>
+      normalize(`${item.title} ${item.description ?? ''} ${item.meta ?? ''}`).includes(
+        normalizedQuery
+      )
+    );
+  }, [items, query]);
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
   const pageItems = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
