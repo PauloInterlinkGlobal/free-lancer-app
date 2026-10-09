@@ -38,18 +38,38 @@ const columns = (
   {
     key: 'name',
     header: 'Nome do contacto',
-    render: (contact) => (
-      <span className="font-medium text-primary-content">{contact.name}</span>
-    ),
+    render: (contact) => {
+      const fullName = contact.surname
+        ? `${contact.name} ${contact.surname}`
+        : contact.name;
+      return (
+        <span className="font-medium text-primary-content">{fullName}</span>
+      );
+    },
   },
   {
     key: 'number',
     header: 'Número',
+    render: (contact) => (
+      <div className="flex flex-col">
+        <span className="font-mono text-sm text-primary-content">
+          {contact.number}
+        </span>
+        {contact.email && (
+          <span
+            className="truncate max-w-[200px] text-xs text-muted-content"
+            title={contact.email}
+          >
+            {contact.email}
+          </span>
+        )}
+      </div>
+    ),
   },
   {
     key: 'sex',
     header: 'Sexo',
-    render: (contact) => sexLabel[contact.sex],
+    render: (contact) => (contact.sex ? sexLabel[contact.sex] : '—'),
   },
   {
     key: 'date',

@@ -2,6 +2,7 @@
 
 import { usePathBreadcrumb } from '@/core/hooks/use-path-breadcrumb';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
+import { useModalStore } from '@/core/store/useModalStore';
 import { ContactsBreadcrumbButtons } from './BreadcrumbButtons/ContactsBreadcrumbButtons';
 import { HistoryBreadcrumbButtons } from './BreadcrumbButtons/HistoryBreadcrumbButtons';
 import { ReportsBreadcrumbButtons } from './BreadcrumbButtons/ReportsBreadcrumbButtons';
@@ -11,6 +12,7 @@ import { LinksBreadcrumbButtons } from './BreadcrumbButtons/LinksBreadcrumbButto
 
 export function BreadcrumbClient() {
   const { title, description } = usePathBreadcrumb();
+  const { openModal } = useModalStore();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -47,7 +49,7 @@ export function BreadcrumbClient() {
         <ContactsBreadcrumbButtons
           onImport={() => router.push('/contacts/import')}
           onExport={() => console.log('Exportar contactos')}
-          onAdd={() => console.log('Adicionar contacto')}
+          onAdd={() => openModal('ADD_CONTACT')}
         />
       );
     }
