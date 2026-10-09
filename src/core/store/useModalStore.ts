@@ -19,6 +19,8 @@ export type ModalType =
   | 'DELETE_SCHEDULED_SMS'
   | 'GENERATE_DASHBOARD_REPORT'
   | 'GENERATE_REPORT'
+  | 'ADD_LINK'
+  | 'DELETE_LINK'
   | null;
 
 type State = {

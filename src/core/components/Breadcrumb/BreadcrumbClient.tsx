@@ -9,6 +9,7 @@ import { HistoryBreadcrumbButtons } from './BreadcrumbButtons/HistoryBreadcrumbB
 import { ReportsBreadcrumbButtons } from './BreadcrumbButtons/ReportsBreadcrumbButtons';
 import { SendersBreadcrumbButtons } from './BreadcrumbButtons/SendersBreadcrumbButtons';
 import { TemplatesBreadcrumbButtons } from './BreadcrumbButtons/TemplatesBreadcrumbButtons';
+import { LinksBreadcrumbButtons } from './BreadcrumbButtons/LinksBreadcrumbButtons';
 
 export function BreadcrumbClient() {
   const { title, description } = usePathBreadcrumb();
@@ -31,6 +32,7 @@ export function BreadcrumbClient() {
     lastSegment === 'reports' || lastSegment === 'relatorios';
   const isTemplatesPage =
     lastSegment === 'sms-template' || lastSegment === 'template';
+  const isLinksPage = lastSegment === 'links';
 
   const renderActions = () => {
     if (isHistory) {
@@ -62,6 +64,10 @@ export function BreadcrumbClient() {
 
     if (isTemplatesPage) {
       return <TemplatesBreadcrumbButtons />;
+    }
+
+    if (isLinksPage) {
+      return <LinksBreadcrumbButtons />;
     }
 
     return null;

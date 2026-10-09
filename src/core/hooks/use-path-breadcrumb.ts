@@ -91,6 +91,10 @@ const SEGMENTS: Record<string, SegmentInfo> = {
     label: 'Modelos',
     description: 'Gere os teus modelos de mensagem.',
   },
+  links: {
+    label: 'Links',
+    description: 'Gere os links que usa nas suas mensagens.',
+  },
   reports: {
     label: 'Relatórios',
     description: 'Acompanhe o desempenho e as estatísticas dos seus envios.',

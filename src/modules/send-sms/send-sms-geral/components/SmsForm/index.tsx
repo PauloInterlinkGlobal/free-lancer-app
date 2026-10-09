@@ -3,6 +3,7 @@
 import { SelectPopup } from '@/core/components/Select';
 import { useModalStore } from '@/core/store/useModalStore';
 import type { IContact } from '@/modules/contacts/contacts-geral/interfaces/contacts';
+import type { ILink } from '@/modules/links/interfaces/links';
 import { SelectContactsModal } from '@/modules/send-sms/send-sms-geral/components/Modal/AddContactsModal';
 import { MessageEditor } from '@/modules/send-sms/send-sms-geral/components/SmsForm/MessageEditor';
 import {
@@ -32,6 +33,7 @@ interface SmsFormProps {
   groups: IContactGroup[];
   templates: ISmsTemplate[];
   availableContacts: IContact[];
+  links?: ILink[];
   loading?: boolean;
   pricePerSms?: number;
   balance?: number;
@@ -67,6 +69,7 @@ export function SmsForm({
   onSendTest,
   onSubmit,
   availableContacts,
+  links,
 }: SmsFormProps) {
   const [type, setType] = useState<SmsType>('normal');
   const [senderId, setSenderId] = useState('');
@@ -325,7 +328,7 @@ export function SmsForm({
         >
           <TemplatesCard templates={templates} onSelect={setMessage} />
 
-          <LinksCard onInsertLink={handleInsertLink} />
+          <LinksCard links={links} onInsertLink={handleInsertLink} />
 
           <MessageEditor
             value={message}
