@@ -5,6 +5,7 @@ import { useToastStore } from '@/core/store';
 import { ILink } from '@/modules/links/interfaces/links';
 import { Check, Link2 } from 'lucide-react';
 import { useState } from 'react';
+import { PickerTrigger } from '../PickerTrigger';
 
 interface LinksCardProps {
   links?: ILink[];
@@ -31,13 +32,19 @@ export function LinksCard({ links = [], onInsertLink }: LinksCardProps) {
           Inserir links na mensagem
         </span>
 
-        <Link
-          href="/links"
-          className="inline-flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:underline"
-        >
-          <Link2 size={13} aria-hidden />
-          Gerir links
-        </Link>
+        <div className="flex items-center gap-2">
+          {links.length > 0 && (
+            <PickerTrigger id="PICK_LINKS" label="Ver todos" />
+          )}
+
+          <Link
+            href="/links"
+            className="inline-flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:underline"
+          >
+            <Link2 size={13} aria-hidden />
+            Gerir links
+          </Link>
+        </div>
       </div>
 
       {links.length === 0 ? (

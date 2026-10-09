@@ -1,19 +1,21 @@
 'use client';
 
+import { VariablesDropdown } from '@/core/components/VariablesDropdown';
+import { contactsMock } from '@/modules/contacts/contacts-geral/mocks/contacts.mock';
+import { collectCustomVariableKeys } from '@/modules/contacts/contacts-geral/utils/collectCustomVariableKeys';
 import {
   getSmsInfo,
   removeAccents,
 } from '@/modules/send-sms/send-sms-geral/sms-utils';
 import { FlaskConical } from 'lucide-react';
-import { useRef } from 'react';
-
-const VARIABLES = ['nome', 'empresa'];
+import { useMemo, useRef } from 'react';
 
 interface MessageEditorProps {
   value: string;
   onChange: (value: string) => void;
   onSendTest?: () => void;
   testing?: boolean;
+  customKeys?: string[];
 }
 
 function SegmentRing({
@@ -63,18 +65,23 @@ export function MessageEditor({
   onChange,
   onSendTest,
   testing,
+  customKeys,
 }: MessageEditorProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const info = getSmsInfo(value);
+
+  const availableCustomKeys = useMemo(
+    () => customKeys ?? collectCustomVariableKeys(contactsMock),
+    [customKeys]
+  );
 
   // Poupança possível ao remover acentos
   const stripped = getSmsInfo(removeAccents(value));
   const canSaveByStripping =
     !info.isGsm && stripped.isGsm && stripped.segments < info.segments;
 
-  function insertVariable(name: string) {
+  function insertVariableToken(token: string) {
     const el = ref.current;
-    const token = `{${name}}`;
     if (!el) return onChange(value + token);
 
     const start = el.selectionStart ?? value.length;
@@ -99,17 +106,10 @@ export function MessageEditor({
         </label>
 
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-muted-content">Inserir:</span>
-          {VARIABLES.map((v) => (
-            <button
-              key={v}
-              type="button"
-              onClick={() => insertVariable(v)}
-              className="rounded-full border border-border-ui bg-surface px-2.5 py-0.5 text-xs font-medium text-primary transition-colors hover:bg-item-hover"
-            >
-              {`{${v}}`}
-            </button>
-          ))}
+          <VariablesDropdown
+            onSelect={insertVariableToken}
+            customKeys={availableCustomKeys}
+          />
         </div>
       </div>
 

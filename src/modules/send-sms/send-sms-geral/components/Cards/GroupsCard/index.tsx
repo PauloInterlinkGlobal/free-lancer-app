@@ -4,6 +4,7 @@ import { Check, ChevronLeft, ChevronRight, UsersRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import type { IContactGroup } from '../../../interfaces';
+import { PickerTrigger } from '../../PickerTrigger';
 
 interface GroupsCardProps {
   groups: IContactGroup[];
@@ -27,16 +28,18 @@ export function GroupsCard({ groups, selectedIds, onToggle }: GroupsCardProps) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-medium text-primary-content">
-          Grupos de contactos
-        </span>
-
-        {selectedIds.length > 0 && (
-          <span className="text-xs font-medium text-primary">
-            {selectedIds.length} selecionado
-            {selectedIds.length === 1 ? '' : 's'}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-primary-content">
+            Grupos de contactos
           </span>
-        )}
+          {selectedIds.length > 0 && (
+            <span className="text-xs font-medium text-primary">
+              ({selectedIds.length} selecionado{selectedIds.length === 1 ? '' : 's'})
+            </span>
+          )}
+        </div>
+
+        <PickerTrigger id="PICK_GROUPS" count={selectedIds.length} />
       </div>
 
       {groups.length === 0 ? (

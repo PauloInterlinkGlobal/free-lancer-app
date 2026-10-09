@@ -21,6 +21,9 @@ export type ModalType =
   | 'GENERATE_REPORT'
   | 'ADD_LINK'
   | 'DELETE_LINK'
+  | 'PICK_GROUPS'
+  | 'PICK_TEMPLATES'
+  | 'PICK_LINKS'
   | null;
 
 type State = {
