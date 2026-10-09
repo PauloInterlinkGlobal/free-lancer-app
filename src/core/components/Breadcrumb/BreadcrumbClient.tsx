@@ -1,7 +1,5 @@
 'use client';
 
-import { Menu } from 'lucide-react';
-
 import { usePathBreadcrumb } from '@/core/hooks/use-path-breadcrumb';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
 import { ContactsBreadcrumbButtons } from './BreadcrumbButtons/ContactsBreadcrumbButtons';
@@ -76,28 +74,16 @@ export function BreadcrumbClient() {
   return (
     <div className="flex w-full flex-col justify-between gap-4 md:flex-row md:items-center">
       <div className="flex min-w-0 flex-col gap-3">
-        <div className="flex items-center gap-2">
-          {/* Mobile e tablet: botão de ícone de menu/lista que abre o menu */}
-          <button
-            type="button"
-            onClick={() => router.push('/menu')}
-            aria-label="Abrir menu"
-            className="-ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-primary-content transition-colors hover:bg-surface-raised active:bg-surface-subtle lg:hidden"
-          >
-            <Menu size={24} aria-hidden />
-          </button>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <h1 className="truncate text-xl font-bold leading-tight text-primary-content md:text-2xl">
+            {title}
+          </h1>
 
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <h1 className="truncate text-xl font-bold leading-tight text-primary-content md:text-2xl">
-              {title}
-            </h1>
-
-            {description && (
-              <p className="line-clamp-1 text-xs text-muted-content md:text-sm">
-                {description}
-              </p>
-            )}
-          </div>
+          {description && (
+            <p className="line-clamp-1 text-xs text-muted-content md:text-sm">
+              {description}
+            </p>
+          )}
         </div>
       </div>
 
