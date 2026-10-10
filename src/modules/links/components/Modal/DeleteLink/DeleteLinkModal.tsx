@@ -2,7 +2,7 @@
 
 import { DeleteModal } from '@/core/components/Modal/DeleteModal';
 import { useModalStore } from '@/core/store/useModalStore';
-import { ILink } from '../../../interfaces/links';
+import type { ILink } from '../../../interfaces/links';
 
 interface DeleteLinkModalProps {
   link: ILink | null;
@@ -24,6 +24,7 @@ export function DeleteLinkModal({
 
   const handleConfirm = () => {
     if (!link) return;
+    // TODO(api): substituir pela chamada ao serviço de eliminação de links.
     onConfirm(link);
     handleClose();
   };

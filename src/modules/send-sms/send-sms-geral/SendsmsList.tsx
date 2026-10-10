@@ -11,7 +11,9 @@ import {
 
 export function SendsmsList() {
   // TODO(api): Substituir por chamada ao serviço de links aprovados quando a API estiver disponível.
-  const approvedLinks = linksMock.filter((link) => link.status === 'approved');
+  const approvedLinks = linksMock
+    .filter((link) => link.status === 'approved')
+    .map(({ id, description, url }) => ({ id, description, url }));
 
   return (
     <section className="flex flex-col gap-6">

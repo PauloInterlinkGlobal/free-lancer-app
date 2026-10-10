@@ -10,9 +10,18 @@ import {
   getSmsInfo,
   formatSms,
 } from '@/modules/send-sms/send-sms-geral/sms-utils';
-import { MessageSquare, Send, UserPlus, X, Zap } from 'lucide-react';
+import {
+  FileText,
+  Link2,
+  MessageSquare,
+  Send,
+  UserPlus,
+  UsersRound,
+  X,
+  Zap,
+} from 'lucide-react';
 import { Link } from '@/core/i18n/navigation';
-import type { ILink } from '@/modules/links/interfaces/links';
+import type { ApprovedLink } from '@/modules/links/services/links.service';
 import { useEffect, useMemo, useState } from 'react';
 import type {
   IContactGroup,
@@ -23,6 +32,7 @@ import type {
 } from '../../interfaces';
 import { GroupsCard } from '../Cards/GroupsCard';
 import { LinksCard } from '../Cards/LinksCard';
+import { ItemPickerModal } from '../Modal/ItemPickerModal';
 import { TemplatesCard } from '../Cards/TemplatesCard';
 import { PhonePreview } from '../PhonePreview';
 import { SectionCard } from '../SectionCard';
@@ -33,7 +43,7 @@ interface SmsFormProps {
   groups: IContactGroup[];
   templates: ISmsTemplate[];
   availableContacts: IContact[];
-  links?: ILink[];
+  links?: ApprovedLink[];
   loading?: boolean;
   balance?: number;
   onSendTest?: (message: string) => void | Promise<void>;
@@ -72,6 +82,8 @@ export function SmsForm({
   const [type, setType] = useState<SmsType>('normal');
   const [senderId, setSenderId] = useState('');
   const [groupIds, setGroupIds] = useState<string[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [selectedLinkIds, setSelectedLinkIds] = useState<string[]>([]);
   const [contacts, setContacts] = useState<string[]>([]);
   const [message, setMessage] = useState('');
   const [scheduled, setScheduled] = useState(false);
@@ -113,12 +125,6 @@ export function SmsForm({
     (groupIds.length > 0 || contacts.length > 0) &&
     !insufficientBalance &&
     !loading;
-
-  function toggleGroup(id: string) {
-    setGroupIds((prev) =>
-      prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]
-    );
-  }
 
   function removeContact(contact: string) {
     setContacts((prev) => prev.filter((c) => c !== contact));
@@ -244,7 +250,7 @@ export function SmsForm({
           <GroupsCard
             groups={groups}
             selectedIds={groupIds}
-            onToggle={toggleGroup}
+            onChange={setGroupIds}
           />
 
           <div className="flex flex-col gap-2">
@@ -311,9 +317,21 @@ export function SmsForm({
           title="Mensagem"
           description="Escreva o texto ou parta de um modelo."
         >
-          <TemplatesCard templates={templates} onSelect={setMessage} />
+          <TemplatesCard
+            templates={templates}
+            selectedId={selectedTemplateId}
+            onSelect={(tpl) => {
+              setSelectedTemplateId(tpl?.id ?? null);
+              if (tpl) setMessage(tpl.content);
+            }}
+          />
 
-          <LinksCard onInsertLink={handleInsertLink} />
+          <LinksCard
+            links={links ?? []}
+            selectedIds={selectedLinkIds}
+            onChange={setSelectedLinkIds}
+            onInsertLink={handleInsertLink}
+          />
 
           <MessageEditor
             value={message}
@@ -431,6 +449,63 @@ export function SmsForm({
           />
         </div>
       </aside>
+
+      
+      <ItemPickerModal
+        id="PICK_GROUPS"
+        title="Seleccionar grupos"
+        description="Escolha os grupos de contactos para este envio."
+        icon={UsersRound}
+        items={groups.map((g) => ({
+          id: g.id,
+          title: g.name,
+          subtitle: `${g.total} contactos`,
+        }))}
+        selectedIds={groupIds}
+        mode="multiple"
+        confirmLabel="Confirmar grupos"
+        emptyMessage="Nenhum grupo disponível."
+        onConfirm={setGroupIds}
+      />
+
+      <ItemPickerModal
+        id="PICK_TEMPLATES"
+        title="Seleccionar modelo"
+        description="Escolha um modelo para preencher a mensagem."
+        icon={FileText}
+        items={templates.map((t) => ({
+          id: t.id,
+          title: t.title,
+          subtitle: t.content,
+        }))}
+        selectedIds={selectedTemplateId ? [selectedTemplateId] : []}
+        mode="single"
+        confirmLabel="Usar modelo"
+        emptyMessage="Nenhum modelo disponível."
+        onConfirm={(ids) => {
+          const id = ids[0] ?? null;
+          setSelectedTemplateId(id);
+          const tpl = templates.find((t) => t.id === id);
+          if (tpl) setMessage(tpl.content);
+        }}
+      />
+
+      <ItemPickerModal
+        id="PICK_LINKS"
+        title="Seleccionar links"
+        description="Escolha os links aprovados para inserir na mensagem."
+        icon={Link2}
+        items={(links ?? []).map((l) => ({
+          id: l.id,
+          title: l.description,
+          subtitle: l.url,
+        }))}
+        selectedIds={selectedLinkIds}
+        mode="multiple"
+        confirmLabel="Confirmar links"
+        emptyMessage="Nenhum link aprovado disponível."
+        onConfirm={setSelectedLinkIds}
+      />
 
       <SelectContactsModal
         contacts={availableContacts}

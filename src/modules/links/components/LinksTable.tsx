@@ -2,10 +2,10 @@
 
 import { Table, type Column } from '@/core/components/Table';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
-import { useSearchParams } from 'next/navigation';
 import { AlertCircle, CheckCircle2, Clock, Trash2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { linkStatusLabel, linkStatusStyles } from '../constants/links';
-import { ILink, LinkStatus } from '../interfaces/links';
+import type { ILink, LinkStatus } from '../interfaces/links';
 
 const dateFormatter = new Intl.DateTimeFormat('pt-PT', {
   day: '2-digit',
@@ -29,7 +29,7 @@ const statusIcons: Record<LinkStatus, typeof CheckCircle2> = {
   rejected: AlertCircle,
 };
 
-const columns = (onDelete: (item: ILink) => void): Column<ILink>[] => [
+const columns = (onDelete: (link: ILink) => void): Column<ILink>[] => [
   {
     key: 'description',
     header: 'Descrição',

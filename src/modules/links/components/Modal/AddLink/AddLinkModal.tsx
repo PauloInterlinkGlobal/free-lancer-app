@@ -6,7 +6,14 @@ import { useToastStore } from '@/core/store/toast.store';
 import { useModalStore } from '@/core/store/useModalStore';
 import { Info, Link2, X } from 'lucide-react';
 import { useState } from 'react';
-import { isValidUrl, normalizeUrl } from '../../../utils/link-validation';
+import {
+  isValidUrl,
+  MAX_DESCRIPTION_LENGTH,
+  MIN_DESCRIPTION_LENGTH,
+  normalizeUrl,
+} from '../../../utils/link-validation';
+
+const DEFAULT_URL_PREFIX = 'https://';
 
 interface AddLinkModalProps {
   existingUrls: string[];
@@ -22,13 +29,13 @@ export function AddLinkModal({
   const { closeModal } = useModalStore();
   const { success } = useToastStore();
 
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState(DEFAULT_URL_PREFIX);
   const [description, setDescription] = useState('');
   const [urlError, setUrlError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
 
   const resetForm = () => {
-    setUrl('');
+    setUrl(DEFAULT_URL_PREFIX);
     setDescription('');
     setUrlError('');
     setDescriptionError('');
@@ -55,9 +62,8 @@ export function AddLinkModal({
 
     let hasError = false;
 
-    // Validação da URL
     const rawUrl = url.trim();
-    if (!rawUrl) {
+    if (!rawUrl || rawUrl === 'https://' || rawUrl === 'http://') {
       setUrlError('O URL é obrigatório.');
       hasError = true;
     } else {
@@ -77,47 +83,47 @@ export function AddLinkModal({
       }
     }
 
-    // Validação da Descrição (3 a 120 caracteres)
-    const trimmedDesc = description.trim();
-    if (!trimmedDesc) {
+    const trimmedDescription = description.trim();
+    if (!trimmedDescription) {
       setDescriptionError('A descrição é obrigatória.');
       hasError = true;
-    } else if (trimmedDesc.length < 3) {
-      setDescriptionError('A descrição deve ter no mínimo 3 caracteres.');
+    } else if (trimmedDescription.length < MIN_DESCRIPTION_LENGTH) {
+      setDescriptionError(
+        `A descrição deve ter no mínimo ${MIN_DESCRIPTION_LENGTH} caracteres.`
+      );
       hasError = true;
-    } else if (trimmedDesc.length > 120) {
-      setDescriptionError('A descrição não pode ter mais de 120 caracteres.');
+    } else if (trimmedDescription.length > MAX_DESCRIPTION_LENGTH) {
+      setDescriptionError(
+        `A descrição não pode ter mais de ${MAX_DESCRIPTION_LENGTH} caracteres.`
+      );
       hasError = true;
     }
 
     if (hasError) return;
 
-    const finalUrl = normalizeUrl(rawUrl);
-    // TODO(api): Chamar endpoint de criação de link quando a API estiver disponível.
-    onCreate({
-      url: finalUrl,
-      description: trimmedDesc,
-    });
+    const normalizedUrl = normalizeUrl(rawUrl);
 
+    // TODO(api): substituir pela chamada ao serviço de criação de links.
+    onCreate({ url: normalizedUrl, description: trimmedDescription });
     success('Link submetido para revisão');
     handleClose();
   };
 
   return (
     <Modal id="ADD_LINK" onClose={handleClose}>
-      <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-border-ui bg-surface shadow-2xl">
+      <div className="w-full max-w-lg overflow-hidden rounded-xl border border-border-ui bg-surface shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-dashed border-border-ui px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Link2 className="h-4 w-4" aria-hidden />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center text-primary">
+              <Link2 className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-primary-content">
-                Submeter Novo Link
+              <h2 className="text-sm font-medium text-primary-content">
+                Adicionar Link
               </h2>
               <p className="text-xs text-muted-content">
-                Cadastre um link para utilizar nas suas campanhas de SMS.
+                Submeta um URL para revisão e utilização nas mensagens.
               </p>
             </div>
           </div>
@@ -126,22 +132,26 @@ export function AddLinkModal({
             type="button"
             onClick={handleClose}
             aria-label="Fechar"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-content transition-colors hover:bg-surface-raised hover:text-primary-content"
+            className="rounded-lg p-1.5 text-muted-content transition-colors hover:bg-item-hover hover:text-primary-content"
           >
-            <X size={18} />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-5">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4 px-5 py-4"
+          noValidate
+        >
           <div className="flex flex-col gap-1.5">
             <Input
-              label="URL do Link *"
-              placeholder="Ex: https://meusite.ao ou meusite.ao/promo"
+              id="link-url"
+              name="url"
+              label="URL"
+              placeholder="https://exemplo.ao/campanha"
               value={url}
               onChange={(e) => handleUrlChange(e.target.value)}
               error={urlError}
-              helperText="Pode omitir https:// — será adicionado automaticamente."
               autoFocus
             />
           </div>
@@ -150,24 +160,25 @@ export function AddLinkModal({
             <div className="flex items-center justify-between">
               <label
                 htmlFor="link-description"
-                className="text-sm font-medium text-primary-content"
+                className="text-sm font-medium text-neutral-900 dark:text-neutral-200"
               >
-                Descrição *
+                Descrição
               </label>
               <span
-                className={`text-xs ${
-                  description.length > 120
-                    ? 'font-medium text-rose-500'
+                className={`text-[11px] tabular-nums ${
+                  description.length > MAX_DESCRIPTION_LENGTH
+                    ? 'text-rose-500'
                     : 'text-muted-content'
                 }`}
               >
-                {description.length}/120
+                {description.length}/{MAX_DESCRIPTION_LENGTH}
               </span>
             </div>
             <textarea
               id="link-description"
+              name="description"
               rows={3}
-              maxLength={120}
+              maxLength={MAX_DESCRIPTION_LENGTH}
               value={description}
               onChange={(e) => handleDescriptionChange(e.target.value)}
               placeholder="Ex: Página promocional da campanha de Verão com 20% de desconto."
@@ -181,7 +192,8 @@ export function AddLinkModal({
               <span className="text-xs text-rose-500">{descriptionError}</span>
             )}
             <span className="text-[11px] text-muted-content">
-              Breve identificação da finalidade do link (mínimo 3 caracteres).
+              Breve identificação da finalidade do link (mínimo{' '}
+              {MIN_DESCRIPTION_LENGTH} caracteres).
             </span>
           </div>
 

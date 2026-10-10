@@ -15,12 +15,12 @@ import { LinksFilters } from './LinksFilters';
 import { LinksTable } from './LinksTable';
 import { AddLinkModal, DeleteLinkModal } from './Modal';
 
-interface LinksListProps {
+interface LinksListClientProps {
   initialData: ILink[];
   filters: LinksFiltersValue;
 }
 
-export function LinksList({ initialData, filters }: LinksListProps) {
+export function LinksListClient({ initialData, filters }: LinksListClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -28,14 +28,14 @@ export function LinksList({ initialData, filters }: LinksListProps) {
   const { openModal } = useModalStore();
   const { success } = useToastStore();
 
-  // TODO(api): substituir o estado local pela resposta da API de links.
   const [links, setLinks] = useState<ILink[]>(initialData);
   const [selectedLink, setSelectedLink] = useState<ILink | null>(null);
 
+  // Aplica filtros e paginação aos links do estado
   const filtered = filterLinks(links, filters);
   const { items, currentPage, totalPages } = paginate(filtered, filters.page);
 
-  // Ao eliminar o último item de uma página, recua para uma página válida.
+  // Garante que, ao eliminar o último item de uma página, recua para uma página válida
   useEffect(() => {
     if (filters.page > totalPages && totalPages > 0) {
       const params = new URLSearchParams(searchParams.toString());
@@ -50,7 +50,7 @@ export function LinksList({ initialData, filters }: LinksListProps) {
   }, [filters.page, totalPages, pathname, router, searchParams]);
 
   const handleCreate = (values: { url: string; description: string }) => {
-    // TODO(api): substituir criação local por chamada de API quando disponível.
+    // TODO(api): Substituir criação local por chamada de API quando disponível.
     const newLink: ILink = {
       id: `link-${Date.now()}`,
       description: values.description,
@@ -69,14 +69,14 @@ export function LinksList({ initialData, filters }: LinksListProps) {
   };
 
   const handleDelete = (link: ILink) => {
-    // TODO(api): substituir remoção local por chamada de API quando disponível.
+    // TODO(api): Substituir remoção local por chamada de API quando disponível.
     setLinks((prev) => prev.filter((l) => l.id !== link.id));
     success(`Link "${link.description}" eliminado com sucesso!`);
     setSelectedLink(null);
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <>
       <LinksFilters />
 
       <LinksTable
@@ -96,6 +96,6 @@ export function LinksList({ initialData, filters }: LinksListProps) {
         onConfirm={handleDelete}
         onClose={() => setSelectedLink(null)}
       />
-    </div>
+    </>
   );
 }

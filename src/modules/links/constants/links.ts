@@ -1,4 +1,4 @@
-import { LinkStatus } from '../interfaces/links';
+import type { LinkStatus } from '../interfaces/links';
 
 export const ALL = 'all';
 

@@ -9,3 +9,9 @@ export interface ILink {
   status: LinkStatus;
   rejectionReason?: string;
 }
+
+export interface ILinksFilters {
+  search?: string;
+  status?: LinkStatus | 'all';
+  page: number;
+}

@@ -68,7 +68,9 @@ const formatCampaignDate = (value: string) => {
     : campaignDateFormatter.format(date);
 };
 
-export function buildCampaignReportCsv(
+export type ReportExportFormat = 'csv' | 'xlsx';
+
+export function buildCampaignReportRows(
   campaigns: ICampaignReport[],
   period: ReportExportPeriod,
   now: Date = new Date()
@@ -155,12 +157,29 @@ export function buildCampaignReportCsv(
     ]),
   ];
 
+  return {
+    rows,
+    campaignCount: periodCampaigns.length,
+    baseFileName: `relatorio-${period}-${startDate}-${endDate}`,
+  };
+}
+
+export function buildCampaignReportCsv(
+  campaigns: ICampaignReport[],
+  period: ReportExportPeriod,
+  now: Date = new Date()
+) {
+  const { rows, campaignCount, baseFileName } = buildCampaignReportRows(
+    campaigns,
+    period,
+    now
+  );
   const csv = rows.map((row) => row.map(escapeCsvCell).join(';')).join('\r\n');
 
   return {
     csv: `\uFEFF${csv}`,
-    campaignCount: periodCampaigns.length,
-    fileName: `relatorio-${period}-${startDate}-${endDate}.csv`,
+    campaignCount,
+    fileName: `${baseFileName}.csv`,
   };
 }
 
@@ -181,4 +200,37 @@ export function downloadCampaignReportCsv(
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 
   return report;
+}
+
+export function downloadCampaignReportXlsx(
+  campaigns: ICampaignReport[],
+  period: ReportExportPeriod
+) {
+  const { rows, campaignCount, baseFileName } = buildCampaignReportRows(
+    campaigns,
+    period
+  );
+  const fileName = `${baseFileName}.xlsx`;
+
+  // xlsx is a dependency of the project (see package.json).
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const XLSX = require('xlsx') as typeof import('xlsx');
+  const sheet = XLSX.utils.aoa_to_sheet(rows);
+  const book = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(book, sheet, 'Relatório');
+  XLSX.writeFile(book, fileName);
+
+  return { campaignCount, fileName };
+}
+
+/** Descarrega o relatório no formato pedido (CSV ou XLSX). */
+export function downloadCampaignReport(
+  campaigns: ICampaignReport[],
+  period: ReportExportPeriod,
+  format: ReportExportFormat = 'csv'
+) {
+  if (format === 'xlsx') {
+    return downloadCampaignReportXlsx(campaigns, period);
+  }
+  return downloadCampaignReportCsv(campaigns, period);
 }

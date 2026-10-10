@@ -6,6 +6,7 @@ import { ApiIntegrationBreadcrumbButtons } from './BreadcrumbButtons/ApiIntegrat
 import { ContactsBreadcrumbButtons } from './BreadcrumbButtons/ContactsBreadcrumbButtons';
 import { HistoryBreadcrumbButtons } from './BreadcrumbButtons/HistoryBreadcrumbButtons';
 import { ReportsBreadcrumbButtons } from './BreadcrumbButtons/ReportsBreadcrumbButtons';
+import { LinksBreadcrumbButtons } from './BreadcrumbButtons/LinksBreadcrumbButtons';
 import { SendersBreadcrumbButtons } from './BreadcrumbButtons/SendersBreadcrumbButtons';
 
 export function BreadcrumbClient() {
@@ -30,6 +31,7 @@ export function BreadcrumbClient() {
   const isApiIntegrationPage = lastSegment === 'api-integration';
   const isTemplatesPage =
     lastSegment === 'sms-template' || lastSegment === 'template';
+  const isLinksPage = lastSegment === 'links';
 
   const renderActions = () => {
     if (isHistory) {
@@ -53,6 +55,10 @@ export function BreadcrumbClient() {
 
     if (isSendersPage) {
       return <SendersBreadcrumbButtons />;
+    }
+
+    if (isLinksPage) {
+      return <LinksBreadcrumbButtons />;
     }
 
     if (isApiIntegrationPage) {

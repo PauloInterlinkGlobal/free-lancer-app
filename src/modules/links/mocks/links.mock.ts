@@ -1,4 +1,4 @@
-import { ILink } from '../interfaces/links';
+import type { ILink } from '../interfaces/links';
 
 // TODO(api): Substituir por chamada ao serviço de links quando a API estiver disponível.
 export const linksMock: ILink[] = [

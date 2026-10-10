@@ -1,5 +1,5 @@
 import { IContact } from '@/modules/contacts/contacts-geral/interfaces/contacts';
-import { ILink } from '@/modules/links/interfaces/links';
+import type { ApprovedLink } from '@/modules/links/services/links.service';
 import {
   IContactGroup,
   ISendSmsPayload,
@@ -12,7 +12,7 @@ export interface SmsFormProps {
   groups: IContactGroup[];
   templates: ISmsTemplate[];
   availableContacts: IContact[];
-  links?: ILink[];
+  links?: ApprovedLink[];
   loading?: boolean;
   balance?: number;
   onSendTest?: (message: string) => Promise<void>;

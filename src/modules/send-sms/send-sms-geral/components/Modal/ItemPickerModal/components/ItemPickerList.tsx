@@ -83,23 +83,18 @@ export function ItemPickerList({
               }`}
             >
               <div className="flex items-center gap-3 min-w-0 flex-1">
-                {/* Indicador de Selecção (Checkbox ou Radio) */}
+                {/* Indicador de selecção — estilo checkbox em ambos os modos */}
                 <div
-                  className={`flex h-5 w-5 shrink-0 items-center justify-center border transition-all ${
-                    mode === 'single' ? 'rounded-full' : 'rounded'
-                  } ${
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all ${
                     isSelected
                       ? 'border-primary bg-primary text-white'
                       : 'border-border-ui bg-surface'
                   }`}
                   aria-hidden
                 >
-                  {isSelected &&
-                    (mode === 'single' ? (
-                      <div className="h-2 w-2 rounded-full bg-white" />
-                    ) : (
-                      <Check className="h-3.5 w-3.5 stroke-[3]" />
-                    ))}
+                  {isSelected && (
+                    <Check className="h-3.5 w-3.5 stroke-[3]" />
+                  )}
                 </div>
 
                 {/* Conteúdo textual */}
