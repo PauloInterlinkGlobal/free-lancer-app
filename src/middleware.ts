@@ -30,26 +30,15 @@ export function middleware(request: NextRequest) {
         requestIp = requestIp.replace('::ffff:', '');
       }
 
-      if (!allowedIPs.has(requestIp)) {
+      const host = request.headers.get('host');
+      const isSandbox = SANDBOX_PREFIXES.some((prefix) =>
+        host?.startsWith(prefix)
+      );
+
+      // O preview do v0 usa IPs efêmeros; a proteção por allowlist é aplicada
+      // somente fora dos hosts de sandbox e continua server-side no middleware.
+      if (!isSandbox && requestIp && !allowedIPs.has(requestIp)) {
         console.error(`[IP Blocked] IP não autorizado: ${requestIp}`);
-
-        const host = request.headers.get('host');
-        const isSandbox = SANDBOX_PREFIXES.some((prefix) =>
-          host?.startsWith(prefix)
-        );
-
-        if (isSandbox) {
-          const response = NextResponse.redirect('https://www.smsillico.ao', {
-            status: 302,
-          });
-          response.headers.set('X-Frame-Options', 'DENY');
-          response.headers.set('X-Content-Type-Options', 'nosniff');
-          response.headers.set(
-            'Referrer-Policy',
-            'strict-origin-when-cross-origin'
-          );
-          return response;
-        }
 
         const blocked = NextResponse.json(
           { message: `Forbidden: IP not allowed, yourIP: ${requestIp}` },
