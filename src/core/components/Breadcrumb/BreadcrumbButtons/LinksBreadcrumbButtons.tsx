@@ -7,9 +7,7 @@ interface LinksBreadcrumbButtonsProps {
   onAdd?: () => void;
 }
 
-export function LinksBreadcrumbButtons({
-  onAdd,
-}: LinksBreadcrumbButtonsProps) {
+export function LinksBreadcrumbButtons({ onAdd }: LinksBreadcrumbButtonsProps) {
   const { openModal } = useModalStore();
 
   const handleAdd = onAdd ?? (() => openModal('ADD_LINK'));

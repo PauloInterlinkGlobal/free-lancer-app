@@ -1,5 +1,6 @@
-export { ProjectForm } from "./components/ProjectForm";
-export { ProjectList } from "./components/ProjectList";
+//Importações
+export { ProjectForm } from './components/ProjectForm';
+export { ProjectList } from './components/ProjectList';
 
 export type {
   ApiResponse,
@@ -12,16 +13,16 @@ export type {
   ProjectFormErrors,
   ProjectInfo,
   ProjectStatus,
-} from "./interfaces";
+} from './interfaces';
 
 export {
   PROJECT_MOCK,
   PROJECT_MOCK_RESPONSE,
   PROJECTS_MOCK_RESPONSE,
-} from "./mocks/project.mock";
+} from './mocks/project.mock';
 
-export { createProject, getMyProjects } from "./services/project.service";
+export { createProject, getMyProjects } from './services/project.service';
 export {
   toCreateProjectPayload,
   toProjectFormData,
-} from "./utils/project-mapper";
+} from './utils/project-mapper';

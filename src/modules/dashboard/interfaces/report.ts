@@ -1,5 +1,5 @@
 export type ReportPeriodType =
-  "daily" | "weekly" | "monthly" | "quarterly" | "yearly" | "custom";
+  'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
 
 export interface ReportPeriod {
   type: ReportPeriodType;

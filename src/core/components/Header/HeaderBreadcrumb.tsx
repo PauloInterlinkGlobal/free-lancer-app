@@ -1,8 +1,8 @@
 'use client';
 
+import { Link } from '@/core/i18n/navigation';
 import { usePathBreadcrumb } from '@/core/hooks/use-path-breadcrumb';
 import { ChevronRight } from 'lucide-react';
-import Link from 'next/link';
 
 export function HeaderBreadcrumb() {
   const { items } = usePathBreadcrumb();

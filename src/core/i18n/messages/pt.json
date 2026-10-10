@@ -2,7 +2,6 @@
   "dashboard": {
     "title": "Painel"
   },
-
   "nav": {
     "preferences": {
       "title": "Preferências",
@@ -39,7 +38,57 @@
       "general": "Geral",
       "security": "Segurança",
       "team": "Equipa",
-      "preferences": "Preferências"
+      "preferences": "Preferências",
+      "project": "Projeto"
+    },
+    "project": {
+      "companyData": {
+        "title": "Dados da empresa",
+        "description": "Atualize as informações da sua empresa.",
+        "fields": {
+          "tradeName": {
+            "label": "Nome da empresa *",
+            "placeholder": "Insira o novo nome da Empresa"
+          },
+          "nif": {
+            "label": "NIF",
+            "placeholder": "Insira o novo Número de Identificação Fiscal da Empresa"
+          },
+          "streetAddress": {
+            "label": "Endereço da Empresa",
+            "placeholder": "Insira a nova localização atual da Empresa"
+          },
+          "sector": {
+            "label": "Sector de actividade",
+            "placeholder": "Insira o novo sector de actividade da Empresa"
+          },
+          "email": {
+            "label": "Email da Empresa",
+            "placeholder": "Insira o novo email da Empresa aqui"
+          },
+          "phone": {
+            "label": "Telefone",
+            "placeholder": "Insira o novo número da Empresa"
+          },
+          "website": {
+            "label": "Insira o novo Website da Empresa",
+            "placeholder": "https://www.empresa.ao"
+          }
+        },
+        "actions": {
+          "cancel": "Cancelar",
+          "save": "Guardar alterações"
+        },
+        "success": "Dados atualizados com sucesso.",
+        "errors": {
+          "required": "Campo obrigatório.",
+          "nif": "NIF inválido.",
+          "email": "Introduza um e-mail válido.",
+          "phone": "Introduza um número de telefone válido.",
+          "website": "Introduza um website válido.",
+          "generic": "Não foi possível guardar as alterações."
+        }
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/core/i18n/navigation';
 
 const routeLabels: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -16,6 +16,8 @@ export function HeaderTitle() {
   const label = routeLabels[route] ?? 'Dashboard';
 
   return (
-    <h1 className="text-[18px] font-semibold tracking-[-0.01em] text-text-primary"></h1>
+    <h1 className="text-[18px] font-semibold tracking-[-0.01em] text-text-primary">
+      {label}
+    </h1>
   );
 }

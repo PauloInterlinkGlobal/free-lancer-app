@@ -2,7 +2,7 @@
 
 import { ChevronDown, LucideIcon } from 'lucide-react';
 import React, { forwardRef } from 'react';
-import { SelectOption, SelectSize, SelectVariant } from '../types';
+import { SelectOption, SelectVariant } from '../types';
 
 interface SelectTriggerProps {
   id?: string;

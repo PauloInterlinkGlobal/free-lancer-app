@@ -65,7 +65,8 @@ export const linksMock: ILink[] = [
     submittedAt: '2026-09-28T09:00:00Z',
     reviewedAt: '2026-09-29T14:00:00Z',
     status: 'rejected',
-    rejectionReason: 'Encurtadores genéricos de terceiros não são permitidos pelas operadoras. Utilize domínio próprio.',
+    rejectionReason:
+      'Encurtadores genéricos de terceiros não são permitidos pelas operadoras. Utilize domínio próprio.',
   },
   {
     id: 'link-9',
@@ -74,6 +75,7 @@ export const linksMock: ILink[] = [
     submittedAt: '2026-09-30T17:50:00Z',
     reviewedAt: '2026-10-01T09:20:00Z',
     status: 'rejected',
-    rejectionReason: 'Destino não cumpre as diretrizes de conformidade contra spam e phishing.',
+    rejectionReason:
+      'Destino não cumpre as diretrizes de conformidade contra spam e phishing.',
   },
 ];

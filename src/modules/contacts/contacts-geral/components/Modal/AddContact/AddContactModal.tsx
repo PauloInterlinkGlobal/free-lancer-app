@@ -180,7 +180,9 @@ export function AddContactModal({
       } else if (result.errors.variables) {
         // Encontrar a primeira linha com erro
         const firstInvalidKey = Object.keys(result.errors.variables)[0];
-        const matchingRow = variables.find((v) => v.key.trim() === firstInvalidKey);
+        const matchingRow = variables.find(
+          (v) => v.key.trim() === firstInvalidKey
+        );
         if (matchingRow && variableKeyRefs.current[matchingRow.id]) {
           variableKeyRefs.current[matchingRow.id]?.focus();
         }
@@ -256,11 +258,14 @@ export function AddContactModal({
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value);
-                  if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                  if (errors.name)
+                    setErrors((prev) => ({ ...prev, name: undefined }));
                 }}
                 placeholder="Ex: Manuel"
                 aria-invalid={Boolean(errors.name)}
-                aria-describedby={errors.name ? 'contact-name-error' : undefined}
+                aria-describedby={
+                  errors.name ? 'contact-name-error' : undefined
+                }
                 className={`rounded-lg border bg-surface px-3 py-2.5 text-sm text-primary-content placeholder:text-muted-content outline-none transition-colors ${
                   errors.name
                     ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
@@ -269,7 +274,10 @@ export function AddContactModal({
                 autoFocus
               />
               {errors.name && (
-                <p id="contact-name-error" className="text-xs text-red-500 font-medium">
+                <p
+                  id="contact-name-error"
+                  className="text-xs text-red-500 font-medium"
+                >
                   {errors.name}
                 </p>
               )}
@@ -281,7 +289,9 @@ export function AddContactModal({
                 className="text-sm font-medium text-primary-content"
               >
                 Sobrenome{' '}
-                <span className="text-xs font-normal text-muted-content">(Opcional)</span>
+                <span className="text-xs font-normal text-muted-content">
+                  (Opcional)
+                </span>
               </label>
               <input
                 ref={surnameInputRef}
@@ -290,11 +300,14 @@ export function AddContactModal({
                 value={surname}
                 onChange={(e) => {
                   setSurname(e.target.value);
-                  if (errors.surname) setErrors((prev) => ({ ...prev, surname: undefined }));
+                  if (errors.surname)
+                    setErrors((prev) => ({ ...prev, surname: undefined }));
                 }}
                 placeholder="Ex: da Silva"
                 aria-invalid={Boolean(errors.surname)}
-                aria-describedby={errors.surname ? 'contact-surname-error' : undefined}
+                aria-describedby={
+                  errors.surname ? 'contact-surname-error' : undefined
+                }
                 className={`rounded-lg border bg-surface px-3 py-2.5 text-sm text-primary-content placeholder:text-muted-content outline-none transition-colors ${
                   errors.surname
                     ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
@@ -302,7 +315,10 @@ export function AddContactModal({
                 }`}
               />
               {errors.surname && (
-                <p id="contact-surname-error" className="text-xs text-red-500 font-medium">
+                <p
+                  id="contact-surname-error"
+                  className="text-xs text-red-500 font-medium"
+                >
                   {errors.surname}
                 </p>
               )}
@@ -335,16 +351,22 @@ export function AddContactModal({
                 value={number}
                 onChange={(e) => {
                   setNumber(e.target.value);
-                  if (errors.number) setErrors((prev) => ({ ...prev, number: undefined }));
+                  if (errors.number)
+                    setErrors((prev) => ({ ...prev, number: undefined }));
                 }}
                 placeholder="923 456 789"
                 aria-invalid={Boolean(errors.number)}
-                aria-describedby={errors.number ? 'contact-phone-error' : undefined}
+                aria-describedby={
+                  errors.number ? 'contact-phone-error' : undefined
+                }
                 className="min-w-0 flex-1 w-full bg-transparent px-3 py-2.5 text-sm font-mono text-primary-content placeholder:text-muted-content outline-none"
               />
             </div>
             {errors.number ? (
-              <p id="contact-phone-error" className="text-xs text-red-500 font-medium">
+              <p
+                id="contact-phone-error"
+                className="text-xs text-red-500 font-medium"
+              >
                 {errors.number}
               </p>
             ) : (
@@ -365,11 +387,14 @@ export function AddContactModal({
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                if (errors.email)
+                  setErrors((prev) => ({ ...prev, email: undefined }));
               }}
               error={errors.email}
               aria-invalid={Boolean(errors.email)}
-              aria-describedby={errors.email ? 'contact-email-error' : undefined}
+              aria-describedby={
+                errors.email ? 'contact-email-error' : undefined
+              }
             />
           </div>
 
@@ -400,7 +425,8 @@ export function AddContactModal({
             </div>
 
             <p className="text-xs text-muted-content leading-relaxed">
-              Adicione dados dinâmicos específicos (ex: cidade, empresa, código) para personalizar as suas mensagens SMS.
+              Adicione dados dinâmicos específicos (ex: cidade, empresa, código)
+              para personalizar as suas mensagens SMS.
             </p>
 
             {errors.generalVariables && (
@@ -460,7 +486,11 @@ export function AddContactModal({
                           placeholder="Valor (ex: Sonangol)"
                           value={item.value}
                           onChange={(e) =>
-                            handleVariableChange(item.id, 'value', e.target.value)
+                            handleVariableChange(
+                              item.id,
+                              'value',
+                              e.target.value
+                            )
                           }
                           className="rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs text-primary-content placeholder:text-muted-content outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                         />

@@ -1,41 +1,41 @@
-"use client";
+'use client';
 
-import { DatePicker } from "@/core/components/DatePicker";
-import { Modal } from "@/core/components/Modal";
-import { useToastStore } from "@/core/store";
-import { useModalStore } from "@/core/store/useModalStore";
-import { Check, FileBarChart, Loader2, X } from "lucide-react";
-import { useMemo, useState } from "react";
-import { REPORT_PERIOD_OPTIONS } from "../../constants/report";
-import type { ReportPeriodType } from "../../interfaces/report";
-import { generateDashboardReport } from "../../utils/generate-report-svg";
+import { DatePicker } from '@/core/components/DatePicker';
+import { Modal } from '@/core/components/Modal';
+import { useToastStore } from '@/core/store';
+import { useModalStore } from '@/core/store/useModalStore';
+import { Check, FileBarChart, Loader2, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { REPORT_PERIOD_OPTIONS } from '../../constants/report';
+import type { ReportPeriodType } from '../../interfaces/report';
+import { generateDashboardReport } from '../../utils/generate-report-svg';
 import {
   formatDisplayDate,
   resolvePeriod,
   toDateStr,
-} from "../../utils/report-period";
+} from '../../utils/report-period';
 
 export function GenerateReportModal() {
   const { closeModal } = useModalStore();
   const { success, error } = useToastStore();
 
   const today = useMemo(() => toDateStr(new Date()), []);
-  const [type, setType] = useState<ReportPeriodType>("monthly");
-  const [startDate, setStartDate] = useState("");
+  const [type, setType] = useState<ReportPeriodType>('monthly');
+  const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState(today);
-  const [dateError, setDateError] = useState("");
+  const [dateError, setDateError] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
   const preview = useMemo(
-    () => (type === "custom" ? null : resolvePeriod(type)),
-    [type],
+    () => (type === 'custom' ? null : resolvePeriod(type)),
+    [type]
   );
 
   const reset = () => {
-    setType("monthly");
-    setStartDate("");
+    setType('monthly');
+    setStartDate('');
     setEndDate(today);
-    setDateError("");
+    setDateError('');
   };
 
   const handleClose = () => {
@@ -45,15 +45,15 @@ export function GenerateReportModal() {
   };
 
   const handleGenerate = async () => {
-    setDateError("");
+    setDateError('');
 
-    if (type === "custom") {
+    if (type === 'custom') {
       if (!startDate || !endDate) {
-        setDateError("Selecione a data de início e de fim.");
+        setDateError('Selecione a data de início e de fim.');
         return;
       }
       if (startDate > endDate) {
-        setDateError("A data de início deve ser anterior à data de fim.");
+        setDateError('A data de início deve ser anterior à data de fim.');
         return;
       }
     }
@@ -68,7 +68,7 @@ export function GenerateReportModal() {
       reset();
       closeModal();
     } catch {
-      error("Não foi possível gerar o relatório. Tente novamente.");
+      error('Não foi possível gerar o relatório. Tente novamente.');
     } finally {
       setIsGenerating(false);
     }
@@ -124,16 +124,16 @@ export function GenerateReportModal() {
                     aria-checked={active}
                     onClick={() => {
                       setType(opt.value);
-                      setDateError("");
+                      setDateError('');
                     }}
                     className={`relative flex flex-col items-start rounded-xl border px-3 py-2.5 text-left transition-colors ${
                       active
-                        ? "border-primary bg-primary/5"
-                        : "border-ui bg-surface hover:bg-item-hover"
+                        ? 'border-primary bg-primary/5'
+                        : 'border-ui bg-surface hover:bg-item-hover'
                     }`}
                   >
                     <span
-                      className={`text-sm font-medium ${active ? "text-primary" : "text-primary-content"}`}
+                      className={`text-sm font-medium ${active ? 'text-primary' : 'text-primary-content'}`}
                     >
                       {opt.label}
                     </span>
@@ -153,14 +153,14 @@ export function GenerateReportModal() {
             </div>
           </fieldset>
 
-          {type === "custom" ? (
+          {type === 'custom' ? (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <DatePicker
                 label="Data de início"
                 value={startDate}
                 onChange={(v) => {
                   setStartDate(v);
-                  setDateError("");
+                  setDateError('');
                 }}
                 maxDate={endDate || today}
               />
@@ -169,7 +169,7 @@ export function GenerateReportModal() {
                 value={endDate}
                 onChange={(v) => {
                   setEndDate(v);
-                  setDateError("");
+                  setDateError('');
                 }}
                 minDate={startDate || undefined}
                 maxDate={today}
@@ -183,11 +183,11 @@ export function GenerateReportModal() {
           ) : (
             preview && (
               <p className="rounded-xl bg-surface-raised px-4 py-3 text-xs text-muted-content">
-                Período:{" "}
+                Período:{' '}
                 <span className="font-medium text-primary-content">
                   {formatDisplayDate(preview.startDate)}
-                </span>{" "}
-                —{" "}
+                </span>{' '}
+                —{' '}
                 <span className="font-medium text-primary-content">
                   {formatDisplayDate(preview.endDate)}
                 </span>
@@ -218,7 +218,7 @@ export function GenerateReportModal() {
             ) : (
               <FileBarChart size={16} aria-hidden />
             )}
-            {isGenerating ? "A gerar…" : "Gerar relatório"}
+            {isGenerating ? 'A gerar…' : 'Gerar relatório'}
           </button>
         </div>
       </div>

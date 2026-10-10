@@ -29,9 +29,7 @@ const statusIcons: Record<LinkStatus, typeof CheckCircle2> = {
   rejected: AlertCircle,
 };
 
-const columns = (
-  onDelete: (item: ILink) => void
-): Column<ILink>[] => [
+const columns = (onDelete: (item: ILink) => void): Column<ILink>[] => [
   {
     key: 'description',
     header: 'Descrição',

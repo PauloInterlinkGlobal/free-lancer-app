@@ -1,5 +1,5 @@
-import { PROJECTS_MOCK_RESPONSE } from "../mocks/project.mock";
-import { ProjectForm } from "./ProjectForm";
+import { PROJECTS_MOCK_RESPONSE } from '../mocks/project.mock';
+import { ProjectForm } from './ProjectForm';
 
 /**
  * Container da aba "Projeto".

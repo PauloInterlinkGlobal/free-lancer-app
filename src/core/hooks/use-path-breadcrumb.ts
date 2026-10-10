@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/core/i18n/navigation';
 
 interface SegmentInfo {
   label: string;
@@ -43,7 +43,7 @@ const SEGMENTS: Record<string, SegmentInfo> = {
   settings: {
     label: 'Configurações',
     description: 'Gere as configurações da tua conta.',
-    href: '/pt/settings/general',
+    href: '/settings/general',
   },
 
   general: {
@@ -90,6 +90,10 @@ const SEGMENTS: Record<string, SegmentInfo> = {
   'sms-template': {
     label: 'Modelos',
     description: 'Gere os teus modelos de mensagem.',
+  },
+  links: {
+    label: 'Links',
+    description: 'Gere os links que usa nas suas mensagens.',
   },
   reports: {
     label: 'Relatórios',

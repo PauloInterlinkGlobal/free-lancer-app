@@ -188,7 +188,9 @@ export function AddLinkModal({
           <div className="flex items-start gap-2 rounded-xl border border-amber-500/15 bg-amber-500/5 p-3 text-xs text-amber-700 dark:text-amber-300">
             <Info className="mt-px h-4 w-4 shrink-0 text-amber-500" />
             <span>
-              O link será submetido com estado <strong>Pendente</strong> e passará por análise de segurança das operadoras antes de ser aprovado.
+              O link será submetido com estado <strong>Pendente</strong> e
+              passará por análise de segurança das operadoras antes de ser
+              aprovado.
             </span>
           </div>
 

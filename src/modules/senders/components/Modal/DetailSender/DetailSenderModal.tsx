@@ -63,7 +63,6 @@ export function DetailSenderModal({ sender, onClose }: DetailSenderModalProps) {
   if (!sender) return null;
 
   const StatusIcon = statusIcons[sender.status] || CheckCircle2;
-  const initials = sender.sender.trim().slice(0, 2).toUpperCase() || 'ID';
 
   const rows = [
     {

@@ -1,9 +1,9 @@
-import type { ReportPeriod, ReportPeriodType } from "../interfaces/report";
+import type { ReportPeriod, ReportPeriodType } from '../interfaces/report';
 
 export const toDateStr = (d: Date) => {
   const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
 };
 
@@ -11,27 +11,27 @@ export const toDateStr = (d: Date) => {
 export function resolvePeriod(
   type: ReportPeriodType,
   custom?: { startDate: string; endDate: string },
-  now: Date = new Date(),
+  now: Date = new Date()
 ): ReportPeriod {
   const end = new Date(now);
   const start = new Date(now);
 
   switch (type) {
-    case "daily":
+    case 'daily':
       break;
-    case "weekly":
+    case 'weekly':
       start.setDate(end.getDate() - 6);
       break;
-    case "monthly":
+    case 'monthly':
       start.setDate(end.getDate() - 29);
       break;
-    case "quarterly":
+    case 'quarterly':
       start.setMonth(end.getMonth() - 3);
       break;
-    case "yearly":
+    case 'yearly':
       start.setFullYear(end.getFullYear() - 1);
       break;
-    case "custom":
+    case 'custom':
       return {
         type,
         startDate: custom?.startDate ?? toDateStr(start),
@@ -42,10 +42,10 @@ export function resolvePeriod(
   return { type, startDate: toDateStr(start), endDate: toDateStr(end) };
 }
 
-const displayFormatter = new Intl.DateTimeFormat("pt-PT", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
+const displayFormatter = new Intl.DateTimeFormat('pt-PT', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
 });
 
 export const formatDisplayDate = (iso: string) =>

@@ -66,7 +66,7 @@ export function DetailContactModal({
 
   const rows = [
     { icon: Phone, label: 'Número', value: contact.number },
-    { icon: User, label: 'Sexo', value: sexLabel[contact.sex] },
+    { icon: User, label: 'Sexo', value: contact.sex ? sexLabel[contact.sex] : '—' },
     {
       icon: Calendar,
       label: 'Data de criação',

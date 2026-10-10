@@ -3,7 +3,6 @@
 import { Link, usePathname, useRouter } from '@/core/i18n/navigation';
 import {
   Check,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Globe,

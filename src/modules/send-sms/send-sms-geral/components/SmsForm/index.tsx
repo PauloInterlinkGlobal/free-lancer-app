@@ -11,7 +11,7 @@ import {
   formatSms,
 } from '@/modules/send-sms/send-sms-geral/sms-utils';
 import { MessageSquare, Send, UserPlus, X, Zap } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/core/i18n/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import type {
   IContactGroup,
@@ -21,6 +21,7 @@ import type {
   SmsType,
 } from '../../interfaces';
 import { GroupsCard } from '../Cards/GroupsCard';
+import { LinksCard } from '../Cards/LinksCard';
 import { TemplatesCard } from '../Cards/TemplatesCard';
 import { PhonePreview } from '../PhonePreview';
 import { SectionCard } from '../SectionCard';
@@ -52,6 +53,7 @@ const SMS_TYPES = [
   },
 ] as const;
 
+const MAX_VISIBLE_CONTACTS = 6;
 const labelClass = 'text-sm font-medium text-primary-content';
 
 export function SmsForm({
@@ -74,7 +76,6 @@ export function SmsForm({
   const [scheduledTime, setScheduledTime] = useState('');
   const [testing, setTesting] = useState(false);
   const [time, setTime] = useState('');
-  const [isDesktop, setIsDesktop] = useState(false);
   const { openModal, closeModal } = useModalStore();
 
   useEffect(() => {
@@ -86,14 +87,6 @@ export function SmsForm({
     );
   }, []);
 
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)');
-    const update = () => setIsDesktop(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-
   const senderName = senderIds.find((s) => s.id === senderId)?.name;
   const info = useMemo(() => getSmsInfo(message), [message]);
   const previewMessage = useMemo(() => fillVariables(message), [message]);
@@ -102,6 +95,9 @@ export function SmsForm({
     groups
       .filter((g) => groupIds.includes(g.id))
       .reduce((sum, g) => sum + g.total, 0) + contacts.length;
+
+  const visibleContacts = contacts.slice(0, MAX_VISIBLE_CONTACTS);
+  const hiddenContactsCount = contacts.length - MAX_VISIBLE_CONTACTS;
 
   const totalSms = info.segments * totalRecipients;
   const balanceAfter =
@@ -128,6 +124,13 @@ export function SmsForm({
   function handleConfirmContacts(numbers: string[]) {
     setContacts(numbers);
     closeModal();
+  }
+
+  function handleInsertLink(url: string) {
+    setMessage((prev) => {
+      const trimmed = prev.trim();
+      return trimmed ? `${trimmed} ${url}` : url;
+    });
   }
 
   async function handleSendTest() {
@@ -242,16 +245,24 @@ export function SmsForm({
           />
 
           <div className="flex flex-col gap-2">
-            <span className={labelClass}>Números avulsos</span>
+            <div className="flex items-center justify-between">
+              <span className={labelClass}>Números avulsos</span>
+              {contacts.length > 0 && (
+                <span className="text-xs text-muted-content">
+                  {contacts.length} número{contacts.length === 1 ? '' : 's'}{' '}
+                  adicionado{contacts.length === 1 ? '' : 's'}
+                </span>
+              )}
+            </div>
 
-            <div className="flex max-h-32 min-h-[56px] flex-wrap items-center gap-2 overflow-y-auto rounded-xl border border-dashed border-border-ui bg-surface-raised/40 p-3">
+            <div className="flex min-h-[56px] flex-wrap items-center gap-2 rounded-xl border border-dashed border-border-ui bg-surface-raised/40 p-3">
               {contacts.length === 0 && (
-                <span className="text-sm text-muted-content">
+                <span className="text-xs text-muted-content">
                   Nenhum contacto adicionado
                 </span>
               )}
 
-              {contacts.map((contact) => (
+              {visibleContacts.map((contact) => (
                 <span
                   key={contact}
                   className="inline-flex items-center gap-1.5 rounded-full bg-surface py-1 pl-3 pr-2 text-xs font-medium text-primary-content shadow-sm ring-1 ring-border-ui"
@@ -268,12 +279,23 @@ export function SmsForm({
                 </span>
               ))}
 
+              {hiddenContactsCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => openModal('SELECT_CONTACT_SMS')}
+                  title={`Mais ${hiddenContactsCount} contacto${hiddenContactsCount === 1 ? '' : 's'}. Clique para gerir todos.`}
+                  className="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary ring-1 ring-primary/20 shadow-sm transition-all hover:bg-primary/20 active:scale-95 cursor-pointer"
+                >
+                  +{hiddenContactsCount}
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => openModal('SELECT_CONTACT_SMS')}
-                className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow active:scale-95 cursor-pointer"
               >
-                <UserPlus size={14} aria-hidden />
+                <UserPlus size={13} aria-hidden />
                 Adicionar
               </button>
             </div>
@@ -287,6 +309,8 @@ export function SmsForm({
           description="Escreva o texto ou parta de um modelo."
         >
           <TemplatesCard templates={templates} onSelect={setMessage} />
+
+          <LinksCard onInsertLink={handleInsertLink} />
 
           <MessageEditor
             value={message}

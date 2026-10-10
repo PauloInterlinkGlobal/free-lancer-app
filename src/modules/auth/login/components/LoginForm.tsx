@@ -2,11 +2,13 @@
 
 import AnimatedStep from '@/core/components/AnimatedStep/AnimatedStep';
 import { AuthCardLayout } from '@/core/components/Auth';
+import { useRouter } from '@/core/i18n/navigation';
 import { useLoginForm } from '../hooks/useLoginForm';
 import LoginLeftColumn from './LeftColumn/LoginLeftColumn';
 import LoginStepContent from './LoginStepContent';
 
 export default function LoginForm() {
+  const router = useRouter();
   const form = useLoginForm();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -22,6 +24,10 @@ export default function LoginForm() {
     }
     form.setPasswordError('');
     form.setIsLoading(true);
+    setTimeout(() => {
+      form.setIsLoading(false);
+      router.push('/dashboard');
+    }, 600);
   };
 
   const left = (

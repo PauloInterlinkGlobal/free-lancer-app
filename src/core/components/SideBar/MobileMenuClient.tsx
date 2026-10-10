@@ -1,9 +1,8 @@
 'use client';
 
 import { navItems } from '@/core/components/SideBar/nav-items';
-import { useRouter } from '@/core/i18n/navigation';
+import { Link, useRouter } from '@/core/i18n/navigation';
 import { ChevronRight } from 'lucide-react';
-import Link from 'next/link';
 import { useEffect } from 'react';
 
 export function MobileMenuClient() {

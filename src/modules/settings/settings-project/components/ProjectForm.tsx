@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { Button } from "@/core/components/Button";
-import { Input } from "@/core/components/Input";
-import { useToastStore } from "@/core/store";
-import { Building2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { Button } from '@/core/components/Button';
+import { Input } from '@/core/components/Input';
+import { useToastStore } from '@/core/store';
+import { Building2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import type {
   ProjectEntity,
   ProjectFormData,
   ProjectFormErrors,
-} from "../interfaces";
-import { createProject } from "../services/project.service";
+} from '../interfaces';
+import { createProject } from '../services/project.service';
 import {
   toCreateProjectPayload,
   toProjectFormData,
-} from "../utils/project-mapper";
+} from '../utils/project-mapper';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const URL_REGEX = /^(https?:\/\/)?([\w-]+\.)+[a-z]{2,}(\/\S*)?$/i;
@@ -27,15 +27,15 @@ type Translate = ReturnType<typeof useTranslations>;
 function validate(v: ProjectFormData, t: Translate): ProjectFormErrors {
   const errors: ProjectFormErrors = {};
 
-  if (!v.tradeName.trim()) errors.tradeName = t("errors.required");
+  if (!v.tradeName.trim()) errors.tradeName = t('errors.required');
   if (v.nif.trim() && !NIF_REGEX.test(v.nif.trim()))
-    errors.nif = t("errors.nif");
+    errors.nif = t('errors.nif');
   if (v.email.trim() && !EMAIL_REGEX.test(v.email.trim()))
-    errors.email = t("errors.email");
-  if (v.phone.trim() && !PHONE_REGEX.test(v.phone.replace(/[\s-]/g, "")))
-    errors.phone = t("errors.phone");
+    errors.email = t('errors.email');
+  if (v.phone.trim() && !PHONE_REGEX.test(v.phone.replace(/[\s-]/g, '')))
+    errors.phone = t('errors.phone');
   if (v.website.trim() && !URL_REGEX.test(v.website.trim()))
-    errors.website = t("errors.website");
+    errors.website = t('errors.website');
 
   return errors;
 }
@@ -45,11 +45,11 @@ interface ProjectFormProps {
 }
 
 export function ProjectForm({ initialData }: ProjectFormProps) {
-  const t = useTranslations("settings.project.companyData");
+  const t = useTranslations('settings.project.companyData');
   const { success, error } = useToastStore();
 
   const [initial, setInitial] = useState<ProjectFormData>(() =>
-    toProjectFormData(initialData),
+    toProjectFormData(initialData)
   );
   const [values, setValues] = useState<ProjectFormData>(initial);
   const [errors, setErrors] = useState<ProjectFormErrors>({});
@@ -80,9 +80,9 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
       // Sem HTTP: o serviço apenas regista o payload e simula a resposta.
       await createProject(toCreateProjectPayload(values));
       setInitial(values);
-      success(t("success"));
+      success(t('success'));
     } catch {
-      error(t("errors.generic"));
+      error(t('errors.generic'));
     } finally {
       setIsLoading(false);
     }
@@ -101,9 +101,9 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
 
         <div className="min-w-0">
           <h2 className="text-lg font-bold leading-tight text-primary-content md:text-xl">
-            {t("title")}
+            {t('title')}
           </h2>
-          <p className="mt-1 text-sm text-muted-content">{t("description")}</p>
+          <p className="mt-1 text-sm text-muted-content">{t('description')}</p>
         </div>
       </div>
 
@@ -114,8 +114,8 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
         <Input
           id="tradeName"
           name="tradeName"
-          label={t("fields.tradeName.label")}
-          placeholder={t("fields.tradeName.placeholder")}
+          label={t('fields.tradeName.label')}
+          placeholder={t('fields.tradeName.placeholder')}
           value={values.tradeName}
           onChange={handleChange}
           error={errors.tradeName}
@@ -125,8 +125,8 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
         <Input
           id="nif"
           name="nif"
-          label={t("fields.nif.label")}
-          placeholder={t("fields.nif.placeholder")}
+          label={t('fields.nif.label')}
+          placeholder={t('fields.nif.placeholder')}
           value={values.nif}
           onChange={handleChange}
           error={errors.nif}
@@ -135,8 +135,8 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
         <Input
           id="streetAddress"
           name="streetAddress"
-          label={t("fields.streetAddress.label")}
-          placeholder={t("fields.streetAddress.placeholder")}
+          label={t('fields.streetAddress.label')}
+          placeholder={t('fields.streetAddress.placeholder')}
           value={values.streetAddress}
           onChange={handleChange}
           error={errors.streetAddress}
@@ -145,8 +145,8 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
         <Input
           id="sector"
           name="sector"
-          label={t("fields.sector.label")}
-          placeholder={t("fields.sector.placeholder")}
+          label={t('fields.sector.label')}
+          placeholder={t('fields.sector.placeholder')}
           value={values.sector}
           onChange={handleChange}
           error={errors.sector}
@@ -156,8 +156,8 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
           id="email"
           name="email"
           type="email"
-          label={t("fields.email.label")}
-          placeholder={t("fields.email.placeholder")}
+          label={t('fields.email.label')}
+          placeholder={t('fields.email.placeholder')}
           value={values.email}
           onChange={handleChange}
           error={errors.email}
@@ -168,8 +168,8 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
           name="phone"
           type="tel"
           inputMode="tel"
-          label={t("fields.phone.label")}
-          placeholder={t("fields.phone.placeholder")}
+          label={t('fields.phone.label')}
+          placeholder={t('fields.phone.placeholder')}
           value={values.phone}
           onChange={handleChange}
           error={errors.phone}
@@ -179,8 +179,8 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
           id="website"
           name="website"
           type="url"
-          label={t("fields.website.label")}
-          placeholder={t("fields.website.placeholder")}
+          label={t('fields.website.label')}
+          placeholder={t('fields.website.placeholder')}
           value={values.website}
           onChange={handleChange}
           error={errors.website}
@@ -194,11 +194,11 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
           onClick={handleCancel}
           disabled={!isDirty || isLoading}
         >
-          {t("actions.cancel")}
+          {t('actions.cancel')}
         </Button>
 
         <Button type="submit" disabled={!isDirty} isLoading={isLoading}>
-          {t("actions.save")}
+          {t('actions.save')}
         </Button>
       </div>
     </form>

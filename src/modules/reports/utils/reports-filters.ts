@@ -1,4 +1,4 @@
-import { ALL, ALL_PERIODS } from '../constants/reports';
+import { ALL } from '../constants/reports';
 import { ICampaignReport, ReportsFiltersValue } from '../interfaces/reports';
 
 export const PAGE_SIZE = 5;

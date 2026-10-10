@@ -1,25 +1,25 @@
-import { reportPeriodLabel } from "../constants/report";
+import { reportPeriodLabel } from '../constants/report';
 import type {
   ReportData,
   ReportPeriod,
   ReportSeriesPoint,
-} from "../interfaces/report";
+} from '../interfaces/report';
 
 const MONTHS = [
-  "Jan",
-  "Fev",
-  "Mar",
-  "Abr",
-  "Mai",
-  "Jun",
-  "Jul",
-  "Ago",
-  "Set",
-  "Out",
-  "Nov",
-  "Dez",
+  'Jan',
+  'Fev',
+  'Mar',
+  'Abr',
+  'Mai',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Set',
+  'Out',
+  'Nov',
+  'Dez',
 ];
-const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 /** Gerador pseudo-aleatório determinístico (mesmo período → mesmos números). */
 function seeded(seed: number) {
@@ -40,51 +40,51 @@ function buildSeries(period: ReportPeriod): ReportSeriesPoint[] {
   };
 
   switch (period.type) {
-    case "daily":
+    case 'daily':
       return Array.from({ length: 8 }, (_, i) =>
-        point(`${String(i * 3).padStart(2, "0")}h`, 180),
+        point(`${String(i * 3).padStart(2, '0')}h`, 180)
       );
-    case "weekly":
+    case 'weekly':
       return Array.from({ length: 7 }, (_, i) => {
         const d = new Date(start);
         d.setDate(start.getDate() + i);
         return point(WEEKDAYS[d.getDay()], 900);
       });
-    case "monthly":
+    case 'monthly':
       return Array.from({ length: 5 }, (_, i) => point(`Sem ${i + 1}`, 4200));
-    case "quarterly":
+    case 'quarterly':
       return Array.from({ length: 3 }, (_, i) => {
         const d = new Date(start);
         d.setMonth(start.getMonth() + i + 1);
         return point(MONTHS[d.getMonth()], 15000);
       });
-    case "yearly":
+    case 'yearly':
       return Array.from({ length: 12 }, (_, i) => {
         const d = new Date(start);
         d.setMonth(start.getMonth() + i + 1);
         return point(MONTHS[d.getMonth()], 16000);
       });
-    case "custom": {
+    case 'custom': {
       const days = Math.max(
         1,
-        Math.round((end.getTime() - start.getTime()) / 86400000) + 1,
+        Math.round((end.getTime() - start.getTime()) / 86400000) + 1
       );
       const buckets = Math.min(12, Math.max(2, days));
       return Array.from({ length: buckets }, (_, i) => {
         const d = new Date(start);
         d.setDate(
-          start.getDate() + Math.round((i * (days - 1)) / (buckets - 1)),
+          start.getDate() + Math.round((i * (days - 1)) / (buckets - 1))
         );
         return point(
           `${d.getDate()}/${d.getMonth() + 1}`,
-          (days / buckets) * 850,
+          (days / buckets) * 850
         );
       });
     }
   }
 }
 
-const fmt = new Intl.NumberFormat("pt-PT");
+const fmt = new Intl.NumberFormat('pt-PT');
 
 /** Mock dos dados do relatório — a substituir pela API futuramente. */
 export function getDashboardReportMock(period: ReportPeriod): ReportData {
@@ -99,27 +99,27 @@ export function getDashboardReportMock(period: ReportPeriod): ReportData {
     generatedAt: new Date().toISOString(),
     stats: [
       {
-        label: "Campanhas ativas",
-        value: "24",
-        trend: "+3 no período",
+        label: 'Campanhas ativas',
+        value: '24',
+        trend: '+3 no período',
         trendUp: true,
       },
       {
-        label: "SMS enviados",
+        label: 'SMS enviados',
         value: fmt.format(sent),
-        trend: "+8% vs. anterior",
+        trend: '+8% vs. anterior',
         trendUp: true,
       },
       {
-        label: "SMS entregues",
+        label: 'SMS entregues',
         value: fmt.format(delivered),
-        trend: "+7% vs. anterior",
+        trend: '+7% vs. anterior',
         trendUp: true,
       },
       {
-        label: "Taxa de entrega",
+        label: 'Taxa de entrega',
         value: `${rate.toFixed(1)}%`,
-        trend: "-0.3% vs. anterior",
+        trend: '-0.3% vs. anterior',
         trendUp: false,
       },
     ],

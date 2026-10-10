@@ -4,7 +4,14 @@ import {
   buildVariableOptions,
   type DynamicVariable,
 } from '@/core/constants/dynamic-variables';
-import { Braces, ChevronDown, HelpCircle, Search, Sparkles, User } from 'lucide-react';
+import {
+  Braces,
+  ChevronDown,
+  HelpCircle,
+  Search,
+  Sparkles,
+  User,
+} from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { VariablesDropdownProps } from './types';
 
@@ -269,16 +276,21 @@ export function VariablesDropdown({
                 </div>
                 {options.personalizadas.length > 0 && (
                   <span className="text-[10px] font-normal normal-case">
-                    {filteredPersonalizadas.length} disponível{filteredPersonalizadas.length === 1 ? '' : 'is'}
+                    {filteredPersonalizadas.length} disponível
+                    {filteredPersonalizadas.length === 1 ? '' : 'is'}
                   </span>
                 )}
               </div>
 
               {options.personalizadas.length === 0 ? (
                 <div className="mx-1 my-1 flex items-start gap-2 rounded-xl border border-dashed border-border-ui bg-surface-raised/40 p-2.5 text-left">
-                  <HelpCircle size={14} className="shrink-0 text-muted-content mt-0.5" />
+                  <HelpCircle
+                    size={14}
+                    className="shrink-0 text-muted-content mt-0.5"
+                  />
                   <p className="text-[11px] leading-relaxed text-muted-content">
-                    As variáveis personalizadas são criadas ao adicionar contactos com campos adicionais (ex: cidade, empresa).
+                    As variáveis personalizadas são criadas ao adicionar
+                    contactos com campos adicionais (ex: cidade, empresa).
                   </p>
                 </div>
               ) : filteredPersonalizadas.length === 0 ? (

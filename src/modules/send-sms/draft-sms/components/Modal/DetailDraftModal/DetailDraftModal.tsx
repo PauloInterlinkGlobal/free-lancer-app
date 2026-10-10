@@ -12,7 +12,7 @@ import {
   DraftSmsType,
   IDraftSms,
 } from '@/modules/send-sms/draft-sms/interfaces/draft-sms';
-import { Calendar, FileText, Hash, Pencil, Send, Users, X } from 'lucide-react';
+import { Calendar, FileText, Hash, Pencil, Users, X } from 'lucide-react';
 import React from 'react';
 
 const smsTypeStyles: Record<DraftSmsType, string> = {

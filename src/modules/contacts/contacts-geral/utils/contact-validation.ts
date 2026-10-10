@@ -139,7 +139,11 @@ export function validateContact(
       continue;
     }
 
-    if (RESERVED_VARIABLE_KEYS.includes(trimmedKey as (typeof RESERVED_VARIABLE_KEYS)[number])) {
+    if (
+      RESERVED_VARIABLE_KEYS.includes(
+        trimmedKey as (typeof RESERVED_VARIABLE_KEYS)[number]
+      )
+    ) {
       variableErrors[key] = `A chave "${trimmedKey}" é reservada pelo sistema.`;
       continue;
     }

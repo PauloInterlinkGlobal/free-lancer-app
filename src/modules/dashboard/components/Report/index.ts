@@ -1,1 +1,1 @@
-export { GenerateReportModal } from "./GenerateReportModal";
+export { GenerateReportModal } from './GenerateReportModal';

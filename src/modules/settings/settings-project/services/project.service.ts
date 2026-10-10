@@ -12,11 +12,11 @@ import type {
   ApiResponse,
   CreateProjectPayload,
   ProjectEntity,
-} from "../interfaces";
+} from '../interfaces';
 import {
   PROJECT_MOCK_RESPONSE,
   PROJECTS_MOCK_RESPONSE,
-} from "../mocks/project.mock";
+} from '../mocks/project.mock';
 
 const simulateLatency = (ms = 800) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -27,10 +27,10 @@ export async function getMyProjects(): Promise<ApiResponse<ProjectEntity[]>> {
 }
 
 export async function createProject(
-  payload: CreateProjectPayload,
+  payload: CreateProjectPayload
 ): Promise<ApiResponse<ProjectEntity>> {
   // TODO(api): serverRequest<ApiResponse<ProjectEntity>>({ url: '/projects', method: 'POST', body: payload })
-  console.log("CREATE PROJECT PAYLOAD", payload);
+  console.log('CREATE PROJECT PAYLOAD', payload);
   await simulateLatency();
 
   return {

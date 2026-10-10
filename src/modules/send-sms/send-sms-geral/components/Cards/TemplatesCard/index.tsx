@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import type { ISmsTemplate } from '../../../interfaces';
+import { PickerTrigger } from '../../PickerTrigger';
 
 interface TemplatesCardProps {
   templates: ISmsTemplate[];
@@ -29,9 +30,15 @@ export function TemplatesCard({ templates, onSelect }: TemplatesCardProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-primary-content">
-        Começar a partir de um modelo
-      </span>
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm font-medium text-primary-content">
+          Começar a partir de um modelo
+        </span>
+
+        {templates.length > 0 && (
+          <PickerTrigger id="PICK_TEMPLATES" label="Ver todos" />
+        )}
+      </div>
 
       {templates.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border-ui px-4 py-5 text-center text-sm text-muted-content">

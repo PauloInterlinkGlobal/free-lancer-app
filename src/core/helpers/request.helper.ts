@@ -152,7 +152,7 @@ export default async function serverRequest<T>({
       status: response.status,
       data: (res ?? res?.data) as T,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('[ServerRequest Global Error]:', error);
     return {
       error: {

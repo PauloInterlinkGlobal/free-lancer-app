@@ -1,39 +1,39 @@
-import type { ReportData, ReportPeriod } from "../interfaces/report";
-import { getDashboardReportMock } from "../mocks/report.mock";
-import { formatDisplayDate } from "./report-period";
+import type { ReportData, ReportPeriod } from '../interfaces/report';
+import { getDashboardReportMock } from '../mocks/report.mock';
+import { formatDisplayDate } from './report-period';
 
 /* ------------------------------ Layout ---------------------------------- */
 const W = 1000;
 const PAD = 48;
 const COLORS = {
-  bg: "#f6f8fb",
-  card: "#ffffff",
-  border: "#c8d2de",
-  text: "#0b1c30",
-  muted: "#4d556b",
-  primary: "#3796d2",
-  secondary: "#e8571d",
-  up: "#16a34a",
-  down: "#dc2626",
-  grid: "#e3e9f1",
+  bg: '#f6f8fb',
+  card: '#ffffff',
+  border: '#c8d2de',
+  text: '#0b1c30',
+  muted: '#4d556b',
+  primary: '#3796d2',
+  secondary: '#e8571d',
+  up: '#16a34a',
+  down: '#dc2626',
+  grid: '#e3e9f1',
 };
-const FONT = "font-family=\"Poppins, 'Segoe UI', Arial, sans-serif\"";
+const FONT = 'font-family="Poppins, \'Segoe UI\', Arial, sans-serif"';
 
 const esc = (s: string) =>
   s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 
-const nf = new Intl.NumberFormat("pt-PT");
+const nf = new Intl.NumberFormat('pt-PT');
 
 /* ------------------------------ Secções --------------------------------- */
 function header(data: ReportData): string {
   const { startDate, endDate } = data.period;
-  const generated = new Intl.DateTimeFormat("pt-PT", {
-    dateStyle: "short",
-    timeStyle: "short",
+  const generated = new Intl.DateTimeFormat('pt-PT', {
+    dateStyle: 'short',
+    timeStyle: 'short',
   }).format(new Date(data.generatedAt));
 
   return `
@@ -55,14 +55,14 @@ function statCards(data: ReportData, top: number): string {
     .map((s, i) => {
       const x = PAD + i * (cw + gap);
       const trendColor = s.trendUp ? COLORS.up : COLORS.down;
-      const arrow = s.trendUp ? "▲" : "▼";
+      const arrow = s.trendUp ? '▲' : '▼';
       return `
   <rect x="${x}" y="${top}" width="${cw}" height="${ch}" rx="14" fill="${COLORS.card}" stroke="${COLORS.border}"/>
   <text x="${x + 18}" y="${top + 28}" ${FONT} font-size="12" fill="${COLORS.muted}">${esc(s.label)}</text>
   <text x="${x + 18}" y="${top + 60}" ${FONT} font-size="26" font-weight="700" fill="${COLORS.text}">${esc(s.value)}</text>
   <text x="${x + 18}" y="${top + 82}" ${FONT} font-size="11" fill="${trendColor}">${arrow} ${esc(s.trend)}</text>`;
     })
-    .join("");
+    .join('');
 }
 
 function lineChart(data: ReportData, top: number): string {
@@ -87,32 +87,32 @@ function lineChart(data: ReportData, top: number): string {
     return `
   <line x1="${innerL}" y1="${y}" x2="${innerR}" y2="${y}" stroke="${COLORS.grid}" stroke-dasharray="4 4"/>
   <text x="${innerL - 10}" y="${y + 4}" ${FONT} font-size="10" text-anchor="end" fill="${COLORS.muted}">${nf.format(v)}</text>`;
-  }).join("");
+  }).join('');
 
   const xLabels = pts
     .map(
       (p, i) =>
-        `<text x="${xAt(i)}" y="${innerB + 20}" ${FONT} font-size="10" text-anchor="middle" fill="${COLORS.muted}">${esc(p.label)}</text>`,
+        `<text x="${xAt(i)}" y="${innerB + 20}" ${FONT} font-size="10" text-anchor="middle" fill="${COLORS.muted}">${esc(p.label)}</text>`
     )
-    .join("");
+    .join('');
 
-  const path = (key: "enviados" | "entregues") =>
+  const path = (key: 'enviados' | 'entregues') =>
     pts
       .map(
         (p, i) =>
-          `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(p[key]).toFixed(1)}`,
+          `${i === 0 ? 'M' : 'L'}${xAt(i).toFixed(1)},${yAt(p[key]).toFixed(1)}`
       )
-      .join(" ");
+      .join(' ');
 
-  const area = `${path("enviados")} L${xAt(pts.length - 1).toFixed(1)},${innerB} L${xAt(0).toFixed(1)},${innerB} Z`;
+  const area = `${path('enviados')} L${xAt(pts.length - 1).toFixed(1)},${innerB} L${xAt(0).toFixed(1)},${innerB} Z`;
 
-  const dots = (key: "enviados" | "entregues", color: string) =>
+  const dots = (key: 'enviados' | 'entregues', color: string) =>
     pts
       .map(
         (p, i) =>
-          `<circle cx="${xAt(i)}" cy="${yAt(p[key])}" r="3.5" fill="${COLORS.card}" stroke="${color}" stroke-width="2"/>`,
+          `<circle cx="${xAt(i)}" cy="${yAt(p[key])}" r="3.5" fill="${COLORS.card}" stroke="${color}" stroke-width="2"/>`
       )
-      .join("");
+      .join('');
 
   return `
   <rect x="${PAD}" y="${top}" width="${W - PAD * 2}" height="${h}" rx="16" fill="${COLORS.card}" stroke="${COLORS.border}"/>
@@ -124,10 +124,10 @@ function lineChart(data: ReportData, top: number): string {
   </g>
   ${gridLines}
   <path d="${area}" fill="${COLORS.primary}" fill-opacity="0.08"/>
-  <path d="${path("enviados")}" fill="none" stroke="${COLORS.primary}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="${path("entregues")}" fill="none" stroke="${COLORS.secondary}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-  ${dots("enviados", COLORS.primary)}
-  ${dots("entregues", COLORS.secondary)}
+  <path d="${path('enviados')}" fill="none" stroke="${COLORS.primary}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="${path('entregues')}" fill="none" stroke="${COLORS.secondary}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  ${dots('enviados', COLORS.primary)}
+  ${dots('entregues', COLORS.secondary)}
   ${xLabels}`;
 }
 
@@ -141,10 +141,10 @@ function table(data: ReportData, top: number): { svg: string; height: number } {
       const y = top + 44 + rowH * (i + 1);
       const rate = p.enviados
         ? ((p.entregues / p.enviados) * 100).toFixed(1)
-        : "0.0";
+        : '0.0';
       const zebra =
         i % 2 === 0
-          ? ""
+          ? ''
           : `<rect x="${PAD + 1}" y="${y - 19}" width="${W - PAD * 2 - 2}" height="${rowH}" fill="${COLORS.bg}"/>`;
       return `${zebra}
   <text x="${cols[0]}" y="${y}" ${FONT} font-size="12" fill="${COLORS.text}">${esc(p.label)}</text>
@@ -152,7 +152,7 @@ function table(data: ReportData, top: number): { svg: string; height: number } {
   <text x="${cols[2]}" y="${y}" ${FONT} font-size="12" text-anchor="end" fill="${COLORS.text}">${nf.format(p.entregues)}</text>
   <text x="${cols[3]}" y="${y}" ${FONT} font-size="12" text-anchor="end" fill="${COLORS.text}">${rate}%</text>`;
     })
-    .join("");
+    .join('');
 
   const hy = top + 44;
   return {
@@ -191,17 +191,17 @@ export function buildReportSvg(data: ReportData): string {
 
 export function reportFileName(period: ReportPeriod) {
   const suffix =
-    period.type === "custom"
+    period.type === 'custom'
       ? `${period.startDate}_${period.endDate}`
-      : period.endDate.slice(0, period.type === "daily" ? 10 : 7);
+      : period.endDate.slice(0, period.type === 'daily' ? 10 : 7);
   return `relatorio-dashboard-${period.type}-${suffix}.svg`;
 }
 
 /** Dispara o download do SVG no browser. */
 export function downloadSvg(svg: string, fileName: string) {
-  const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = url;
   a.download = fileName;
   document.body.appendChild(a);

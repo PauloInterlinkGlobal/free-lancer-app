@@ -17,7 +17,7 @@ export const createCookieSetter = async (
         });
       }
     });
-  } catch (error) {
+  } catch {
     console.warn(
       '[Next.js Cookies] Não é possível definir cookies num contexto Read-Only (Server Component).'
     );

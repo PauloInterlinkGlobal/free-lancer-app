@@ -27,7 +27,6 @@
     "goDashboard": "Go to dashboard",
     "goLogin": "Sign in"
   },
-
   "pagination": {
     "showing": "Page {current} of {total}",
     "previous": "Previous",
@@ -39,7 +38,57 @@
       "general": "General",
       "security": "Security",
       "team": "Team",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "project": "Project"
+    },
+    "project": {
+      "companyData": {
+        "title": "Company details",
+        "description": "Update your company information.",
+        "fields": {
+          "tradeName": {
+            "label": "Company name *",
+            "placeholder": "Enter the new company name"
+          },
+          "nif": {
+            "label": "Tax ID (NIF)",
+            "placeholder": "Enter the company's new Tax Identification Number"
+          },
+          "streetAddress": {
+            "label": "Company address",
+            "placeholder": "Enter the company's new current location"
+          },
+          "sector": {
+            "label": "Business sector",
+            "placeholder": "Enter the company's new business sector"
+          },
+          "email": {
+            "label": "Company email",
+            "placeholder": "Enter the new company email here"
+          },
+          "phone": {
+            "label": "Phone",
+            "placeholder": "Enter the new company phone number"
+          },
+          "website": {
+            "label": "Website",
+            "placeholder": "https://www.company.com"
+          }
+        },
+        "actions": {
+          "cancel": "Cancel",
+          "save": "Save changes"
+        },
+        "success": "Data updated successfully.",
+        "errors": {
+          "required": "This field is required.",
+          "nif": "Invalid tax ID.",
+          "email": "Enter a valid email address.",
+          "phone": "Enter a valid phone number.",
+          "website": "Enter a valid website.",
+          "generic": "Could not save changes."
+        }
+      }
     }
   }
 }

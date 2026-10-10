@@ -4,7 +4,6 @@ import {
   ISendSmsPayload,
   ISenderId,
   ISmsTemplate,
-  SmsType,
 } from '../../interfaces';
 
 export interface SmsFormProps {

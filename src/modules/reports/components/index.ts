@@ -1,3 +1,4 @@
+export * from './GenerateReportModal';
 export * from './ReportsCampaignTable/ReportsCampaignTable';
 export * from './ReportsCharts/ReportsChartsSection';
 export * from './ReportsCharts/ReportsDeliveryChart';

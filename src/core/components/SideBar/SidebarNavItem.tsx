@@ -2,7 +2,7 @@
 
 import { usePathname } from '@/core/i18n/navigation';
 import { ChevronDown, LucideIcon } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/core/i18n/navigation';
 import { useEffect, useState } from 'react';
 import { SidebarTooltip } from './SidebarTooltip';
 

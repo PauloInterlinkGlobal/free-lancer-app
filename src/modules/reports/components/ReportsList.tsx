@@ -12,6 +12,7 @@ import {
   trafficVolumeMock,
 } from '../mocks/reports.mock';
 import { filterCampaignReports, paginate } from '../utils/reports-filters';
+import { GenerateReportModal } from './GenerateReportModal';
 import { ReportsCampaignTable } from './ReportsCampaignTable/ReportsCampaignTable';
 import { ReportsChartsSection } from './ReportsCharts/ReportsChartsSection';
 import { ReportsStats } from './ReportsStats/ReportsStats';
@@ -50,6 +51,7 @@ export function ReportsList({
         totalPages={totalPages}
         totalItems={totalItems}
       />
+      <GenerateReportModal campaigns={campaigns} />
     </div>
   );
 }

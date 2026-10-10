@@ -26,7 +26,6 @@ export function BankTransferStepClient({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
-  const [transferReference, setTransferReference] = useState('');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState('');
   const [submitted, setSubmitted] = useState(false);

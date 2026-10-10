@@ -50,7 +50,7 @@ export function CompanyForm({
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="flex flex-col gap-6 p-5 shadow-sm md:p-6"
+      className="flex flex-col gap-6 rounded-2xl bg-surface p-5 shadow-sm md:p-6"
     >
       <div className="flex items-start gap-4">
         <span className="flex h-12 w-12 shrink-0 items-center justify-center text-primary">

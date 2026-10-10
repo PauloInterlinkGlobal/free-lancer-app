@@ -59,7 +59,7 @@ export function EditContactModal({
     if (!contact) return;
     setName(contact.name);
     setNumber(contact.number);
-    setSex(contact.sex);
+    setSex(contact.sex ?? 'male');
     setStatus(contact.status);
     setGroups(contact.groups);
     setErrors({});

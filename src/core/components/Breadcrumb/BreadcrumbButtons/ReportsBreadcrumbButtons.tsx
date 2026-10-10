@@ -1,31 +1,20 @@
 'use client';
 
-import { Download } from 'lucide-react';
+import { useModalStore } from '@/core/store/useModalStore';
+import { FileSpreadsheet } from 'lucide-react';
 
-interface ReportsBreadcrumbButtonsProps {
-  onExport?: () => void;
-}
-
-export function ReportsBreadcrumbButtons({
-  onExport,
-}: ReportsBreadcrumbButtonsProps) {
-  const handleExport = () => {
-    if (onExport) {
-      onExport();
-    } else {
-      console.log('Exportar relatório csv');
-    }
-  };
+export function ReportsBreadcrumbButtons() {
+  const { openModal } = useModalStore();
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex w-full items-center sm:w-auto">
       <button
         type="button"
-        onClick={handleExport}
-        className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90 active:scale-[0.98]"
+        onClick={() => openModal('GENERATE_REPORT')}
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 active:scale-[0.98] sm:w-auto"
       >
-        <Download size={16} aria-hidden />
-        Baixar Relatório
+        <FileSpreadsheet size={17} aria-hidden />
+        Exportar relatório
       </button>
     </div>
   );

@@ -1,6 +1,5 @@
 import { RecentCampaignsTable } from '@/modules/dashboard/components/Table/RecentCampaignsTable';
 import { ICampaign } from '@/modules/dashboard/interfaces/dashboard';
-import { History } from 'lucide-react';
 
 interface DashboardRecentTableProps {
   campaigns: ICampaign[];

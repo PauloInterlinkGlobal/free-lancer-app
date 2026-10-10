@@ -4,7 +4,6 @@ import { Modal } from '@/core/components/Modal';
 import { useModalStore } from '@/core/store/useModalStore';
 import { smsTypeLabel } from '@/modules/history/constants/history';
 import {
-  HistorySendingType,
   HistorySmsType,
   IHistorySms,
 } from '@/modules/history/interfaces/history';
@@ -21,11 +20,6 @@ import {
 const smsTypeStyles: Record<HistorySmsType, string> = {
   immediate: 'text-primary',
   scheduled: 'text-secondary',
-};
-
-const sendingTypeStyles: Record<HistorySendingType, string> = {
-  flash: 'bg-amber-500/10 text-amber-500',
-  normal: 'bg-surface-raised text-secondary-content',
 };
 
 const dateFormatter = new Intl.DateTimeFormat('pt-PT', {

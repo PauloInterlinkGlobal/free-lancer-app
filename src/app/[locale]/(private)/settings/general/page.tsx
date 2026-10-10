@@ -1,5 +1,4 @@
 import {
-  CompanyForm,
   PERSONAL_MOCK,
   PersonalForm,
   SettingsSection,
@@ -13,13 +12,6 @@ export default function GeneralPage() {
         description="Os teus dados pessoais e de acesso."
       >
         <PersonalForm defaultValues={PERSONAL_MOCK} />
-      </SettingsSection>
-
-      <SettingsSection
-        title="Empresa"
-        description="Informações da tua empresa."
-      >
-        <CompanyForm />
       </SettingsSection>
     </div>
   );

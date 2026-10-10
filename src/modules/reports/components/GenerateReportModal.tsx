@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { Modal } from "@/core/components/Modal";
-import { useModalStore } from "@/core/store/useModalStore";
-import { useToastStore } from "@/core/store";
-import { Calendar, Clock, FileSpreadsheet, X } from "lucide-react";
-import { useState } from "react";
-import { REPORT_EXPORT_PERIODS } from "../constants/reports";
+import { Modal } from '@/core/components/Modal';
+import { useModalStore } from '@/core/store/useModalStore';
+import { useToastStore } from '@/core/store';
+import { Calendar, Clock, FileSpreadsheet, X } from 'lucide-react';
+import { useState } from 'react';
+import { REPORT_EXPORT_PERIODS } from '../constants/reports';
 import type {
   ICampaignReport,
   ReportExportPeriod,
-} from "../interfaces/reports";
-import { downloadCampaignReportCsv } from "../utils/reports-csv";
+} from '../interfaces/reports';
+import { downloadCampaignReportCsv } from '../utils/reports-csv';
 
 interface GenerateReportModalProps {
   campaigns: ICampaignReport[];
@@ -19,9 +19,9 @@ interface GenerateReportModalProps {
 export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
   const { closeModal } = useModalStore();
   const { success, error } = useToastStore();
-  const [period, setPeriod] = useState<ReportExportPeriod>("monthly");
+  const [period, setPeriod] = useState<ReportExportPeriod>('monthly');
 
-  const reset = () => setPeriod("monthly");
+  const reset = () => setPeriod('monthly');
 
   const handleClose = () => {
     reset();
@@ -34,17 +34,17 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
       success(
         report.campaignCount > 0
           ? `Relatório CSV gerado com ${report.campaignCount} campanha(s): ${report.fileName}`
-          : `Relatório CSV gerado sem campanhas neste período: ${report.fileName}`,
+          : `Relatório CSV gerado sem campanhas neste período: ${report.fileName}`
       );
       reset();
       closeModal();
     } catch {
-      error("Não foi possível gerar o relatório CSV. Tente novamente.");
+      error('Não foi possível gerar o relatório CSV. Tente novamente.');
     }
   };
 
   const getPeriodIcon = (val: ReportExportPeriod) => {
-    if (val === "daily") return Clock;
+    if (val === 'daily') return Clock;
     return Calendar;
   };
 
@@ -55,7 +55,11 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
         <div className="flex shrink-0 items-start justify-between border-b border-divider px-4 py-3.5 sm:px-6 sm:py-5">
           <div className="flex items-start gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-12 sm:w-12 sm:rounded-2xl">
-              <FileSpreadsheet size={20} className="sm:h-6 sm:w-6" aria-hidden />
+              <FileSpreadsheet
+                size={20}
+                className="sm:h-6 sm:w-6"
+                aria-hidden
+              />
             </span>
             <div>
               <h2 className="text-base font-bold text-primary-content sm:text-lg">
@@ -101,20 +105,20 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
                     onClick={() => setPeriod(option.value)}
                     className={`flex items-center justify-between gap-2 rounded-xl p-2.5 text-left transition-all sm:rounded-2xl sm:p-3.5 ${
                       isSelected
-                        ? "border-2 border-primary bg-primary/[0.04] shadow-sm"
-                        : "border border-border-ui bg-surface hover:border-primary/40 hover:bg-item-hover"
+                        ? 'border-2 border-primary bg-primary/[0.04] shadow-sm'
+                        : 'border border-border-ui bg-surface hover:border-primary/40 hover:bg-item-hover'
                     }`}
                   >
                     <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                       <Icon
                         size={18}
-                        className={`shrink-0 sm:h-5 sm:w-5 ${isSelected ? "text-primary" : "text-muted-content"}`}
+                        className={`shrink-0 sm:h-5 sm:w-5 ${isSelected ? 'text-primary' : 'text-muted-content'}`}
                         aria-hidden
                       />
                       <div className="min-w-0">
                         <span
                           className={`block truncate text-xs font-bold sm:text-sm ${
-                            isSelected ? "text-primary" : "text-primary-content"
+                            isSelected ? 'text-primary' : 'text-primary-content'
                           }`}
                         >
                           {option.label}
@@ -128,9 +132,7 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
                     {/* Radio indicator */}
                     <span
                       className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-all sm:h-5 sm:w-5 ${
-                        isSelected
-                          ? "border-primary"
-                          : "border-border-ui"
+                        isSelected ? 'border-primary' : 'border-border-ui'
                       }`}
                     >
                       {isSelected && (

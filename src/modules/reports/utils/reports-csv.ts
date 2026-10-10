@@ -1,28 +1,28 @@
 import {
   campaignStatusLabel,
   REPORT_EXPORT_PERIODS,
-} from "../constants/reports";
+} from '../constants/reports';
 import type {
   ICampaignReport,
   ReportExportPeriod,
-} from "../interfaces/reports";
+} from '../interfaces/reports';
 
-const luandaDateParts = new Intl.DateTimeFormat("en-GB", {
-  timeZone: "Africa/Luanda",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
+const luandaDateParts = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Africa/Luanda',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
 });
 
-const campaignDateFormatter = new Intl.DateTimeFormat("pt-PT", {
-  timeZone: "Africa/Luanda",
-  dateStyle: "short",
-  timeStyle: "short",
+const campaignDateFormatter = new Intl.DateTimeFormat('pt-PT', {
+  timeZone: 'Africa/Luanda',
+  dateStyle: 'short',
+  timeStyle: 'short',
 });
 
 const formatDateKey = (date: Date) => {
   const parts = Object.fromEntries(
-    luandaDateParts.formatToParts(date).map(({ type, value }) => [type, value]),
+    luandaDateParts.formatToParts(date).map(({ type, value }) => [type, value])
   );
 
   return `${parts.year}-${parts.month}-${parts.day}`;
@@ -30,7 +30,7 @@ const formatDateKey = (date: Date) => {
 
 export function getReportDateRange(
   period: ReportExportPeriod,
-  now: Date = new Date(),
+  now: Date = new Date()
 ) {
   if (period === 'last_month') {
     const year = now.getFullYear();
@@ -45,7 +45,9 @@ export function getReportDateRange(
 
   const endDate = formatDateKey(now);
   const startDate = new Date(`${endDate}T00:00:00.000Z`);
-  const daysBack = ({ daily: 0, weekly: 6, monthly: 29 } as Record<string, number>)[period] ?? 29;
+  const daysBack =
+    ({ daily: 0, weekly: 6, monthly: 29 } as Record<string, number>)[period] ??
+    29;
   startDate.setUTCDate(startDate.getUTCDate() - daysBack);
 
   return {
@@ -57,7 +59,7 @@ export function getReportDateRange(
 const escapeCsvCell = (value: string | number) =>
   `"${String(value).replace(/"/g, '""')}"`;
 
-const formatAmount = (value: number) => value.toFixed(2).replace(".", ",");
+const formatAmount = (value: number) => value.toFixed(2).replace('.', ',');
 
 const formatCampaignDate = (value: string) => {
   const date = new Date(value);
@@ -69,11 +71,11 @@ const formatCampaignDate = (value: string) => {
 export function buildCampaignReportCsv(
   campaigns: ICampaignReport[],
   period: ReportExportPeriod,
-  now: Date = new Date(),
+  now: Date = new Date()
 ) {
   const { startDate, endDate } = getReportDateRange(period, now);
   const periodOption = REPORT_EXPORT_PERIODS.find(
-    (option) => option.value === period,
+    (option) => option.value === period
   );
   const periodLabel = periodOption?.label ?? period;
 
@@ -87,57 +89,57 @@ export function buildCampaignReportCsv(
 
   const totalRecipients = periodCampaigns.reduce(
     (total, campaign) => total + campaign.totalRecipients,
-    0,
+    0
   );
   const totalDelivered = periodCampaigns.reduce(
     (total, campaign) => total + campaign.deliveredCount,
-    0,
+    0
   );
   const totalFailed = periodCampaigns.reduce(
     (total, campaign) => total + campaign.failedCount,
-    0,
+    0
   );
   const currencies = [
     ...new Set(periodCampaigns.map(({ currency }) => currency)),
   ];
   const totalCost = periodCampaigns.reduce(
     (total, campaign) => total + campaign.cost,
-    0,
+    0
   );
 
   const rows: (string | number)[][] = [
     [
-      "Tipo de registo",
-      "Tipo de período",
-      "Data de início",
-      "Data de fim",
-      "Campanha",
-      "Remetente",
-      "Estado",
-      "Data de criação",
-      "Destinatários",
-      "Entregues",
-      "Falhados",
-      "Custo",
-      "Moeda",
+      'Tipo de registo',
+      'Tipo de período',
+      'Data de início',
+      'Data de fim',
+      'Campanha',
+      'Remetente',
+      'Estado',
+      'Data de criação',
+      'Destinatários',
+      'Entregues',
+      'Falhados',
+      'Custo',
+      'Moeda',
     ],
     [
-      "Resumo",
+      'Resumo',
       periodLabel,
       startDate,
       endDate,
       `${periodCampaigns.length} campanha(s)`,
-      "",
-      "",
-      "",
+      '',
+      '',
+      '',
       totalRecipients,
       totalDelivered,
       totalFailed,
-      currencies.length <= 1 ? formatAmount(totalCost) : "",
-      currencies.length === 1 ? currencies[0] : "",
+      currencies.length <= 1 ? formatAmount(totalCost) : '',
+      currencies.length === 1 ? currencies[0] : '',
     ],
     ...periodCampaigns.map((campaign) => [
-      "Campanha",
+      'Campanha',
       periodLabel,
       startDate,
       endDate,
@@ -153,7 +155,7 @@ export function buildCampaignReportCsv(
     ]),
   ];
 
-  const csv = rows.map((row) => row.map(escapeCsvCell).join(";")).join("\r\n");
+  const csv = rows.map((row) => row.map(escapeCsvCell).join(';')).join('\r\n');
 
   return {
     csv: `\uFEFF${csv}`,
@@ -164,12 +166,12 @@ export function buildCampaignReportCsv(
 
 export function downloadCampaignReportCsv(
   campaigns: ICampaignReport[],
-  period: ReportExportPeriod,
+  period: ReportExportPeriod
 ) {
   const report = buildCampaignReportCsv(campaigns, period);
-  const blob = new Blob([report.csv], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob([report.csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
+  const link = document.createElement('a');
 
   link.href = url;
   link.download = report.fileName;

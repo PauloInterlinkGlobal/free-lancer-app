@@ -20,6 +20,13 @@ export type ModalType =
   | 'DETAIL_HISTORY_SMS'
   | 'DETAIL_SCHEDULED_SMS'
   | 'DELETE_SCHEDULED_SMS'
+  | 'GENERATE_DASHBOARD_REPORT'
+  | 'GENERATE_REPORT'
+  | 'ADD_LINK'
+  | 'DELETE_LINK'
+  | 'PICK_GROUPS'
+  | 'PICK_TEMPLATES'
+  | 'PICK_LINKS'
   | null;
 
 type State = {

@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 
 export type ProjectStatus =
-  "active" | "suspended" | "pending_deletion" | "deleted";
+  'active' | 'suspended' | 'pending_deletion' | 'deleted';
 
 export interface CompanyContacts {
   phone: number;

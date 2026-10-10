@@ -2,11 +2,13 @@
 
 import AnimatedStep from '@/core/components/AnimatedStep/AnimatedStep';
 import { AuthCardLayout } from '@/core/components/Auth';
+import { useRouter } from '@/core/i18n/navigation';
 import { useForgotPasswordForm } from '../hooks/useForgotPasswordForm';
 import ForgotStepContent from './ForgotStepContent';
 import ForgotLeftColumn from './LeftColumn/ForgotLeftColumn';
 
 export default function ForgotPasswordForm() {
+  const router = useRouter();
   const form = useForgotPasswordForm();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -15,6 +17,10 @@ export default function ForgotPasswordForm() {
     else if (form.step === 'code') form.handleVerifyCode();
     else if (form.validateNewPassword()) {
       form.setIsLoading(true);
+      setTimeout(() => {
+        form.setIsLoading(false);
+        router.push('/login');
+      }, 600);
     }
   };
 
