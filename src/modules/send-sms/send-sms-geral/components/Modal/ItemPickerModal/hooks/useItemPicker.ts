@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ItemPickerItem } from '../types';
 
 export function normalizeSearch(text: string): string {
@@ -16,18 +16,32 @@ export function useItemPicker(
   mode: 'single' | 'multiple',
   pageSize: number = 6
 ) {
-  const [draft, setDraft] = useState<string[]>(selectedIds);
+  // Em modo single guarda apenas um ID, mesmo que venham vários do pai
+  const normalizeDraft = (ids: string[]) =>
+    mode === 'single' ? ids.slice(0, 1) : ids;
+
+  const [draft, setDraft] = useState<string[]>(() =>
+    normalizeDraft(selectedIds)
+  );
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
 
-  // Repõe o rascunho com os IDs seleccionados sempre que o modal abre
+  // Guarda a seleção mais recente sem a usar como dependência do reset.
+  // Um array novo a cada render do pai não deve apagar o rascunho.
+  const selectedRef = useRef(selectedIds);
   useEffect(() => {
-    if (isOpen) {
-      setDraft(selectedIds);
-      setQuery('');
-      setPage(1);
-    }
-  }, [isOpen, selectedIds]);
+    selectedRef.current = selectedIds;
+  }, [selectedIds]);
+
+  // Repõe o rascunho, a pesquisa e a página ao abrir E ao fechar
+  // (Cancelar, Esc, clique fora ou fecho externo). Cada abertura
+  // parte da seleção confirmada pelo pai.
+  useEffect(() => {
+    setDraft(normalizeDraft(selectedRef.current));
+    setQuery('');
+    setPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   // Filtragem insensível a maiúsculas e acentos
   const filteredItems = useMemo(() => {

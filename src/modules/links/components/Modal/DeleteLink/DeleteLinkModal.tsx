@@ -1,34 +1,40 @@
 'use client';
 
 import { DeleteModal } from '@/core/components/Modal/DeleteModal';
+import { useToastStore } from '@/core/store/toast.store';
 import { useModalStore } from '@/core/store/useModalStore';
-import { ILink } from '../../../interfaces/links';
+import { useTransition } from 'react';
+import { deleteLinkAction } from '../../../actions/links.actions';
+import { useLinkDeleteStore } from '../../../store/useLinkDeleteStore';
 
-interface DeleteLinkModalProps {
-  link: ILink | null;
-  onConfirm: (link: ILink) => void;
-  onClose?: () => void;
-}
-
-export function DeleteLinkModal({
-  link,
-  onConfirm,
-  onClose,
-}: DeleteLinkModalProps) {
+// Lê o link escolhido pela linha da tabela. Sem link, não há nada a eliminar.
+export function DeleteLinkModal() {
+  const link = useLinkDeleteStore((state) => state.link);
+  const clear = useLinkDeleteStore((state) => state.clear);
   const { closeModal } = useModalStore();
+  const { success, error: showError } = useToastStore();
+  const [isPending, startTransition] = useTransition();
 
-  const handleClose = () => {
+  if (!link) return null;
+
+  const finish = () => {
+    clear();
     closeModal();
-    onClose?.();
   };
 
   const handleConfirm = () => {
-    if (!link) return;
-    onConfirm(link);
-    handleClose();
-  };
+    startTransition(async () => {
+      const result = await deleteLinkAction(link.id);
 
-  if (!link) return null;
+      if (result.ok) {
+        success(`Link "${link.description}" eliminado com sucesso!`);
+      } else {
+        showError(result.error);
+      }
+
+      finish();
+    });
+  };
 
   return (
     <DeleteModal
@@ -39,7 +45,8 @@ export function DeleteLinkModal({
       warningMessage="Ao eliminar este link, deixará de estar disponível para inserção em novas mensagens de SMS."
       confirmText="Eliminar"
       onConfirm={handleConfirm}
-      onClose={handleClose}
+      onClose={finish}
+      isLoading={isPending}
     />
   );
 }

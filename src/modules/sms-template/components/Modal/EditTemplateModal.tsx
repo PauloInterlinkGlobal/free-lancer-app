@@ -3,12 +3,18 @@
 import { Input } from '@/core/components/Input';
 import { Modal } from '@/core/components/Modal';
 import { Select } from '@/core/components/Select';
+import { VariablesDropdown } from '@/core/components/VariablesDropdown';
 import { useToastStore } from '@/core/store/toast.store';
-import { Check, Tag } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { contactsMock } from '@/modules/contacts/contacts-geral/mocks/contacts.mock';
+import { collectCustomVariableKeys } from '@/modules/contacts/contacts-geral/utils/collectCustomVariableKeys';
+import { Check } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { TEMPLATE_CATEGORIES } from '../../constants/templates';
 import { ITemplate, TemplateCategory } from '../../interfaces/templates';
 import { extractVariables } from '../../utils/templates-filters';
+
+// TODO(api): as chaves personalizadas devem vir da lista de contactos da conta.
+const EDIT_TEMPLATE_CUSTOM_KEYS = collectCustomVariableKeys(contactsMock);
 
 interface EditTemplateModalProps {
   isOpen: boolean;
@@ -29,15 +35,18 @@ export function EditTemplateModal({
   const [category, setCategory] = useState<TemplateCategory>('promocional');
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
+  const contentRef = useRef<HTMLTextAreaElement>(null);
 
+  // Repõe o formulário com o modelo atual sempre que o modal abre,
+  // para que edições não guardadas não sobrevivam a um fecho.
   useEffect(() => {
-    if (template) {
+    if (isOpen && template) {
       setTitle(template.title);
       setCategory(template.category);
       setContent(template.content);
       setError('');
     }
-  }, [template]);
+  }, [isOpen, template]);
 
   const variables = extractVariables(content);
 
@@ -46,8 +55,23 @@ export function EditTemplateModal({
     onClose();
   };
 
-  const insertVariable = (variableName: string) => {
-    setContent((prev) => `${prev}{{${variableName}}}`);
+  // Insere o token na posição do cursor, como no editor de mensagens.
+  const insertVariableToken = (token: string) => {
+    const el = contentRef.current;
+    if (!el) {
+      setContent((prev) => prev + token);
+      return;
+    }
+
+    const start = el.selectionStart ?? content.length;
+    const end = el.selectionEnd ?? content.length;
+    setContent(content.slice(0, start) + token + content.slice(end));
+
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + token.length;
+      el.setSelectionRange(pos, pos);
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -85,7 +109,7 @@ export function EditTemplateModal({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
-      <div className="w-full max-w-lg overflow-hidden rounded-xl border border-border-ui bg-surface shadow-2xl">
+      <div className="w-full max-w-lg rounded-xl border border-border-ui bg-surface shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-dashed border-border-ui px-5 py-4">
           <div>
@@ -121,49 +145,33 @@ export function EditTemplateModal({
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-text-primary">
+              <label
+                htmlFor="edit-template-content"
+                className="text-sm font-medium text-primary-content"
+              >
                 Conteúdo do Modelo
               </label>
-              <span className="font-mono text-xs text-text-muted">
+              <span className="font-mono text-xs text-muted-content">
                 {variables.length}{' '}
                 {variables.length === 1 ? 'variável' : 'variáveis'}
               </span>
             </div>
 
             <textarea
+              ref={contentRef}
+              id="edit-template-content"
               rows={4}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Ex: Sr(a) {{firstName}}, a sua encomenda {{codigo}} está a caminho..."
-              className="w-full resize-none rounded-xl border border-border-ui bg-surface px-3 py-2 text-sm text-primary-content placeholder:text-muted-content outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary dark:focus:ring-primary-400"
+              className="w-full resize-none rounded-xl border border-border-ui bg-surface px-3 py-2 text-sm text-primary-content outline-none transition-colors placeholder:text-muted-content focus:border-primary focus:ring-1 focus:ring-primary dark:focus:ring-primary-400"
             />
-          </div>
 
-          {/* Quick Variable suggestions */}
-          <div className="flex flex-col gap-1.5">
-            <span className="flex items-center gap-1 text-xs font-medium text-text-muted">
-              <Tag size={12} />
-              Inserir variáveis rápidas:
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                'firstName',
-                'lastName',
-                'cidade',
-                'ano',
-                'codigo',
-                'data',
-                'valor',
-              ].map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => insertVariable(v)}
-                  className="rounded-md border border-border-ui/60 bg-surface-raised px-2 py-0.5 font-mono text-xs text-primary transition-colors hover:bg-primary-500/10"
-                >
-                  +{`{{${v}}}`}
-                </button>
-              ))}
+            <div className="flex items-center">
+              <VariablesDropdown
+                onSelect={insertVariableToken}
+                customKeys={EDIT_TEMPLATE_CUSTOM_KEYS}
+              />
             </div>
           </div>
 
@@ -179,7 +187,6 @@ export function EditTemplateModal({
             <button
               type="button"
               onClick={handleClose}
-              aria-label="Fechar"
               className="inline-flex items-center m-auto gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
               Cancelar

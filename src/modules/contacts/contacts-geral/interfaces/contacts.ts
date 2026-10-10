@@ -22,3 +22,22 @@ export interface ICreateContactInput {
   groups: string[];
   variables: Record<string, string>;
 }
+
+// Erros devolvidos pela Server Action de criação. Os erros de variáveis são
+// por chave; os de linha (chave vazia ou repetida) são por índice da linha.
+export interface ContactFormErrors {
+  name?: string;
+  surname?: string;
+  number?: string;
+  email?: string;
+  groups?: string;
+  generalVariables?: string;
+  variables?: Record<string, string>;
+  rows?: Record<string, string>;
+  form?: string;
+}
+
+export interface ContactFormState {
+  ok: boolean;
+  errors: ContactFormErrors;
+}

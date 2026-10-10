@@ -2,9 +2,11 @@
 
 import { usePathBreadcrumb } from '@/core/hooks/use-path-breadcrumb';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
+import { useModalStore } from '@/core/store/useModalStore';
 import { ApiIntegrationBreadcrumbButtons } from './BreadcrumbButtons/ApiIntegrationBreadcrumbButtons';
 import { ContactsBreadcrumbButtons } from './BreadcrumbButtons/ContactsBreadcrumbButtons';
 import { HistoryBreadcrumbButtons } from './BreadcrumbButtons/HistoryBreadcrumbButtons';
+import { LinksBreadcrumbButtons } from './BreadcrumbButtons/LinksBreadcrumbButtons';
 import { ReportsBreadcrumbButtons } from './BreadcrumbButtons/ReportsBreadcrumbButtons';
 import { SendersBreadcrumbButtons } from './BreadcrumbButtons/SendersBreadcrumbButtons';
 
@@ -12,6 +14,7 @@ export function BreadcrumbClient() {
   const { title, description } = usePathBreadcrumb();
   const pathname = usePathname();
   const router = useRouter();
+  const { openModal } = useModalStore();
 
   if (pathname === '/menu') return null;
 
@@ -25,6 +28,7 @@ export function BreadcrumbClient() {
   const isContactsPage =
     segments.includes('contacts') && lastSegment === 'contacts';
   const isSendersPage = lastSegment === 'senders';
+  const isLinksPage = lastSegment === 'links';
   const isReportsPage =
     lastSegment === 'reports' || lastSegment === 'relatorios';
   const isApiIntegrationPage = lastSegment === 'api-integration';
@@ -46,13 +50,17 @@ export function BreadcrumbClient() {
         <ContactsBreadcrumbButtons
           onImport={() => router.push('/contacts/import')}
           onExport={() => console.log('Exportar contactos')}
-          onAdd={() => console.log('Adicionar contacto')}
+          onAdd={() => openModal('ADD_CONTACT')}
         />
       );
     }
 
     if (isSendersPage) {
       return <SendersBreadcrumbButtons />;
+    }
+
+    if (isLinksPage) {
+      return <LinksBreadcrumbButtons />;
     }
 
     if (isApiIntegrationPage) {

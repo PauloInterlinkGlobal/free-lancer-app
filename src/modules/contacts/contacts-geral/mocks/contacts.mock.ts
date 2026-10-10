@@ -1,5 +1,6 @@
 import { IContact } from '@/modules/contacts/contacts-geral/interfaces/contacts';
 
+// TODO(api): Substituir por chamada à lista de contactos da API (GET) quando disponível.
 export const contactsMock: IContact[] = [
   {
     id: '1',

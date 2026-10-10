@@ -4,6 +4,8 @@ import { Input } from '@/core/components/Input';
 import { Select } from '@/core/components/Select';
 import { VariablesDropdown } from '@/core/components/VariablesDropdown';
 import { useToastStore } from '@/core/store/toast.store';
+import { contactsMock } from '@/modules/contacts/contacts-geral/mocks/contacts.mock';
+import { collectCustomVariableKeys } from '@/modules/contacts/contacts-geral/utils/collectCustomVariableKeys';
 import { Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { TEMPLATE_CATEGORIES } from '../../constants/templates';
@@ -13,6 +15,9 @@ import { extractVariables } from '../../utils/templates-filters';
 import { getSmsMetrics } from '../TemplatePreview/utils/smsMetrics';
 
 const selectableCategories = TEMPLATE_CATEGORIES.filter((c) => c.value !== '');
+
+// TODO(api): as chaves personalizadas devem vir da lista de contactos da conta.
+const TEMPLATE_CUSTOM_KEYS = collectCustomVariableKeys(contactsMock);
 
 export const TEMPLATE_COMPOSER_ID = 'template-composer';
 export const TEMPLATE_COMPOSER_TITLE_ID = 'template-composer-title';
@@ -171,7 +176,10 @@ export function TemplateComposer({ base, baseNonce }: TemplateComposerProps) {
       </div>
 
       <div className="flex items-center gap-2">
-        <VariablesDropdown onSelect={insertVariableToken} />
+        <VariablesDropdown
+          onSelect={insertVariableToken}
+          customKeys={TEMPLATE_CUSTOM_KEYS}
+        />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-dashed border-border-ui pt-4">

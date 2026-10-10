@@ -3,6 +3,8 @@
 import { SelectPopup } from '@/core/components/Select';
 import { useModalStore } from '@/core/store/useModalStore';
 import type { IContact } from '@/modules/contacts/contacts-geral/interfaces/contacts';
+import { contactsMock } from '@/modules/contacts/contacts-geral/mocks/contacts.mock';
+import { collectCustomVariableKeys } from '@/modules/contacts/contacts-geral/utils/collectCustomVariableKeys';
 import { SelectContactsModal } from '@/modules/send-sms/send-sms-geral/components/Modal/AddContactsModal';
 import { MessageEditor } from '@/modules/send-sms/send-sms-geral/components/SmsForm/MessageEditor';
 import {
@@ -28,12 +30,16 @@ import { PhonePreview } from '../PhonePreview';
 import { SectionCard } from '../SectionCard';
 import { SmsSchedule } from '../SmsSchedule';
 
+// TODO(api): as chaves personalizadas devem vir da lista de contactos da conta.
+// Mesma lista para o editor, a pré-visualização e o SMS de teste.
+const SMS_CUSTOM_KEYS = collectCustomVariableKeys(contactsMock);
+
 interface SmsFormProps {
   senderIds: ISenderId[];
   groups: IContactGroup[];
   templates: ISmsTemplate[];
   availableContacts: IContact[];
-  links?: ILink[];
+  links?: Pick<ILink, 'id' | 'description' | 'url'>[];
   loading?: boolean;
   balance?: number;
   onSendTest?: (message: string) => void | Promise<void>;
@@ -92,7 +98,10 @@ export function SmsForm({
 
   const senderName = senderIds.find((s) => s.id === senderId)?.name;
   const info = useMemo(() => getSmsInfo(message), [message]);
-  const previewMessage = useMemo(() => fillVariables(message), [message]);
+  const previewMessage = useMemo(
+    () => fillVariables(message, SMS_CUSTOM_KEYS),
+    [message]
+  );
 
   const totalRecipients =
     groups
@@ -114,12 +123,6 @@ export function SmsForm({
     !insufficientBalance &&
     !loading;
 
-  function toggleGroup(id: string) {
-    setGroupIds((prev) =>
-      prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]
-    );
-  }
-
   function removeContact(contact: string) {
     setContacts((prev) => prev.filter((c) => c !== contact));
   }
@@ -140,7 +143,7 @@ export function SmsForm({
     if (!onSendTest) return;
     setTesting(true);
     try {
-      await onSendTest(fillVariables(message.trim()));
+      await onSendTest(fillVariables(message.trim(), SMS_CUSTOM_KEYS));
     } finally {
       setTesting(false);
     }
@@ -244,7 +247,7 @@ export function SmsForm({
           <GroupsCard
             groups={groups}
             selectedIds={groupIds}
-            onToggle={toggleGroup}
+            onChange={setGroupIds}
           />
 
           <div className="flex flex-col gap-2">
@@ -311,15 +314,20 @@ export function SmsForm({
           title="Mensagem"
           description="Escreva o texto ou parta de um modelo."
         >
-          <TemplatesCard templates={templates} onSelect={setMessage} />
+          <TemplatesCard
+            templates={templates}
+            currentMessage={message}
+            onSelect={setMessage}
+          />
 
-          <LinksCard onInsertLink={handleInsertLink} />
+          <LinksCard links={links} onInsertLink={handleInsertLink} />
 
           <MessageEditor
             value={message}
             onChange={setMessage}
             onSendTest={onSendTest ? handleSendTest : undefined}
             testing={testing}
+            customKeys={SMS_CUSTOM_KEYS}
           />
         </SectionCard>
 

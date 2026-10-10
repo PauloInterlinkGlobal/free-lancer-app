@@ -1,4 +1,4 @@
-import { linksMock } from '@/modules/links/mocks/links.mock';
+import type { ILink } from '@/modules/links/interfaces/links';
 import { contactsMock } from '../../contacts/contacts-geral/mocks/contacts.mock';
 import { sendSms } from './actions/sendSms';
 import { SmsForm } from './components/SmsForm';
@@ -9,10 +9,12 @@ import {
   TEMPLATES_MOCK,
 } from './mocks/sendsms.mock';
 
-export function SendsmsList() {
-  // TODO(api): Substituir por chamada ao serviço de links aprovados quando a API estiver disponível.
-  const approvedLinks = linksMock.filter((link) => link.status === 'approved');
+interface SendsmsListProps {
+  /** Links aprovados, já filtrados no servidor. */
+  links: Pick<ILink, 'id' | 'description' | 'url'>[];
+}
 
+export function SendsmsList({ links }: SendsmsListProps) {
   return (
     <section className="flex flex-col gap-6">
       <SendSmsStats sms={410} contacts={4988} groups={18} />
@@ -22,7 +24,7 @@ export function SendsmsList() {
         groups={GROUPS_MOCK}
         templates={TEMPLATES_MOCK}
         availableContacts={contactsMock}
-        links={approvedLinks}
+        links={links}
         onSubmit={sendSms}
       />
     </section>

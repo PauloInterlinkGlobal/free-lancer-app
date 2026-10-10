@@ -12,7 +12,7 @@ export interface SmsFormProps {
   groups: IContactGroup[];
   templates: ISmsTemplate[];
   availableContacts: IContact[];
-  links?: ILink[];
+  links?: Pick<ILink, 'id' | 'description' | 'url'>[];
   loading?: boolean;
   balance?: number;
   onSendTest?: (message: string) => Promise<void>;

@@ -1,16 +1,12 @@
-'use client';
-
+// Camada 2 (servidor): filtra e pagina os dados e compõe os componentes cliente.
+// Não tem estado nem handlers; as interações ficam nos componentes-folha.
 import { statusLabel } from '@/modules/contacts/contacts-geral/constants/contacts';
-import {
-  IContact,
-  ICreateContactInput,
-} from '@/modules/contacts/contacts-geral/interfaces/contacts';
+import { IContact } from '@/modules/contacts/contacts-geral/interfaces/contacts';
 import {
   filterContacts,
   paginate,
   type ContactsFiltersValue,
 } from '@/modules/contacts/contacts-geral/utils/contacts-filters';
-import { useState } from 'react';
 import { ContactsFilters } from './ContactsFilters';
 import { ContactsTable } from './ContactsTable';
 import { AddContactModal } from './Modal';
@@ -18,6 +14,7 @@ import { AddContactModal } from './Modal';
 interface ContactsListProps {
   data: IContact[];
   filters: ContactsFiltersValue;
+  groupOptions: { value: string; label: string }[];
 }
 
 const statusOptions = Object.entries(statusLabel).map(([value, label]) => ({
@@ -25,27 +22,8 @@ const statusOptions = Object.entries(statusLabel).map(([value, label]) => ({
   label,
 }));
 
-export function ContactsList({ data, filters }: ContactsListProps) {
-  const [contacts, setContacts] = useState<IContact[]>(data);
-
-  const handleCreate = (input: ICreateContactInput) => {
-    // TODO(api): Substituir por chamada de criação na API quando disponível.
-    const newContact: IContact = {
-      id: `contact-${Date.now()}`,
-      name: input.name,
-      surname: input.surname,
-      number: input.number,
-      email: input.email,
-      date: new Date().toISOString(),
-      groups: input.groups,
-      variables: input.variables,
-      status: 'active',
-    };
-
-    setContacts((prev) => [newContact, ...prev]);
-  };
-
-  const filtered = filterContacts(contacts, filters);
+export function ContactsList({ data, filters, groupOptions }: ContactsListProps) {
+  const filtered = filterContacts(data, filters);
   const { items, currentPage, totalPages } = paginate(filtered, filters.page);
 
   return (
@@ -58,10 +36,7 @@ export function ContactsList({ data, filters }: ContactsListProps) {
         totalPages={totalPages}
       />
 
-      <AddContactModal
-        existingNumbers={contacts.map((c) => c.number)}
-        onCreate={handleCreate}
-      />
+      <AddContactModal groupOptions={groupOptions} />
     </div>
   );
 }

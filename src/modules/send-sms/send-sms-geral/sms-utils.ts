@@ -1,4 +1,7 @@
-import { DYNAMIC_VARIABLES } from '@/core/constants/dynamic-variables';
+import {
+  DYNAMIC_VARIABLES,
+  getCustomVariableExample,
+} from '@/core/constants/dynamic-variables';
 
 const GSM_REGEX =
   /^[A-Za-z0-9 \r\n@£$¥èéùìòÇØøÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ!"#¤%&'()*+,\-./:;<=>?¡ÄÖÑÜ§¿äöñüà^{}\\[~\]|€]*$/;
@@ -29,32 +32,49 @@ export function formatSms(value: number) {
   }).format(value)} SMS`;
 }
 
-/** Exemplo usado na pré-visualização */
-export const PREVIEW_VARIABLES: Record<string, string> = {
-  ...DYNAMIC_VARIABLES.reduce(
-    (acc, v) => {
-      acc[v.key] = v.exemplo;
-      return acc;
-    },
-    {} as Record<string, string>
-  ),
-  // Compatibilidade com chaves legadas e variáveis comuns
+/** Exemplos usados na pré-visualização (variáveis do sistema + legadas). */
+export const PREVIEW_VARIABLES: Readonly<Record<string, string>> = {
+  ...Object.fromEntries(DYNAMIC_VARIABLES.map((v) => [v.key, v.exemplo])),
+  // Compatibilidade com chaves legadas (sintaxe antiga {chave} continua a funcionar sem customKeys)
   nome: 'Ana',
-  empresa: 'Sonangol',
-  cidade: 'Luanda',
+  empresa: getCustomVariableExample('empresa'),
+  cidade: getCustomVariableExample('cidade'),
 };
 
-export function fillVariables(text: string): string {
-  // 1. Substitui sintaxe nova {{ chave }} (aceita espaços internos opcionais)
+/**
+ * Valor de exemplo para uma chave, ou `undefined` se a chave não for conhecida.
+ * Usa propriedade própria, para que chaves como `constructor` ou `toString`
+ * não resolvam para propriedades herdadas do objeto.
+ */
+function exampleFor(key: string, customKeys: readonly string[]) {
+  if (Object.prototype.hasOwnProperty.call(PREVIEW_VARIABLES, key)) {
+    return PREVIEW_VARIABLES[key];
+  }
+  if (customKeys.includes(key)) return getCustomVariableExample(key);
+  return undefined;
+}
+
+/**
+ * Substitui variáveis pelos exemplos da pré-visualização.
+ * - `{{chave}}` (aceita espaços internos) é a sintaxe atual.
+ * - `{chave}` é a sintaxe antiga, mantida por compatibilidade.
+ * - Chaves desconhecidas ficam como estão, para se verem os erros de digitação.
+ * - `customKeys` são as variáveis personalizadas do contexto (opcional).
+ */
+export function fillVariables(
+  text: string,
+  customKeys: readonly string[] = []
+): string {
+  // 1. Sintaxe atual {{ chave }}
   let filled = text.replace(
     /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g,
-    (match, key: string) => PREVIEW_VARIABLES[key] ?? match
+    (match, key: string) => exampleFor(key, customKeys) ?? match
   );
 
-  // 2. Substitui sintaxe antiga { chave } para compatibilidade retroativa
+  // 2. Sintaxe antiga { chave }, sem tocar em {{ chave }} já tratada
   filled = filled.replace(
     /(?<!\{)\{([a-zA-Z0-9_]+)\}(?!\})/g,
-    (match, key: string) => PREVIEW_VARIABLES[key] ?? match
+    (match, key: string) => exampleFor(key, customKeys) ?? match
   );
 
   return filled;

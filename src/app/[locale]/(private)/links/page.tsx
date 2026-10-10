@@ -1,5 +1,5 @@
 import { LinksList } from '@/modules/links/components/LinksList';
-import { linksMock } from '@/modules/links/mocks/links.mock';
+import { getAllLinks } from '@/modules/links/services/links.service';
 import { parseLinksFilters } from '@/modules/links/utils/links-filters';
 
 interface LinksPageProps {
@@ -8,8 +8,8 @@ interface LinksPageProps {
 
 export default async function LinksPage({ searchParams }: LinksPageProps) {
   const filters = parseLinksFilters(await searchParams);
-  // TODO(api): Substituir linksMock por chamada ao serviço de links quando a API estiver disponível.
-  const data = linksMock;
+  // Os dados vêm do serviço em memória (globalThis) até existir API; criar e eliminar atualizam esta lista.
+  const links = await getAllLinks();
 
-  return <LinksList initialData={data} filters={filters} />;
+  return <LinksList links={links} filters={filters} />;
 }

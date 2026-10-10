@@ -1,5 +1,6 @@
 import type { IContactGroup, ISenderId, ISmsTemplate } from '../interfaces';
 
+// TODO(api): Substituir estes mocks (remetentes, grupos, modelos) por chamadas à API quando disponível.
 export const SENDER_IDS_MOCK: ISenderId[] = [
   { id: '1', name: 'Zeno' },
   { id: '2', name: 'SMSillico' },

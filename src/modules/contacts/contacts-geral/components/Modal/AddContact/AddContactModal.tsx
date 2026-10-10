@@ -1,18 +1,19 @@
 'use client';
 
-import { Input } from '@/core/components/Input';
 import { Modal } from '@/core/components/Modal';
 import { MultiSelect, type MultiSelectOption } from '@/core/components/Select';
 import { useToastStore } from '@/core/store/toast.store';
 import { useModalStore } from '@/core/store/useModalStore';
-import { groupsMock } from '@/modules/contacts/contacts-groups/mocks/groups.mock';
 import { AlertCircle, Plus, Sparkles, Trash2, UserPlus, X } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
-import { ICreateContactInput } from '../../../interfaces/contacts';
-import {
-  ContactValidationErrors,
-  validateContact,
-} from '../../../utils/contact-validation';
+import { useActionState, useEffect, useRef, useState } from 'react';
+import { createContactAction } from '../../../actions/contacts.actions';
+import type {
+  ContactFormErrors,
+  ContactFormState,
+  ICreateContactInput,
+} from '../../../interfaces/contacts';
+
+const MAX_CUSTOM_VARIABLES = 10;
 
 interface VariableRow {
   id: string;
@@ -20,530 +21,543 @@ interface VariableRow {
   value: string;
 }
 
+let rowSequence = 0;
+const createRowId = () => `var-row-${++rowSequence}`;
+
+const toVariableRows = (variables?: Record<string, string>): VariableRow[] =>
+  Object.entries(variables ?? {}).map(([key, value]) => ({
+    id: createRowId(),
+    key,
+    value: String(value),
+  }));
+
+const initialState: ContactFormState = { ok: false, errors: {} };
+
+const inputClass = (hasError: boolean) =>
+  `rounded-lg border bg-surface px-3 py-2.5 text-sm text-primary-content placeholder:text-muted-content outline-none transition-colors ${
+    hasError
+      ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+      : 'border-border-ui focus:border-primary focus:ring-1 focus:ring-primary'
+  }`;
+
+const rowInputClass = (hasError: boolean) =>
+  `rounded-lg border bg-surface px-2.5 py-1.5 text-xs text-primary-content placeholder:text-muted-content outline-none focus:ring-1 ${
+    hasError
+      ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+      : 'border-border-ui focus:border-primary focus:ring-primary'
+  }`;
+
 interface AddContactModalProps {
-  existingNumbers?: string[];
-  groupOptions?: MultiSelectOption[];
+  /** Grupos disponíveis, já preparados no servidor. */
+  groupOptions: MultiSelectOption[];
+  /** Valores iniciais. Preparado para reutilização em EDIT_CONTACT (sem edição nesta fase). */
   initialValues?: Partial<ICreateContactInput>;
-  onCreate?: (contact: ICreateContactInput) => void | Promise<void>;
-  onClose?: () => void;
 }
 
-const DEFAULT_GROUP_OPTIONS: MultiSelectOption[] = groupsMock.map((g) => ({
-  value: g.name,
-  label: g.name,
-}));
-
+// O conteúdo do Modal só existe enquanto o modal está aberto. Por isso o estado
+// do formulário (campos, linhas e erros) repõe-se sozinho ao fechar por qualquer via.
 export function AddContactModal({
-  existingNumbers = [],
-  groupOptions = DEFAULT_GROUP_OPTIONS,
+  groupOptions,
   initialValues,
-  onCreate,
-  onClose,
+}: AddContactModalProps) {
+  return (
+    <Modal id="ADD_CONTACT">
+      <AddContactForm groupOptions={groupOptions} initialValues={initialValues} />
+    </Modal>
+  );
+}
+
+function AddContactForm({
+  groupOptions,
+  initialValues,
 }: AddContactModalProps) {
   const { closeModal } = useModalStore();
   const { success } = useToastStore();
 
-  const [name, setName] = useState(initialValues?.name || '');
-  const [surname, setSurname] = useState(initialValues?.surname || '');
-  const [number, setNumber] = useState(initialValues?.number || '');
-  const [email, setEmail] = useState(initialValues?.email || '');
-  const [groups, setGroups] = useState<string[]>(initialValues?.groups || []);
-  const [variables, setVariables] = useState<VariableRow[]>(() => {
-    if (initialValues?.variables) {
-      return Object.entries(initialValues.variables).map(([key, value]) => ({
-        id: `var-${Math.random().toString(36).substring(2, 9)}`,
-        key,
-        value: String(value),
-      }));
-    }
-    return [];
-  });
+  const [state, formAction, isPending] = useActionState(
+    createContactAction,
+    initialState
+  );
 
-  const [errors, setErrors] = useState<ContactValidationErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [name, setName] = useState(initialValues?.name ?? '');
+  const [surname, setSurname] = useState(initialValues?.surname ?? '');
+  const [number, setNumber] = useState(initialValues?.number ?? '');
+  const [email, setEmail] = useState(initialValues?.email ?? '');
+  const [groups, setGroups] = useState<string[]>(initialValues?.groups ?? []);
+  const [rows, setRows] = useState<VariableRow[]>(() =>
+    toVariableRows(initialValues?.variables)
+  );
 
-  // Refs para focar no primeiro campo inválido
+  // Erros do servidor que o utilizador já começou a corrigir (ocultos até nova submissão).
+  const [hidden, setHidden] = useState<Partial<Record<string, boolean>>>({});
+
   const nameInputRef = useRef<HTMLInputElement>(null);
   const surnameInputRef = useRef<HTMLInputElement>(null);
   const numberInputRef = useRef<HTMLInputElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
-  const variableKeyRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const rowKeyRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const rowsRef = useRef<VariableRow[]>(rows);
+  rowsRef.current = rows;
 
-  const resetForm = () => {
-    setName(initialValues?.name || '');
-    setSurname(initialValues?.surname || '');
-    setNumber(initialValues?.number || '');
-    setEmail(initialValues?.email || '');
-    setGroups(initialValues?.groups || []);
-    if (initialValues?.variables) {
-      setVariables(
-        Object.entries(initialValues.variables).map(([key, value]) => ({
-          id: `var-${Math.random().toString(36).substring(2, 9)}`,
-          key,
-          value: String(value),
-        }))
-      );
-    } else {
-      setVariables([]);
-    }
-    setErrors({});
-    setIsSubmitting(false);
-  };
+  // Garante um único toast e um único fecho por resposta de sucesso.
+  const handledState = useRef<ContactFormState | null>(null);
 
-  const handleClose = () => {
-    resetForm();
-    closeModal();
-    onClose?.();
-  };
-
-  // Se initialValues mudar no futuro (reutilização para edição)
   useEffect(() => {
-    if (initialValues) {
-      setName(initialValues.name || '');
-      setSurname(initialValues.surname || '');
-      setNumber(initialValues.number || '');
-      setEmail(initialValues.email || '');
-      setGroups(initialValues.groups || []);
-      if (initialValues.variables) {
-        setVariables(
-          Object.entries(initialValues.variables).map(([key, value]) => ({
-            id: `var-${Math.random().toString(36).substring(2, 9)}`,
-            key,
-            value: String(value),
-          }))
-        );
-      }
+    if (!state.ok || handledState.current === state) return;
+    handledState.current = state;
+    success('Contacto adicionado');
+    closeModal();
+  }, [state, success, closeModal]);
+
+  // Cada nova resposta do servidor volta a mostrar os seus erros.
+  useEffect(() => {
+    setHidden({});
+  }, [state]);
+
+  // Foca o primeiro campo com erro, só quando chega uma nova resposta do servidor.
+  // Não depende de `rows`: senão roubava o foco a cada tecla.
+  useEffect(() => {
+    if (state.ok) return;
+    const errors: ContactFormErrors = state.errors;
+    if (errors.name) nameInputRef.current?.focus();
+    else if (errors.surname) surnameInputRef.current?.focus();
+    else if (errors.number) numberInputRef.current?.focus();
+    else if (errors.email) emailInputRef.current?.focus();
+    else if (errors.rows) {
+      const firstIndex = Number(Object.keys(errors.rows)[0]);
+      const row = rowsRef.current[firstIndex];
+      if (row) rowKeyRefs.current[row.id]?.focus();
     }
-  }, [initialValues]);
+  }, [state]);
 
-  const handleAddVariable = () => {
-    if (variables.length >= 10) return;
-    const newId = `var-${Date.now()}`;
-    setVariables((prev) => [...prev, { id: newId, key: '', value: '' }]);
+  const touch = (...fields: string[]) =>
+    setHidden((prev) => {
+      const next = { ...prev };
+      for (const field of fields) next[field] = true;
+      return next;
+    });
+
+  const isHidden = (field: string) => Boolean(hidden[field]);
+
+  const errorFor = (field: keyof ContactFormErrors) =>
+    isHidden(field) ? undefined : state.errors[field];
+
+  const nameError = errorFor('name') as string | undefined;
+  const surnameError = errorFor('surname') as string | undefined;
+  const numberError = errorFor('number') as string | undefined;
+  const emailError = errorFor('email') as string | undefined;
+  const groupsError = errorFor('groups') as string | undefined;
+  const generalVariablesError = errorFor('generalVariables') as
+    | string
+    | undefined;
+
+  const handleAddRow = () => {
+    if (rows.length >= MAX_CUSTOM_VARIABLES) return;
+    setRows((prev) => [...prev, { id: createRowId(), key: '', value: '' }]);
+    touch('rows', 'variables', 'generalVariables');
   };
 
-  const handleRemoveVariable = (id: string) => {
-    setVariables((prev) => prev.filter((v) => v.id !== id));
-    delete variableKeyRefs.current[id];
+  const handleRemoveRow = (id: string) => {
+    setRows((prev) => prev.filter((row) => row.id !== id));
+    delete rowKeyRefs.current[id];
+    touch('rows', 'variables', 'generalVariables');
   };
 
-  const handleVariableChange = (
-    id: string,
-    field: 'key' | 'value',
-    val: string
-  ) => {
-    setVariables((prev) =>
-      prev.map((v) => (v.id === id ? { ...v, [field]: val } : v))
+  const handleRowChange = (id: string, field: 'key' | 'value', val: string) => {
+    setRows((prev) =>
+      prev.map((row) => (row.id === id ? { ...row, [field]: val } : row))
     );
-    if (errors.variables) {
-      setErrors((prev) => ({ ...prev, variables: undefined }));
-    }
+    touch('rows', 'variables', 'generalVariables');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isSubmitting) return;
-
-    // Converter lista de variáveis para Record<string, string>
-    const variablesObj: Record<string, string> = {};
-    for (const v of variables) {
-      const trimmedKey = v.key.trim();
-      if (trimmedKey || v.value.trim()) {
-        variablesObj[trimmedKey] = v.value.trim();
-      }
-    }
-
-    const result = validateContact(
-      {
-        name,
-        surname,
-        number,
-        email,
-        groups,
-        variables: variablesObj,
-      },
-      existingNumbers
-    );
-
-    if (!result.isValid) {
-      setErrors(result.errors);
-
-      // Focar no primeiro campo inválido
-      if (result.errors.name) {
-        nameInputRef.current?.focus();
-      } else if (result.errors.surname) {
-        surnameInputRef.current?.focus();
-      } else if (result.errors.number) {
-        numberInputRef.current?.focus();
-      } else if (result.errors.email) {
-        emailInputRef.current?.focus();
-      } else if (result.errors.variables) {
-        // Encontrar a primeira linha com erro
-        const firstInvalidKey = Object.keys(result.errors.variables)[0];
-        const matchingRow = variables.find(
-          (v) => v.key.trim() === firstInvalidKey
-        );
-        if (matchingRow && variableKeyRefs.current[matchingRow.id]) {
-          variableKeyRefs.current[matchingRow.id]?.focus();
-        }
-      }
-      return;
-    }
-
-    if (!result.normalized) return;
-
-    setIsSubmitting(true);
-    try {
-      if (onCreate) {
-        await onCreate(result.normalized);
-      }
-      success('Contacto adicionado');
-      handleClose();
-    } catch {
-      // Caso ocorra erro na submissão
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const canAddRow = rows.length < MAX_CUSTOM_VARIABLES;
 
   return (
-    <Modal id="ADD_CONTACT" onClose={handleClose}>
-      <div className="relative flex w-full max-w-xl max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100vh-3.5rem)] flex-col overflow-hidden rounded-2xl border border-border-ui bg-surface shadow-2xl sm:rounded-3xl">
-        {/* Header - Fixo */}
-        <div className="flex shrink-0 items-center justify-between border-b border-dashed border-border-ui px-5 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <UserPlus className="h-5 w-5" aria-hidden />
-            </div>
-            <div>
-              <h2 className="text-base font-semibold text-primary-content">
-                Adicionar Contacto
-              </h2>
-              <p className="text-xs text-muted-content">
-                Insira os dados do contacto para envio de mensagens SMS.
-              </p>
-            </div>
+    <div className="relative flex w-full max-w-xl max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100vh-3.5rem)] flex-col overflow-hidden rounded-2xl border border-border-ui bg-surface shadow-2xl sm:rounded-3xl">
+      {/* Cabeçalho fixo */}
+      <div className="flex shrink-0 items-center justify-between border-b border-dashed border-border-ui px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <UserPlus className="h-5 w-5" aria-hidden />
           </div>
-
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Fechar"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-content transition-colors hover:bg-surface-raised hover:text-primary-content"
-          >
-            <X size={18} />
-          </button>
+          <div>
+            <h2
+              id="add-contact-title"
+              className="text-base font-semibold text-primary-content"
+            >
+              Adicionar Contacto
+            </h2>
+            <p className="text-xs text-muted-content">
+              Insira os dados do contacto para envio de mensagens SMS.
+            </p>
+          </div>
         </div>
 
-        {/* Body - Rolável */}
-        <form
-          id="add-contact-form"
-          onSubmit={handleSubmit}
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 flex flex-col gap-4"
-          noValidate
+        <button
+          type="button"
+          onClick={() => closeModal()}
+          aria-label="Fechar"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-content transition-colors hover:bg-surface-raised hover:text-primary-content"
         >
-          {/* Nome e Sobrenome */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5 w-full">
-              <label
-                htmlFor="contact-first-name"
-                className="text-sm font-medium text-primary-content"
-              >
-                Primeiro Nome *
-              </label>
-              <input
-                ref={nameInputRef}
-                id="contact-first-name"
-                type="text"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (errors.name)
-                    setErrors((prev) => ({ ...prev, name: undefined }));
-                }}
-                placeholder="Ex: Manuel"
-                aria-invalid={Boolean(errors.name)}
-                aria-describedby={
-                  errors.name ? 'contact-name-error' : undefined
-                }
-                className={`rounded-lg border bg-surface px-3 py-2.5 text-sm text-primary-content placeholder:text-muted-content outline-none transition-colors ${
-                  errors.name
-                    ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                    : 'border-border-ui focus:border-primary focus:ring-1 focus:ring-primary'
-                }`}
-                autoFocus
-              />
-              {errors.name && (
-                <p
-                  id="contact-name-error"
-                  className="text-xs text-red-500 font-medium"
-                >
-                  {errors.name}
-                </p>
-              )}
-            </div>
+          <X size={18} />
+        </button>
+      </div>
 
-            <div className="flex flex-col gap-1.5 w-full">
-              <label
-                htmlFor="contact-surname"
-                className="text-sm font-medium text-primary-content"
-              >
-                Sobrenome{' '}
-                <span className="text-xs font-normal text-muted-content">
-                  (Opcional)
-                </span>
-              </label>
-              <input
-                ref={surnameInputRef}
-                id="contact-surname"
-                type="text"
-                value={surname}
-                onChange={(e) => {
-                  setSurname(e.target.value);
-                  if (errors.surname)
-                    setErrors((prev) => ({ ...prev, surname: undefined }));
-                }}
-                placeholder="Ex: da Silva"
-                aria-invalid={Boolean(errors.surname)}
-                aria-describedby={
-                  errors.surname ? 'contact-surname-error' : undefined
-                }
-                className={`rounded-lg border bg-surface px-3 py-2.5 text-sm text-primary-content placeholder:text-muted-content outline-none transition-colors ${
-                  errors.surname
-                    ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                    : 'border-border-ui focus:border-primary focus:ring-1 focus:ring-primary'
-                }`}
-              />
-              {errors.surname && (
-                <p
-                  id="contact-surname-error"
-                  className="text-xs text-red-500 font-medium"
-                >
-                  {errors.surname}
-                </p>
-              )}
-            </div>
+      {/* Corpo rolável */}
+      <form
+        id="add-contact-form"
+        action={formAction}
+        className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-5"
+        noValidate
+      >
+        {state.errors.form && (
+          <div
+            role="alert"
+            className="flex items-center gap-2 rounded-xl bg-red-500/10 p-2.5 text-xs text-red-500"
+          >
+            <AlertCircle size={14} className="shrink-0" aria-hidden />
+            <span>{state.errors.form}</span>
           </div>
+        )}
 
-          {/* Telemóvel Angolano com prefixo visível */}
-          <div className="flex flex-col gap-1.5 w-full">
+        {/* Nome e sobrenome */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="flex w-full flex-col gap-1.5">
             <label
-              htmlFor="contact-phone"
+              htmlFor="contact-first-name"
               className="text-sm font-medium text-primary-content"
             >
-              Telemóvel *
+              Nome *
             </label>
-            <div
-              className={`relative flex w-full items-center rounded-lg border bg-surface transition-colors ${
-                errors.number
-                  ? 'border-red-500 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500'
-                  : 'border-border-ui focus-within:border-primary focus-within:ring-1 focus-within:ring-primary'
-              }`}
-            >
-              <div className="flex items-center gap-1.5 border-r border-border-ui bg-surface-raised px-3 py-2.5 text-xs font-semibold text-primary-content shrink-0 rounded-l-lg select-none">
-                <span className="text-sm">🇦🇴</span>
-                <span>+244</span>
-              </div>
-              <input
-                ref={numberInputRef}
-                id="contact-phone"
-                type="tel"
-                value={number}
-                onChange={(e) => {
-                  setNumber(e.target.value);
-                  if (errors.number)
-                    setErrors((prev) => ({ ...prev, number: undefined }));
-                }}
-                placeholder="923 456 789"
-                aria-invalid={Boolean(errors.number)}
-                aria-describedby={
-                  errors.number ? 'contact-phone-error' : undefined
-                }
-                className="min-w-0 flex-1 w-full bg-transparent px-3 py-2.5 text-sm font-mono text-primary-content placeholder:text-muted-content outline-none"
-              />
-            </div>
-            {errors.number ? (
-              <p
-                id="contact-phone-error"
-                className="text-xs text-red-500 font-medium"
-              >
-                {errors.number}
-              </p>
-            ) : (
-              <p className="text-[11px] text-muted-content">
-                Aceita números com ou sem prefixo (9 dígitos começando por 9).
-              </p>
-            )}
-          </div>
-
-          {/* Email */}
-          <div className="flex flex-col gap-1.5 w-full">
-            <Input
-              ref={emailInputRef}
-              id="contact-email"
-              type="email"
-              label="Email (Opcional)"
-              placeholder="exemplo@dominio.ao"
-              value={email}
+            <input
+              ref={nameInputRef}
+              id="contact-first-name"
+              name="name"
+              type="text"
+              value={name}
               onChange={(e) => {
-                setEmail(e.target.value);
-                if (errors.email)
-                  setErrors((prev) => ({ ...prev, email: undefined }));
+                setName(e.target.value);
+                touch('name');
               }}
-              error={errors.email}
-              aria-invalid={Boolean(errors.email)}
-              aria-describedby={
-                errors.email ? 'contact-email-error' : undefined
-              }
+              placeholder="Ex: Manuel"
+              aria-invalid={Boolean(nameError)}
+              aria-describedby={nameError ? 'contact-name-error' : undefined}
+              className={inputClass(Boolean(nameError))}
             />
+            {nameError && (
+              <p
+                id="contact-name-error"
+                className="text-xs font-medium text-red-500"
+              >
+                {nameError}
+              </p>
+            )}
           </div>
 
-          {/* Grupos (MultiSelect) */}
-          <div className="flex flex-col gap-1.5 w-full">
-            <MultiSelect
-              label="Grupos (Opcional)"
-              placeholder="Selecione os grupos para este contacto..."
-              options={groupOptions}
-              value={groups}
-              onChange={(val) => setGroups(val as string[])}
-              helperText="Pode associar o contacto a múltiplos grupos simultaneamente."
-            />
-          </div>
-
-          {/* Secção de Variáveis Personalizadas */}
-          <div className="mt-2 flex flex-col gap-3 rounded-2xl border border-dashed border-border-ui bg-surface-raised/40 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-primary" />
-                <span className="text-sm font-semibold text-primary-content">
-                  Variáveis Personalizadas
-                </span>
-              </div>
-              <span className="text-xs text-muted-content">
-                {variables.length}/10 adicionadas
-              </span>
-            </div>
-
-            <p className="text-xs text-muted-content leading-relaxed">
-              Adicione dados dinâmicos específicos (ex: cidade, empresa, código)
-              para personalizar as suas mensagens SMS.
-            </p>
-
-            {errors.generalVariables && (
-              <div className="flex items-center gap-2 rounded-xl bg-red-500/10 p-2.5 text-xs text-red-500">
-                <AlertCircle size={14} className="shrink-0" />
-                <span>{errors.generalVariables}</span>
-              </div>
-            )}
-
-            {variables.length > 0 && (
-              <div className="flex flex-col gap-2.5 pt-1">
-                {variables.map((item, index) => {
-                  const errorMsg = errors.variables?.[item.key.trim()];
-                  const displayToken = item.key.trim()
-                    ? `{{${item.key.trim()}}}`
-                    : '{{chave}}';
-
-                  return (
-                    <div
-                      key={item.id}
-                      className="flex flex-col gap-1.5 rounded-xl border border-border-ui bg-surface p-2.5 shadow-sm"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] font-medium text-muted-content">
-                          Variável #{index + 1}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className="rounded-md bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-bold text-primary">
-                            {displayToken}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveVariable(item.id)}
-                            aria-label={`Remover variável #${index + 1}`}
-                            className="rounded-lg p-1 text-muted-content transition-colors hover:bg-red-500/10 hover:text-red-500"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                        <input
-                          ref={(el) => {
-                            variableKeyRefs.current[item.id] = el;
-                          }}
-                          type="text"
-                          placeholder="Chave (ex: empresa)"
-                          value={item.key}
-                          onChange={(e) =>
-                            handleVariableChange(item.id, 'key', e.target.value)
-                          }
-                          className="rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 font-mono text-xs text-primary-content placeholder:text-muted-content outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Valor (ex: Sonangol)"
-                          value={item.value}
-                          onChange={(e) =>
-                            handleVariableChange(
-                              item.id,
-                              'value',
-                              e.target.value
-                            )
-                          }
-                          className="rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs text-primary-content placeholder:text-muted-content outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                        />
-                      </div>
-
-                      {errorMsg && (
-                        <p className="text-[11px] text-red-500 font-medium">
-                          {errorMsg}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={handleAddVariable}
-              disabled={variables.length >= 10}
-              className={`inline-flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-border-ui py-2 text-xs font-semibold transition-all ${
-                variables.length >= 10
-                  ? 'cursor-not-allowed opacity-50 bg-surface text-muted-content'
-                  : 'bg-surface text-primary hover:bg-item-hover hover:border-primary active:scale-[0.99]'
-              }`}
+          <div className="flex w-full flex-col gap-1.5">
+            <label
+              htmlFor="contact-surname"
+              className="text-sm font-medium text-primary-content"
             >
-              <Plus size={14} />
-              Adicionar variável
-            </button>
+              Sobrenome{' '}
+              <span className="text-xs font-normal text-muted-content">
+                (Opcional)
+              </span>
+            </label>
+            <input
+              ref={surnameInputRef}
+              id="contact-surname"
+              name="surname"
+              type="text"
+              value={surname}
+              onChange={(e) => {
+                setSurname(e.target.value);
+                touch('surname');
+              }}
+              placeholder="Ex: da Silva"
+              aria-invalid={Boolean(surnameError)}
+              aria-describedby={
+                surnameError ? 'contact-surname-error' : undefined
+              }
+              className={inputClass(Boolean(surnameError))}
+            />
+            {surnameError && (
+              <p
+                id="contact-surname-error"
+                className="text-xs font-medium text-red-500"
+              >
+                {surnameError}
+              </p>
+            )}
           </div>
-        </form>
+        </div>
 
-        {/* Footer - Fixo */}
-        <div className="flex shrink-0 items-center justify-end gap-2 border-t border-dashed border-border-ui px-5 py-4">
+        {/* Telemóvel com prefixo +244 visível */}
+        <div className="flex w-full flex-col gap-1.5">
+          <label
+            htmlFor="contact-phone"
+            className="text-sm font-medium text-primary-content"
+          >
+            Telemóvel *
+          </label>
+          <div
+            className={`flex w-full items-center rounded-lg border bg-surface transition-colors ${
+              numberError
+                ? 'border-red-500 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500'
+                : 'border-border-ui focus-within:border-primary focus-within:ring-1 focus-within:ring-primary'
+            }`}
+          >
+            <div className="flex shrink-0 select-none items-center gap-1.5 rounded-l-lg border-r border-border-ui bg-surface-raised px-3 py-2.5 text-xs font-semibold text-primary-content">
+              <span className="text-sm" aria-hidden>
+                🇦🇴
+              </span>
+              <span>+244</span>
+            </div>
+            <input
+              ref={numberInputRef}
+              id="contact-phone"
+              name="number"
+              type="tel"
+              value={number}
+              onChange={(e) => {
+                setNumber(e.target.value);
+                touch('number');
+              }}
+              placeholder="923 456 789"
+              aria-invalid={Boolean(numberError)}
+              aria-describedby={
+                numberError ? 'contact-phone-error' : 'contact-phone-hint'
+              }
+              className="w-full min-w-0 flex-1 bg-transparent px-3 py-2.5 font-mono text-sm text-primary-content placeholder:text-muted-content outline-none"
+            />
+          </div>
+          {numberError ? (
+            <p id="contact-phone-error" className="text-xs font-medium text-red-500">
+              {numberError}
+            </p>
+          ) : (
+            <p id="contact-phone-hint" className="text-[11px] text-muted-content">
+              Aceita números com ou sem prefixo (9 dígitos começando por 9).
+            </p>
+          )}
+        </div>
+
+        {/* Email (opcional) */}
+        <div className="flex w-full flex-col gap-1.5">
+          <label
+            htmlFor="contact-email"
+            className="text-sm font-medium text-primary-content"
+          >
+            Email{' '}
+            <span className="text-xs font-normal text-muted-content">
+              (Opcional)
+            </span>
+          </label>
+          <input
+            ref={emailInputRef}
+            id="contact-email"
+            name="email"
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              touch('email');
+            }}
+            placeholder="exemplo@dominio.ao"
+            aria-invalid={Boolean(emailError)}
+            aria-describedby={emailError ? 'contact-email-error' : undefined}
+            className={inputClass(Boolean(emailError))}
+          />
+          {emailError && (
+            <p id="contact-email-error" className="text-xs font-medium text-red-500">
+              {emailError}
+            </p>
+          )}
+        </div>
+
+        {/* Grupos: o MultiSelect não é um campo nativo, por isso envia-se por campos ocultos */}
+        <div className="flex w-full flex-col gap-1.5">
+          {groups.map((group) => (
+            <input key={group} type="hidden" name="groups" value={group} />
+          ))}
+          <MultiSelect
+            label="Grupos (Opcional)"
+            placeholder="Selecione os grupos para este contacto..."
+            options={groupOptions}
+            value={groups}
+            onChange={(val) => {
+              setGroups(val.map(String));
+              touch('groups');
+            }}
+            helperText="Pode associar o contacto a múltiplos grupos simultaneamente."
+          />
+          {groupsError && (
+            <p className="text-xs font-medium text-red-500">{groupsError}</p>
+          )}
+        </div>
+
+        {/* Variáveis personalizadas */}
+        <section
+          aria-labelledby="contact-variables-title"
+          className="mt-2 flex flex-col gap-3 rounded-2xl border border-dashed border-border-ui bg-surface-raised/40 p-4"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles size={16} className="text-primary" aria-hidden />
+              <h3
+                id="contact-variables-title"
+                className="text-sm font-semibold text-primary-content"
+              >
+                Variáveis Personalizadas
+              </h3>
+            </div>
+            <span className="text-xs text-muted-content">
+              {rows.length}/{MAX_CUSTOM_VARIABLES} adicionadas
+            </span>
+          </div>
+
+          <p className="text-xs leading-relaxed text-muted-content">
+            Adicione dados dinâmicos específicos (ex: cidade, empresa, código)
+            para personalizar as suas mensagens SMS.
+          </p>
+
+          {generalVariablesError && (
+            <div className="flex items-center gap-2 rounded-xl bg-red-500/10 p-2.5 text-xs text-red-500">
+              <AlertCircle size={14} className="shrink-0" aria-hidden />
+              <span>{generalVariablesError}</span>
+            </div>
+          )}
+
+          {rows.length > 0 && (
+            <ul className="flex flex-col gap-2.5 pt-1">
+              {rows.map((row, index) => {
+                const trimmedKey = row.key.trim();
+                const rowError = isHidden('rows')
+                  ? undefined
+                  : state.errors.rows?.[String(index)];
+                const keyError =
+                  isHidden('variables') || !trimmedKey
+                    ? undefined
+                    : state.errors.variables?.[trimmedKey];
+                const message = rowError ?? keyError;
+                const errorId = `var-row-error-${row.id}`;
+                const hasError = Boolean(message);
+                const displayToken = trimmedKey ? `{{${trimmedKey}}}` : '{{chave}}';
+
+                return (
+                  <li
+                    key={row.id}
+                    className="flex flex-col gap-1.5 rounded-xl border border-border-ui bg-surface p-2.5 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-medium text-muted-content">
+                        Variável #{index + 1}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-md bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-bold text-primary">
+                          {displayToken}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveRow(row.id)}
+                          aria-label={`Remover variável #${index + 1}`}
+                          className="rounded-lg p-1 text-muted-content transition-colors hover:bg-red-500/10 hover:text-red-500"
+                        >
+                          <Trash2 size={14} aria-hidden />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      <input
+                        ref={(el) => {
+                          rowKeyRefs.current[row.id] = el;
+                        }}
+                        type="text"
+                        name="variableKey"
+                        aria-label={`Chave da variável #${index + 1}`}
+                        placeholder="Chave (ex: empresa)"
+                        value={row.key}
+                        onChange={(e) =>
+                          handleRowChange(row.id, 'key', e.target.value)
+                        }
+                        aria-invalid={hasError}
+                        aria-describedby={hasError ? errorId : undefined}
+                        className={`${rowInputClass(hasError)} font-mono`}
+                      />
+                      <input
+                        type="text"
+                        name="variableValue"
+                        aria-label={`Valor da variável #${index + 1}`}
+                        placeholder="Valor (ex: Sonangol)"
+                        value={row.value}
+                        onChange={(e) =>
+                          handleRowChange(row.id, 'value', e.target.value)
+                        }
+                        aria-invalid={hasError}
+                        aria-describedby={hasError ? errorId : undefined}
+                        className={rowInputClass(hasError)}
+                      />
+                    </div>
+
+                    {message && (
+                      <p id={errorId} className="text-[11px] font-medium text-red-500">
+                        {message}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
           <button
             type="button"
-            onClick={handleClose}
-            disabled={isSubmitting}
-            className="rounded-lg border border-border-ui bg-surface-raised px-4 py-2 text-sm text-secondary-content transition-colors hover:bg-item-hover hover:text-primary-content"
+            onClick={handleAddRow}
+            disabled={!canAddRow}
+            aria-describedby={!canAddRow ? 'contact-variables-limit' : undefined}
+            className={`inline-flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-border-ui py-2 text-xs font-semibold transition-all ${
+              canAddRow
+                ? 'bg-surface text-primary hover:border-primary hover:bg-item-hover active:scale-[0.99]'
+                : 'cursor-not-allowed bg-surface text-muted-content opacity-50'
+            }`}
           >
-            Cancelar
+            <Plus size={14} aria-hidden />
+            Adicionar variável
           </button>
 
-          <button
-            type="submit"
-            form="add-contact-form"
-            disabled={isSubmitting}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
-          >
-            {isSubmitting ? 'A guardar...' : 'Guardar Contacto'}
-          </button>
-        </div>
+          {!canAddRow && (
+            <p
+              id="contact-variables-limit"
+              className="text-[11px] font-medium text-amber-600 dark:text-amber-400"
+            >
+              Limite de {MAX_CUSTOM_VARIABLES} variáveis personalizadas atingido.
+            </p>
+          )}
+        </section>
+      </form>
+
+      {/* Rodapé fixo */}
+      <div className="flex shrink-0 items-center justify-end gap-2 border-t border-dashed border-border-ui px-5 py-4">
+        <button
+          type="button"
+          onClick={() => closeModal()}
+          disabled={isPending}
+          className="rounded-lg border border-border-ui bg-surface-raised px-4 py-2 text-sm text-secondary-content transition-colors hover:bg-item-hover hover:text-primary-content disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          form="add-contact-form"
+          disabled={isPending}
+          aria-busy={isPending}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+        >
+          {isPending ? 'A guardar...' : 'Guardar Contacto'}
+        </button>
       </div>
-    </Modal>
+    </div>
   );
 }

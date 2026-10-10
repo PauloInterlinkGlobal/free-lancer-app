@@ -98,6 +98,7 @@ export function ItemPickerModal({
             <div className="flex-1">
               <Input
                 leftIcon={Search}
+                aria-label="Pesquisar"
                 placeholder="Pesquisar por título ou descrição..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -118,6 +119,7 @@ export function ItemPickerModal({
 
           {/* Lista com Paginação */}
           <ItemPickerList
+            label={title}
             items={items}
             filteredItems={filteredItems}
             pageItems={pageItems}
@@ -133,7 +135,7 @@ export function ItemPickerModal({
 
         {/* Footer */}
         <div className="flex items-center justify-between gap-2 border-t border-divider px-6 py-4">
-          <div>
+          <div aria-live="polite">
             {mode === 'multiple' ? (
               <span className="text-xs sm:text-sm text-muted-content">
                 <strong className="text-primary-content">{draft.length}</strong>{' '}

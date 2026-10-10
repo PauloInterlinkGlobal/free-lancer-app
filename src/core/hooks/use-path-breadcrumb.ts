@@ -12,6 +12,7 @@ import {
   FileUp,
   History,
   LayoutDashboard,
+  Link2,
   MessageSquare,
   Palette,
   PenLine,
@@ -132,6 +133,11 @@ const SEGMENTS: Record<string, SegmentInfo> = {
     label: 'Modelos',
     icon: FileText,
     description: 'Gere os teus modelos de mensagem.',
+  },
+  links: {
+    label: 'Links',
+    icon: Link2,
+    description: 'Gere os links que usa nas suas mensagens.',
   },
   reports: {
     label: 'Relatórios',

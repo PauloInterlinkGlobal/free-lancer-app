@@ -5,6 +5,7 @@ export interface DynamicVariable {
   exemplo: string;
 }
 
+/** Variáveis do sistema (sempre disponíveis, vindas do contacto). */
 export const DYNAMIC_VARIABLES: readonly DynamicVariable[] = [
   {
     key: 'firstName',
@@ -44,28 +45,55 @@ export const DYNAMIC_VARIABLES: readonly DynamicVariable[] = [
   },
 ] as const;
 
+/** Chaves reservadas: não podem ser usadas como variáveis personalizadas. */
+const RESERVED_KEYS: ReadonlySet<string> = new Set(
+  DYNAMIC_VARIABLES.map((variable) => variable.key)
+);
+
+/**
+ * Exemplos para variáveis personalizadas. Fonte única usada pelo dropdown
+ * e pela pré-visualização, para que mostrem sempre o mesmo valor.
+ */
+const CUSTOM_VARIABLE_EXAMPLES: Readonly<Record<string, string>> = {
+  empresa: 'Sonangol',
+  cidade: 'Luanda',
+  cargo: 'Gestor',
+  desconto: '15%',
+};
+
+export function getCustomVariableExample(key: string): string {
+  return Object.prototype.hasOwnProperty.call(CUSTOM_VARIABLE_EXAMPLES, key)
+    ? CUSTOM_VARIABLE_EXAMPLES[key]
+    : `Valor de ${key}`;
+}
+
 export interface VariableCategoryOptions {
   contacto: DynamicVariable[];
   personalizadas: DynamicVariable[];
 }
 
+/**
+ * Opções do dropdown de variáveis.
+ * Ignora chaves vazias, reservadas e repetidas, e mantém a ordem recebida.
+ */
 export function buildVariableOptions(
   customKeys: string[] = []
 ): VariableCategoryOptions {
-  const personalizadas: DynamicVariable[] = customKeys.map((key) => {
-    let exemplo = `Valor de ${key}`;
-    if (key === 'empresa') exemplo = 'Sonangol';
-    else if (key === 'cidade') exemplo = 'Luanda';
-    else if (key === 'cargo') exemplo = 'Gestor';
-    else if (key === 'desconto') exemplo = '15%';
+  const seen = new Set<string>();
+  const personalizadas: DynamicVariable[] = [];
 
-    return {
+  for (const raw of customKeys) {
+    const key = raw.trim();
+    if (!key || RESERVED_KEYS.has(key) || seen.has(key)) continue;
+    seen.add(key);
+
+    personalizadas.push({
       key,
       label: key.charAt(0).toUpperCase() + key.slice(1),
       description: `Variável personalizada "${key}"`,
-      exemplo,
-    };
-  });
+      exemplo: getCustomVariableExample(key),
+    });
+  }
 
   return {
     contacto: [...DYNAMIC_VARIABLES],

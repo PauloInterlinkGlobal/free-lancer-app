@@ -6,6 +6,8 @@ import React from 'react';
 import type { ItemPickerItem } from '../types';
 
 interface ItemPickerListProps {
+  /** Nome acessível da lista (normalmente o título do modal). */
+  label: string;
   items: ItemPickerItem[];
   filteredItems: ItemPickerItem[];
   pageItems: ItemPickerItem[];
@@ -19,6 +21,7 @@ interface ItemPickerListProps {
 }
 
 export function ItemPickerList({
+  label,
   items,
   filteredItems,
   pageItems,
@@ -33,7 +36,10 @@ export function ItemPickerList({
   // Caso 1: Lista original vazia
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-ui py-12 text-center">
+      <div
+        role="status"
+        className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-ui py-12 text-center"
+      >
         <Inbox className="h-10 w-10 text-muted-content/60" aria-hidden />
         <p className="mt-2 text-sm font-medium text-primary-content">
           {emptyMessage}
@@ -45,7 +51,10 @@ export function ItemPickerList({
   // Caso 2: Pesquisa sem resultados
   if (filteredItems.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-ui py-12 text-center">
+      <div
+        role="status"
+        className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-ui py-12 text-center"
+      >
         <SearchX className="h-10 w-10 text-muted-content/60" aria-hidden />
         <p className="mt-2 text-sm font-medium text-primary-content">
           Nenhum resultado encontrado
@@ -59,7 +68,12 @@ export function ItemPickerList({
 
   return (
     <div className="flex flex-col rounded-xl border border-border-ui bg-surface overflow-hidden">
-      <ul className="divide-y divide-border-ui max-h-[360px] overflow-y-auto">
+      <ul
+        role="listbox"
+        aria-label={label}
+        aria-multiselectable={mode === 'multiple'}
+        className="divide-y divide-border-ui max-h-[360px] overflow-y-auto"
+      >
         {pageItems.map((item) => {
           const isSelected = draft.includes(item.id);
 
@@ -73,8 +87,8 @@ export function ItemPickerList({
                   onToggleItem(item.id);
                 }
               }}
-              role={mode === 'single' ? 'radio' : 'checkbox'}
-              aria-checked={isSelected}
+              role="option"
+              aria-selected={isSelected}
               tabIndex={0}
               className={`flex items-center justify-between gap-3 px-4 py-3 cursor-pointer select-none transition-colors outline-none focus-visible:bg-item-hover ${
                 isSelected

@@ -4,25 +4,59 @@ import { Link } from '@/core/i18n/navigation';
 import { useToastStore } from '@/core/store';
 import { ILink } from '@/modules/links/interfaces/links';
 import { Check, Link2 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
+import { ItemPickerModal } from '../Modal/ItemPickerModal';
 import { PickerTrigger } from '../PickerTrigger';
 
 interface LinksCardProps {
-  links?: ILink[];
+  links?: Pick<ILink, 'id' | 'description' | 'url'>[];
+  /** Chamado uma vez por URL, pela ordem escolhida. */
   onInsertLink: (url: string) => void;
 }
 
 export function LinksCard({ links = [], onInsertLink }: LinksCardProps) {
   const { success } = useToastStore();
   const [lastInsertedId, setLastInsertedId] = useState<string | null>(null);
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleSelectLink = (link: ILink) => {
+  // Limpa o temporizador do destaque "Inserido" ao desmontar
+  useEffect(() => {
+    return () => {
+      if (resetTimer.current) clearTimeout(resetTimer.current);
+    };
+  }, []);
+
+  const pickerItems = useMemo(
+    () =>
+      links.map((link) => ({
+        id: link.id,
+        title: link.description,
+        subtitle: link.url,
+      })),
+    [links]
+  );
+
+  const handleSelectLink = (link: Pick<ILink, 'id' | 'description' | 'url'>) => {
     onInsertLink(link.url);
     setLastInsertedId(link.id);
     success(`Link "${link.description}" inserido na mensagem!`);
-    setTimeout(() => {
+    if (resetTimer.current) clearTimeout(resetTimer.current);
+    resetTimer.current = setTimeout(() => {
       setLastInsertedId(null);
     }, 1800);
+  };
+
+  // Insere todos os links escolhidos no modal, pela ordem da lista
+  const handlePickerConfirm = (ids: string[]) => {
+    const chosen = links.filter((link) => ids.includes(link.id));
+    if (chosen.length === 0) return;
+
+    chosen.forEach((link) => onInsertLink(link.url));
+    success(
+      chosen.length === 1
+        ? `Link "${chosen[0].description}" inserido na mensagem!`
+        : `${chosen.length} links inseridos na mensagem!`
+    );
   };
 
   return (
@@ -34,7 +68,11 @@ export function LinksCard({ links = [], onInsertLink }: LinksCardProps) {
 
         <div className="flex items-center gap-2">
           {links.length > 0 && (
-            <PickerTrigger id="PICK_LINKS" label="Ver todos" />
+            <PickerTrigger
+              id="PICK_LINKS"
+              label="Ver todos"
+              icon={Link2}
+            />
           )}
 
           <Link
@@ -103,6 +141,7 @@ export function LinksCard({ links = [], onInsertLink }: LinksCardProps) {
                 </div>
 
                 <span
+                  aria-hidden
                   className={`inline-flex shrink-0 items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold transition-colors ${
                     isRecentlyInserted
                       ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
@@ -116,6 +155,20 @@ export function LinksCard({ links = [], onInsertLink }: LinksCardProps) {
           })}
         </div>
       )}
+
+      <ItemPickerModal
+        id="PICK_LINKS"
+        title="Inserir links na mensagem"
+        description="Escolha um ou mais links aprovados. Serão adicionados ao fim da mensagem."
+        icon={Link2}
+        items={pickerItems}
+        selectedIds={[]}
+        mode="multiple"
+        pageSize={6}
+        emptyMessage="Não tem nenhum link aprovado para inserção."
+        confirmLabel="Inserir"
+        onConfirm={handlePickerConfirm}
+      />
     </div>
   );
 }

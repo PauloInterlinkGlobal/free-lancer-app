@@ -2,10 +2,12 @@
 
 import { Table, type Column } from '@/core/components/Table';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
+import { useModalStore } from '@/core/store/useModalStore';
 import { useSearchParams } from 'next/navigation';
 import { AlertCircle, CheckCircle2, Clock, Trash2 } from 'lucide-react';
 import { linkStatusLabel, linkStatusStyles } from '../constants/links';
 import { ILink, LinkStatus } from '../interfaces/links';
+import { useLinkDeleteStore } from '../store/useLinkDeleteStore';
 
 const dateFormatter = new Intl.DateTimeFormat('pt-PT', {
   day: '2-digit',
@@ -109,7 +111,6 @@ interface LinksTableProps {
   currentPage: number;
   totalPages: number;
   loading?: boolean;
-  onDelete: (link: ILink) => void;
 }
 
 export function LinksTable({
@@ -117,11 +118,18 @@ export function LinksTable({
   currentPage,
   totalPages,
   loading = false,
-  onDelete,
 }: LinksTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const { openModal } = useModalStore();
+  const setLinkToDelete = useLinkDeleteStore((state) => state.setLink);
+
+  const handleOpenDelete = (link: ILink) => {
+    setLinkToDelete(link);
+    openModal('DELETE_LINK');
+  };
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -138,16 +146,16 @@ export function LinksTable({
 
   return (
     <Table<ILink>
-      columns={columns(onDelete)}
-      data={data}
-      loading={loading}
-      keyExtractor={(item) => item.id}
-      emptyMessage="Ainda não submeteu nenhum link."
-      pagination={{
-        currentPage,
-        totalPages,
-        onPageChange: handlePageChange,
-      }}
-    />
+        columns={columns(handleOpenDelete)}
+        data={data}
+        loading={loading}
+        keyExtractor={(item) => item.id}
+        emptyMessage="Ainda não submeteu nenhum link."
+        pagination={{
+          currentPage,
+          totalPages,
+          onPageChange: handlePageChange,
+        }}
+      />
   );
 }
