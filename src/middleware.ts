@@ -15,10 +15,11 @@ allowedIPs.add('127.0.0.1');
 allowedIPs.add('::1');
 
 const SANDBOX_PREFIXES = ['sandboxapp.', 'sandboxadmin.', 'sandboxweb.'];
+const isIpAllowlistEnabled = process.env.ENABLE_IP_ALLOWLIST === 'true';
 
 export function middleware(request: NextRequest) {
   try {
-    if (process.env.MODE !== 'production') {
+    if (isIpAllowlistEnabled && process.env.MODE !== 'production') {
       const forwarded = request.headers.get('x-forwarded-for');
       const realIp = request.headers.get('x-real-ip');
 
