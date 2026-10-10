@@ -13,7 +13,9 @@ import {
   normalizeUrl,
 } from '../../../utils/link-validation';
 
-const DEFAULT_URL_PREFIX = 'https://';
+const DEFAULT_URL_PROTOCOL = 'https://';
+const URL_PROTOCOLS = ['https://', 'http://'] as const;
+type UrlProtocol = (typeof URL_PROTOCOLS)[number];
 
 interface AddLinkModalProps {
   existingUrls: string[];
@@ -29,13 +31,15 @@ export function AddLinkModal({
   const { closeModal } = useModalStore();
   const { success } = useToastStore();
 
-  const [url, setUrl] = useState(DEFAULT_URL_PREFIX);
+  const [protocol, setProtocol] = useState<UrlProtocol>(DEFAULT_URL_PROTOCOL);
+  const [url, setUrl] = useState('');
   const [description, setDescription] = useState('');
   const [urlError, setUrlError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
 
   const resetForm = () => {
-    setUrl(DEFAULT_URL_PREFIX);
+    setProtocol(DEFAULT_URL_PROTOCOL);
+    setUrl('');
     setDescription('');
     setUrlError('');
     setDescriptionError('');
@@ -47,8 +51,15 @@ export function AddLinkModal({
     onClose?.();
   };
 
+  const handleProtocolChange = (nextProtocol: UrlProtocol) => {
+    setProtocol(nextProtocol);
+    if (urlError) setUrlError('');
+  };
+
   const handleUrlChange = (val: string) => {
-    setUrl(val);
+    const protocolMatch = URL_PROTOCOLS.find((item) => val.startsWith(item));
+    setUrl(protocolMatch ? val.slice(protocolMatch.length) : val);
+    if (protocolMatch) setProtocol(protocolMatch);
     if (urlError) setUrlError('');
   };
 
@@ -62,8 +73,8 @@ export function AddLinkModal({
 
     let hasError = false;
 
-    const rawUrl = url.trim();
-    if (!rawUrl || rawUrl === 'https://' || rawUrl === 'http://') {
+    const rawUrl = `${protocol}${url.trim()}`;
+    if (!url.trim()) {
       setUrlError('O URL é obrigatório.');
       hasError = true;
     } else {
@@ -144,16 +155,42 @@ export function AddLinkModal({
           noValidate
         >
           <div className="flex flex-col gap-1.5">
-            <Input
-              id="link-url"
-              name="url"
-              label="URL"
-              placeholder="https://exemplo.ao/campanha"
-              value={url}
-              onChange={(e) => handleUrlChange(e.target.value)}
-              error={urlError}
-              autoFocus
-            />
+            <label
+              htmlFor="link-url"
+              className="text-sm font-medium text-neutral-900 dark:text-neutral-200"
+            >
+              URL
+            </label>
+            <div className="flex items-start gap-2">
+              <select
+                aria-label="Protocolo do URL"
+                value={protocol}
+                onChange={(e) =>
+                  handleProtocolChange(e.target.value as UrlProtocol)
+                }
+                className="h-10 rounded-xl border border-border-ui bg-surface px-3 text-sm text-primary-content outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
+              >
+                {URL_PROTOCOLS.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <div className="min-w-0 flex-1">
+                <Input
+                  id="link-url"
+                  name="url"
+                  placeholder="exemplo.ao/campanha"
+                  value={url}
+                  onChange={(e) => handleUrlChange(e.target.value)}
+                  error={urlError}
+                  autoFocus
+                />
+              </div>
+            </div>
+            <span className="text-[11px] text-muted-content">
+              Escolha o protocolo e indique o endereço do link.
+            </span>
           </div>
 
           <div className="flex flex-col gap-1.5">
