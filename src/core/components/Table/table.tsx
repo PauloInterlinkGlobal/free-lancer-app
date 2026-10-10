@@ -36,7 +36,6 @@ export interface TableProps<T> {
   onRowClick?: (item: T) => void;
   className?: string;
   pagination?: TablePagination;
-  /** Mostra o botão para alternar entre lista (tabela) e grelha (cartões). */
   allowGrid?: boolean;
 }
 

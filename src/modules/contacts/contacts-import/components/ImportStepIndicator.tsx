@@ -1,52 +1,93 @@
-import { IMPORT_STEPS } from '@/modules/contacts/contacts-import/constants/import-steps';
 import { Check } from 'lucide-react';
+
+const STEPS = [
+  { title: 'Upload', description: 'Carregue a lista' },
+  { title: 'Mapeamento', description: 'Associe as colunas' },
+  { title: 'Revisão', description: 'Confirme e importe' },
+];
+
+const TIPS = [
+  'Os números devem começar por 244. Verificamos tudo assim que carregar o ficheiro.',
+  'Telemóvel e Nome são obrigatórios. As restantes colunas viram variáveis para as suas mensagens.',
+  'Linhas inválidas ou duplicadas não são importadas. Poderá descarregar o relatório de erros no fim.',
+];
 
 interface ImportStepIndicatorProps {
   current: number;
+  summaries?: (string | undefined)[];
 }
 
-export function ImportStepIndicator({ current }: ImportStepIndicatorProps) {
+export function ImportStepIndicator({
+  current,
+  summaries = [],
+}: ImportStepIndicatorProps) {
   return (
-    <ol className="flex list-none items-center p-0">
-      {IMPORT_STEPS.map((step, index) => {
-        const done = index < current;
-        const active = index === current;
+    <aside className="flex shrink-0 flex-col gap-8 rounded-3xl bg-primary p-6 text-white lg:w-72">
+      <div className="flex flex-col gap-2">
+        <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-widest">
+          Contactos
+        </span>
+        <h2 className="text-2xl font-bold leading-tight">Importar contactos</h2>
+      </div>
 
-        return (
-          <li key={step.id} className="flex flex-1 items-center last:flex-none">
-            <div className="flex items-center gap-2">
-              <span
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                  done || active
-                    ? 'bg-primary text-white'
-                    : 'bg-surface-raised text-muted-content'
-                }`}
-              >
-                {done ? <Check size={16} aria-hidden /> : index + 1}
-              </span>
+      <ol className="flex list-none flex-col p-0">
+        {STEPS.map((step, index) => {
+          const done = index < current;
+          const active = index === current;
+          const last = index === STEPS.length - 1;
+          const summary = done || active ? summaries[index] : undefined;
 
-              <span
-                className={`hidden text-sm sm:block ${
-                  active
-                    ? 'font-semibold text-primary-content'
-                    : 'text-muted-content'
-                }`}
-              >
-                {step.label}
-              </span>
-            </div>
+          return (
+            <li
+              key={step.title}
+              aria-current={active ? 'step' : undefined}
+              className="flex gap-3"
+            >
+              <div className="flex flex-col items-center">
+                <span
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                    active
+                      ? 'bg-white text-primary'
+                      : done
+                        ? 'bg-white/25 text-white'
+                        : 'border border-white/40 text-white/70'
+                  }`}
+                >
+                  {done ? <Check size={18} aria-hidden /> : index + 1}
+                </span>
+                {!last && (
+                  <span
+                    aria-hidden
+                    className={`my-1.5 min-h-10 w-0.5 flex-1 ${
+                      done ? 'bg-white/70' : 'bg-white/20'
+                    }`}
+                  />
+                )}
+              </div>
 
-            {index < IMPORT_STEPS.length - 1 && (
-              <span
-                aria-hidden
-                className={`mx-3 h-px flex-1 ${
-                  done ? 'bg-primary' : 'bg-primary/15'
-                }`}
-              />
-            )}
-          </li>
-        );
-      })}
-    </ol>
+              <div className="flex min-w-0 flex-col gap-0.5 pb-4 pt-1.5">
+                <span
+                  className={`text-base ${
+                    active ? 'font-bold' : 'font-semibold text-white/80'
+                  }`}
+                >
+                  {step.title}
+                </span>
+                <span className="truncate text-xs text-white/70">
+                  {summary ?? step.description}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+
+      <div className="mt-auto hidden flex-col gap-1.5 rounded-2xl bg-white/10 p-4 lg:flex">
+        <span className="text-[11px] font-bold uppercase tracking-widest text-white/80">
+          Dica
+        </span>
+        <p className="text-sm leading-snug text-white/90">{TIPS[current]}</p>
+      </div>
+    </aside>
   );
 }

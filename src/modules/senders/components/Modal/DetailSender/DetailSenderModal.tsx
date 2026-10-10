@@ -13,7 +13,6 @@ import {
   Clock,
   FileText,
   Send,
-  X,
 } from 'lucide-react';
 
 const dateFormatter = new Intl.DateTimeFormat('pt-PT', {
@@ -63,6 +62,7 @@ export function DetailSenderModal({ sender, onClose }: DetailSenderModalProps) {
   if (!sender) return null;
 
   const StatusIcon = statusIcons[sender.status] || CheckCircle2;
+  const initials = sender.sender.trim().slice(0, 2).toUpperCase() || 'ID';
 
   const rows = [
     {
@@ -100,15 +100,6 @@ export function DetailSenderModal({ sender, onClose }: DetailSenderModalProps) {
               </p>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Fechar"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-content transition-colors hover:bg-surface-raised hover:text-primary-content"
-          >
-            <X size={18} />
-          </button>
         </div>
 
         <div className="flex flex-col gap-4 p-5">
@@ -169,25 +160,25 @@ export function DetailSenderModal({ sender, onClose }: DetailSenderModalProps) {
             </p>
           </div>
 
-          {/* Footer */}
           <div className="flex items-center justify-end gap-2 border-t border-dashed border-border-ui pt-4">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="rounded-lg border border-border-ui bg-surface-raised px-4 py-2 text-sm text-secondary-content transition-colors hover:bg-item-hover hover:text-primary-content"
-            >
-              Fechar
-            </button>
             {sender.status === 'validated' && (
               <button
                 type="button"
                 onClick={handleSend}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 m-auto rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
                 <Send className="h-4 w-4" />
                 Enviar SMS
               </button>
             )}
+            <button
+              type="button"
+              onClick={handleClose}
+              aria-label="Fechar"
+              className="inline-flex items-center gap-2 m-auto rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            >
+              Cancelar{' '}
+            </button>
           </div>
         </div>
       </div>

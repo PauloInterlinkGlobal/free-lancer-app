@@ -3,10 +3,9 @@
 import { Input } from '@/core/components/Input';
 import { Modal } from '@/core/components/Modal';
 import { Select } from '@/core/components/Select';
-import { VariablesDropdown } from '@/core/components/VariablesDropdown';
 import { useToastStore } from '@/core/store/toast.store';
-import { Check, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Check, Tag } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { TEMPLATE_CATEGORIES } from '../../constants/templates';
 import { ITemplate, TemplateCategory } from '../../interfaces/templates';
 import { extractVariables } from '../../utils/templates-filters';
@@ -30,7 +29,6 @@ export function EditTemplateModal({
   const [category, setCategory] = useState<TemplateCategory>('promocional');
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (template) {
@@ -48,22 +46,8 @@ export function EditTemplateModal({
     onClose();
   };
 
-  const insertVariableToken = (token: string) => {
-    const el = textareaRef.current;
-    if (!el) {
-      setContent((prev) => prev + token);
-      return;
-    }
-
-    const start = el.selectionStart ?? content.length;
-    const end = el.selectionEnd ?? content.length;
-    setContent(content.slice(0, start) + token + content.slice(end));
-
-    requestAnimationFrame(() => {
-      el.focus();
-      const pos = start + token.length;
-      el.setSelectionRange(pos, pos);
-    });
+  const insertVariable = (variableName: string) => {
+    setContent((prev) => `${prev}{{${variableName}}}`);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -112,15 +96,6 @@ export function EditTemplateModal({
               Modifique os parâmetros e o texto do modelo selecionado.
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Fechar"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-surface-raised hover:text-primary-content"
-          >
-            <X size={18} />
-          </button>
         </div>
 
         {/* Form Body */}
@@ -156,7 +131,6 @@ export function EditTemplateModal({
             </div>
 
             <textarea
-              ref={textareaRef}
               rows={4}
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -165,26 +139,50 @@ export function EditTemplateModal({
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <VariablesDropdown onSelect={insertVariableToken} />
+          {/* Quick Variable suggestions */}
+          <div className="flex flex-col gap-1.5">
+            <span className="flex items-center gap-1 text-xs font-medium text-text-muted">
+              <Tag size={12} />
+              Inserir variáveis rápidas:
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                'firstName',
+                'lastName',
+                'cidade',
+                'ano',
+                'codigo',
+                'data',
+                'valor',
+              ].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => insertVariable(v)}
+                  className="rounded-md border border-border-ui/60 bg-surface-raised px-2 py-0.5 font-mono text-xs text-primary transition-colors hover:bg-primary-500/10"
+                >
+                  +{`{{${v}}}`}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Actions */}
           <div className="mt-2 flex items-center justify-end gap-2 border-t border-dashed border-border-ui pt-4">
             <button
-              type="button"
-              onClick={handleClose}
-              className="rounded-lg border border-border-ui bg-surface-raised px-4 py-2 text-sm text-secondary-content transition-colors hover:bg-item-hover hover:text-primary-content"
-            >
-              Cancelar
-            </button>
-
-            <button
               type="submit"
-              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="flex items-center m-auto gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
               <Check size={16} />
               Guardar Alterações
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              aria-label="Fechar"
+              className="inline-flex items-center m-auto gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            >
+              Cancelar
             </button>
           </div>
         </form>

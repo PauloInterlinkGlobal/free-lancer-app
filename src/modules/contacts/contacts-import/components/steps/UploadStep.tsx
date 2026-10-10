@@ -5,36 +5,56 @@ import {
   MAX_CUSTOM_VARIABLES,
   MAX_FILE_SIZE_MB,
 } from '@/modules/contacts/contacts-import/constants/import-steps';
-import {
-  CheckCircle2,
-  Download,
-  FileSpreadsheet,
-  ListChecks,
-  Trash2,
-  UploadCloud,
-} from 'lucide-react';
+import type { FilePreview } from '@/modules/contacts/contacts-import/utils/read-file-preview';
+import { Download, UploadCloud } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { ImportStepHeader } from '../ImportStepHeader';
+import { UploadFileSummary } from './UploadFileSummary';
 
 interface UploadStepProps {
   file: File | null;
   error: string;
+  preview: FilePreview | null;
+  loading: boolean;
   onFile: (file: File) => void;
   onRemove: () => void;
 }
 
-const requirements = [
-  'Coluna obrigatória: "Telemóvel e Nome"',
-  'Os números devem começar por 244',
-  `Máximo de ${MAX_CUSTOM_VARIABLES} colunas personalizadas`,
-  `Tamanho máximo: ${MAX_FILE_SIZE_MB} MB`,
+const tiles = [
+  {
+    value: '2',
+    label: 'Campos obrigatórios',
+    hint: 'Telemóvel e Nome',
+    className: 'bg-primary/10',
+  },
+  {
+    value: 'CSV',
+    label: 'ou XLSX',
+    hint: 'Formatos aceites',
+    className: 'bg-surface shadow-sm',
+  },
+  {
+    value: String(MAX_CUSTOM_VARIABLES),
+    label: 'Colunas personalizadas',
+    hint: 'Máximo por ficheiro',
+    className: 'bg-surface-raised',
+  },
+  {
+    value: `${MAX_FILE_SIZE_MB} MB`,
+    label: 'Tamanho máximo',
+    hint: 'Por ficheiro',
+    className: 'bg-surface shadow-sm',
+  },
 ];
 
-const formatSize = (bytes: number) =>
-  bytes < 1024 * 1024
-    ? `${Math.max(1, Math.round(bytes / 1024))} KB`
-    : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-
-export function UploadStep({ file, error, onFile, onRemove }: UploadStepProps) {
+export function UploadStep({
+  file,
+  error,
+  preview,
+  loading,
+  onFile,
+  onRemove,
+}: UploadStepProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -43,55 +63,56 @@ export function UploadStep({ file, error, onFile, onRemove }: UploadStepProps) {
     if (inputRef.current) inputRef.current.value = '';
   };
 
+  const hiddenInput = (
+    <input
+      ref={inputRef}
+      type="file"
+      accept={ACCEPTED_EXTENSIONS.map((ext) => `.${ext}`).join(',')}
+      className="hidden"
+      onChange={(e) => handleSelected(e.target.files?.[0])}
+    />
+  );
+
+  const errorMessage = error && (
+    <p role="alert" className="px-1 text-sm text-red-500">
+      {error}
+    </p>
+  );
+
+  if (file) {
+    return (
+      <div className="flex flex-col gap-4">
+        <ImportStepHeader
+          eyebrow="Passo 1 de 3 · Upload"
+          title="Ficheiro recebido"
+          description="Verificámos o seu ficheiro antes de avançar."
+        />
+
+        <UploadFileSummary
+          file={file}
+          preview={preview}
+          loading={loading}
+          onRemove={onRemove}
+        />
+
+        {errorMessage}
+        {hiddenInput}
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr]">
-      {/* Card esquerdo: upload */}
-      <div className="flex flex-col gap-5 rounded-2xl bg-surface p-5 shadow-sm md:p-6">
-        <div className="flex items-start gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <UploadCloud size={24} aria-hidden />
-          </span>
+    <div className="flex flex-col gap-4">
+      <ImportStepHeader
+        eyebrow="Passo 1 de 3 · Upload"
+        title="Carregue a sua lista de contactos"
+        description="Comece o envio de mensagens a partir de um ficheiro CSV ou XLSX."
+      />
 
-          <div className="min-w-0">
-            <h2 className="text-lg font-bold leading-tight text-primary-content md:text-xl">
-              Carregue o seu ficheiro
-            </h2>
-            <p className="mt-1 text-sm text-muted-content">
-              Carregue a sua lista de contactos para iniciar o envio de
-              mensagens. Formatos aceites: CSV e XLSX.
-            </p>
-          </div>
-        </div>
-
-        {file ? (
-          <div className="flex items-center gap-3 rounded-xl bg-surface-raised p-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-500/10 text-green-500">
-              <FileSpreadsheet size={24} aria-hidden />
-            </span>
-
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-primary-content">
-                {file.name}
-              </p>
-              <p className="flex items-center gap-1 text-xs text-green-500">
-                <CheckCircle2 size={12} aria-hidden />
-                {formatSize(file.size)} · Ficheiro carregado
-              </p>
-            </div>
-
-            <button
-              type="button"
-              aria-label="Remover ficheiro"
-              onClick={onRemove}
-              className="rounded-lg p-2 text-muted-content transition-colors hover:bg-item-hover hover:text-red-500"
-            >
-              <Trash2 size={18} aria-hidden />
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.7fr_1fr]">
+        {/* Zona de upload */}
+        <div className="flex rounded-3xl bg-surface p-3 shadow-sm">
+          <div
             onDragOver={(e) => {
               e.preventDefault();
               setDragging(true);
@@ -102,79 +123,116 @@ export function UploadStep({ file, error, onFile, onRemove }: UploadStepProps) {
               setDragging(false);
               handleSelected(e.dataTransfer.files?.[0]);
             }}
-            className={`flex flex-col items-center gap-2 rounded-xl border-2 border-dashed p-10 transition-colors hover:border-primary ${
-              dragging ? 'border-primary bg-primary/5' : 'border-ui'
+            className={`flex min-h-72 flex-1 flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed p-6 text-center transition-colors ${
+              dragging
+                ? 'border-primary bg-primary/10'
+                : 'border-primary/60 bg-primary/5'
             }`}
           >
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <UploadCloud size={28} aria-hidden />
+            <span className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-primary text-white">
+              <UploadCloud size={32} aria-hidden />
             </span>
-            <span className="text-sm font-semibold text-primary-content">
-              Arraste o ficheiro ou clique para seleccionar
-            </span>
-            <span className="text-xs text-muted-content">
-              CSV ou XLSX, até {MAX_FILE_SIZE_MB} MB
-            </span>
-          </button>
-        )}
 
-        <input
-          ref={inputRef}
-          type="file"
-          accept={ACCEPTED_EXTENSIONS.map((ext) => `.${ext}`).join(',')}
-          className="hidden"
-          onChange={(e) => handleSelected(e.target.files?.[0])}
-        />
+            <h2 className="text-xl font-bold text-primary-content md:text-2xl">
+              Largue o ficheiro aqui
+            </h2>
 
-        {error && (
-          <p role="alert" className="text-sm text-red-500">
-            {error}
-          </p>
-        )}
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="min-h-11 rounded-full bg-primary px-6 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              Escolher ficheiro
+            </button>
 
-        <a
-          href="/templates/contactos-exemplo.csv"
-          download
-          className="flex w-fit items-center gap-2 text-sm font-medium text-primary hover:underline"
-        >
-          <Download size={16} aria-hidden />
-          Descarregar ficheiro de exemplo
-        </a>
-      </div>
-
-      {/* Card direito: requisitos */}
-      <div className="flex flex-col gap-5 rounded-2xl bg-surface p-5 shadow-sm md:p-6">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <ListChecks size={20} aria-hidden />
-          </span>
-          <h3 className="text-base font-semibold text-primary-content">
-            Requisitos do ficheiro
-          </h3>
+            <div className="flex flex-wrap justify-center gap-2 text-xs font-semibold">
+              <span className="rounded-full bg-surface px-3 py-1.5 text-primary">
+                CSV
+              </span>
+              <span className="rounded-full bg-surface px-3 py-1.5 text-primary">
+                XLSX
+              </span>
+              <span className="rounded-full bg-surface px-3 py-1.5 text-muted-content">
+                até {MAX_FILE_SIZE_MB} MB
+              </span>
+            </div>
+          </div>
         </div>
 
-        <ul className="flex list-none flex-col gap-3 p-0">
-          {requirements.map((rule) => (
-            <li key={rule} className="flex items-start gap-2 text-sm">
-              <CheckCircle2
-                size={16}
-                aria-hidden
-                className="mt-0.5 shrink-0 text-primary"
-              />
-              <span className="text-primary-content">{rule}</span>
-            </li>
-          ))}
-        </ul>
+        {/* Exemplo + número válido */}
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-1 flex-col gap-3 rounded-3xl bg-primary/10 p-5">
+            <h3 className="text-base font-bold text-primary-content">
+              Ficheiro de exemplo
+            </h3>
 
-        <div className="rounded-xl bg-surface-raised p-3">
-          <p className="text-xs text-muted-content">Exemplo de número válido</p>
-          <p className="mt-1 font-mono text-sm font-semibold tracking-wide">
-            <span className="text-primary">244</span>{' '}
-            <span className="text-primary-content">9XXX</span>{' '}
-            <span className="text-muted-content">XXX XXX</span>
-          </p>
+            <div className="rounded-xl bg-surface px-3 py-1 text-xs">
+              <div className="flex justify-between border-b border-black/5 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-content">
+                <span>Telemóvel</span>
+                <span>Nome</span>
+              </div>
+              <div className="flex justify-between border-b border-black/5 py-2 text-primary-content">
+                <span>+244 923 000 001</span>
+                <span>João</span>
+              </div>
+              <div className="flex justify-between py-2 text-primary-content">
+                <span>+244 924 000 002</span>
+                <span>Maria</span>
+              </div>
+            </div>
+
+            <a
+              href="/templates/contactos-exemplo.csv"
+              download
+              className="flex min-h-11 w-fit items-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              <Download size={16} aria-hidden />
+              Descarregar exemplo
+            </a>
+          </div>
+
+          <div className="flex flex-col gap-3 rounded-3xl bg-surface p-5 shadow-sm">
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-content">
+              Número válido
+            </span>
+            <p className="flex flex-wrap gap-1.5 font-mono text-base font-bold">
+              <span className="rounded-lg bg-primary px-2.5 py-1.5 text-white">
+                +244
+              </span>
+              <span className="rounded-lg bg-surface-raised px-2.5 py-1.5 text-muted-content">
+                9XX
+              </span>
+              <span className="rounded-lg bg-surface-raised px-2.5 py-1.5 text-muted-content">
+                XXX
+              </span>
+              <span className="rounded-lg bg-surface-raised px-2.5 py-1.5 text-muted-content">
+                XXX
+              </span>
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Mosaico de requisitos */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {tiles.map((tile) => (
+          <div
+            key={tile.label}
+            className={`flex flex-col gap-1 rounded-3xl p-5 ${tile.className}`}
+          >
+            <span className="text-3xl font-bold leading-none text-primary-content">
+              {tile.value}
+            </span>
+            <span className="mt-1 text-sm font-semibold text-primary-content">
+              {tile.label}
+            </span>
+            <span className="text-xs text-muted-content">{tile.hint}</span>
+          </div>
+        ))}
+      </div>
+
+      {errorMessage}
+      {hiddenInput}
     </div>
   );
 }

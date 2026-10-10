@@ -105,18 +105,9 @@ export function DeleteModal({
           <div className="mt-2 flex items-center justify-end gap-3 border-t border-divider pt-4">
             <button
               type="button"
-              onClick={onClose}
-              disabled={isLoading}
-              className="rounded-lg border border-ui bg-surface px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-item-hover disabled:opacity-50"
-            >
-              {cancelText}
-            </button>
-
-            <button
-              type="button"
               onClick={onConfirm}
               disabled={isLoading}
-              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="flex items-center gap-2 m-auto rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {isLoading ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -124,6 +115,14 @@ export function DeleteModal({
                 <Trash2 size={16} />
               )}
               {resolvedConfirmText}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isLoading}
+              className="rounded-lg border m-auto border-ui bg-surface px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-item-hover disabled:opacity-50"
+            >
+              {cancelText}
             </button>
           </div>
         </div>

@@ -4,6 +4,7 @@ export const SETTINGS_TABS = [
   { key: 'team', href: '/settings/team' },
   { key: 'preferences', href: '/settings/preferences' },
   { key: 'security', href: '/settings/security' },
+  { key: 'apiIntegration', href: '/settings/api-integration' },
 ] as const;
 
 export type SettingsTabKey = (typeof SETTINGS_TABS)[number]['key'];

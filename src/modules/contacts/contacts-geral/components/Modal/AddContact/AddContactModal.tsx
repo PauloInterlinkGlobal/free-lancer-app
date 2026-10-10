@@ -53,7 +53,7 @@ export function AddContactModal({
       return Object.entries(initialValues.variables).map(([key, value]) => ({
         id: `var-${Math.random().toString(36).substring(2, 9)}`,
         key,
-        value,
+        value: String(value),
       }));
     }
     return [];
@@ -80,7 +80,7 @@ export function AddContactModal({
         Object.entries(initialValues.variables).map(([key, value]) => ({
           id: `var-${Math.random().toString(36).substring(2, 9)}`,
           key,
-          value,
+          value: String(value),
         }))
       );
     } else {
@@ -109,7 +109,7 @@ export function AddContactModal({
           Object.entries(initialValues.variables).map(([key, value]) => ({
             id: `var-${Math.random().toString(36).substring(2, 9)}`,
             key,
-            value,
+            value: String(value),
           }))
         );
       }

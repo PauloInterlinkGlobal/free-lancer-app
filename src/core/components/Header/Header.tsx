@@ -1,6 +1,7 @@
-import { HeaderActions } from './HeaderActions';
-import { HeaderBreadcrumb } from './HeaderBreadcrumb';
-import { HeaderMenuButton } from './HeaderMenuButton';
+import { HeaderActions } from './HeaderActions/HeaderActions';
+import { HeaderBreadcrumb } from './HeaderBreadcrumb/HeaderBreadcrumb';
+import { HeaderMenuButton } from './HeaderMenuButton/HeaderMenuButton';
+import { HeaderSearch } from './HeaderSearch/HeaderSearch';
 
 export const HEADER_HEIGHT = 64;
 
@@ -13,7 +14,10 @@ export function Header() {
       >
         <HeaderMenuButton />
         <HeaderBreadcrumb />
-        <div className="ml-auto">
+        <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-4">
+          <div className="mx-auto w-full max-w-md">
+            <HeaderSearch />
+          </div>
           <HeaderActions />
         </div>
       </header>

@@ -12,6 +12,7 @@ import {
 } from '@/modules/send-sms/send-sms-geral/sms-utils';
 import { MessageSquare, Send, UserPlus, X, Zap } from 'lucide-react';
 import { Link } from '@/core/i18n/navigation';
+import type { ILink } from '@/modules/links/interfaces/links';
 import { useEffect, useMemo, useState } from 'react';
 import type {
   IContactGroup,
@@ -32,6 +33,7 @@ interface SmsFormProps {
   groups: IContactGroup[];
   templates: ISmsTemplate[];
   availableContacts: IContact[];
+  links?: ILink[];
   loading?: boolean;
   balance?: number;
   onSendTest?: (message: string) => void | Promise<void>;
@@ -60,6 +62,7 @@ export function SmsForm({
   senderIds,
   groups,
   templates,
+  links,
   loading,
   balance,
   onSendTest,

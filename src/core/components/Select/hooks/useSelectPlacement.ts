@@ -13,6 +13,8 @@ interface UseSelectPlacementOptions {
 export function useSelectPlacement({
   isOpen,
   triggerRef,
+  popoverRef,
+  estimatedHeight = 220,
 }: UseSelectPlacementOptions) {
   const [placement, setPlacement] = useState<PopoverPlacement>('bottom');
 

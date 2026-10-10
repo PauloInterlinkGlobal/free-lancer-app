@@ -48,12 +48,7 @@ export function CreateGroupModal({
           </button>
         </div>
 
-        <GroupForm
-          mode="create"
-          contacts={contacts}
-          onCancel={onClose}
-          onSubmit={onSubmit}
-        />
+        <GroupForm mode="create" contacts={contacts} onCancel={onClose} />
       </div>
     </Modal>
   );

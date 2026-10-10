@@ -4,6 +4,7 @@ import { Modal } from '@/core/components/Modal';
 import { useModalStore } from '@/core/store/useModalStore';
 import { smsTypeLabel } from '@/modules/history/constants/history';
 import {
+  HistorySendingType,
   HistorySmsType,
   IHistorySms,
 } from '@/modules/history/interfaces/history';
@@ -14,12 +15,16 @@ import {
   History as HistoryIcon,
   PencilLine,
   Users,
-  X,
 } from 'lucide-react';
 
 const smsTypeStyles: Record<HistorySmsType, string> = {
   immediate: 'text-primary',
   scheduled: 'text-secondary',
+};
+
+const sendingTypeStyles: Record<HistorySendingType, string> = {
+  flash: 'bg-amber-500/10 text-amber-500',
+  normal: 'bg-surface-raised text-secondary-content',
 };
 
 const dateFormatter = new Intl.DateTimeFormat('pt-PT', {
@@ -96,19 +101,10 @@ export function DetailHistoryModal({ sms, onClose }: DetailHistoryModalProps) {
               </p>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Fechar"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-content transition-colors hover:bg-surface-raised hover:text-primary-content"
-          >
-            <X size={20} />
-          </button>
         </div>
 
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3 rounded-xl bg-surface-raised px-3 py-2.5">
+          <div className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5">
             <div className="flex min-w-0 flex-col">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-content">
                 Sender ID
@@ -163,6 +159,14 @@ export function DetailHistoryModal({ sms, onClose }: DetailHistoryModalProps) {
               {sms.content || 'Nenhum conteúdo definido.'}
             </div>
           </div>
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Fechar"
+            className="inline-flex items-center gap-2 m-auto rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          >
+            Cancelar
+          </button>
         </div>
       </div>
     </Modal>

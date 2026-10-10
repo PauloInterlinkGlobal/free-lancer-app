@@ -55,7 +55,6 @@ export function UpdateGroupModal({
           initialValues={initialValues}
           contacts={contacts}
           onCancel={onClose}
-          onSubmit={onSubmit}
         />
       </div>
     </Modal>

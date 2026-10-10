@@ -1,4 +1,4 @@
-export { SettingsSection } from './components/GeneralSections';
+export { SettingsSection } from '@/modules/settings/settings-general/components/GeneralSections';
 export { CompanyForm } from './components/CompanyForm';
 export { PersonalForm } from './components/PersonalForm';
 export type { CompanyInfo, PersonalInfo } from './interfaces';

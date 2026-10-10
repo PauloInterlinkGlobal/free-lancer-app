@@ -3,8 +3,11 @@
 import { Table, type Column } from '@/core/components/Table';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
 import { IBlacklist } from '@/modules/contacts/contacts-blacklist/interfaces/blacklist';
-import { Trash2 } from 'lucide-react';
+import { useModalStore } from '@/core/store/useModalStore';
+import { LockOpen, Trash2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { DeleteBlacklistModal, UnblockBlacklistModal } from './Modal';
 
 const dateFormatter = new Intl.DateTimeFormat('pt-PT', {
   day: '2-digit',
@@ -16,6 +19,7 @@ const dateFormatter = new Intl.DateTimeFormat('pt-PT', {
 const formatDate = (iso: string) => dateFormatter.format(new Date(iso));
 
 const columns = (
+  onUnblock: (item: IBlacklist) => void,
   onDelete: (item: IBlacklist) => void
 ): Column<IBlacklist>[] => [
   {
@@ -36,7 +40,12 @@ const columns = (
     header: 'Acções',
     actions: (item) => [
       {
-        label: 'Remover',
+        label: 'Desbloquear',
+        icon: LockOpen,
+        onClick: () => onUnblock(item),
+      },
+      {
+        label: 'Eliminar',
         icon: Trash2,
         danger: true,
         onClick: () => onDelete(item),
@@ -76,23 +85,40 @@ export function BlacklistTable({
     router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
+  const { openModal } = useModalStore();
+  const [selected, setSelected] = useState<IBlacklist | null>(null);
+
+  const handleUnblock = (item: IBlacklist) => {
+    setSelected(item);
+    openModal('UNBLOCK_BLACKLIST');
+  };
+
   const handleDelete = (item: IBlacklist) => {
-    console.log('Remover da blacklist', item.id);
+    setSelected(item);
+    openModal('DELETE_BLACKLIST');
   };
 
   return (
-    <Table<IBlacklist>
-      allowGrid
-      columns={columns(handleDelete)}
-      data={data}
-      loading={loading}
-      keyExtractor={(item) => item.id}
-      emptyMessage="Não existem números na blacklist."
-      pagination={{
-        currentPage,
-        totalPages,
-        onPageChange: handlePageChange,
-      }}
-    />
+    <>
+      <Table<IBlacklist>
+        allowGrid
+        columns={columns(handleUnblock, handleDelete)}
+        data={data}
+        loading={loading}
+        keyExtractor={(item) => item.id}
+        emptyMessage="Não existem números na blacklist."
+        pagination={{
+          currentPage,
+          totalPages,
+          onPageChange: handlePageChange,
+        }}
+      />
+
+      <UnblockBlacklistModal
+        item={selected}
+        onClose={() => setSelected(null)}
+      />
+      <DeleteBlacklistModal item={selected} onClose={() => setSelected(null)} />
+    </>
   );
 }

@@ -2,8 +2,9 @@
 
 import { Table, type Column } from '@/core/components/Table';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
-import { Download, Eye, FileText, Send } from 'lucide-react';
+import { FileText, Send } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import {
   campaignStatusLabel,
   campaignStatusStyles,
@@ -117,14 +118,6 @@ const columns = (
       </span>
     ),
   },
-  {
-    key: 'actions',
-    header: 'Acções',
-    actions: (item) => [
-      { label: 'Ver detalhes', icon: Eye, onClick: () => onView?.(item) },
-      { label: 'Exportar', icon: Download, onClick: () => onExport?.(item) },
-    ],
-  },
 ];
 
 export function ReportsCampaignTable({
@@ -136,6 +129,8 @@ export function ReportsCampaignTable({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [selectedCampaign, setSelectedCampaign] =
+    useState<ICampaignReport | null>(null);
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -148,8 +143,7 @@ export function ReportsCampaignTable({
   };
 
   const handleView = (item: ICampaignReport) => {
-    // TODO(api): abrir detalhes da campanha quando o endpoint estiver disponível.
-    console.log('Ver relatório da campanha:', item.name);
+    setSelectedCampaign(item);
   };
 
   const handleExport = (item: ICampaignReport) => {

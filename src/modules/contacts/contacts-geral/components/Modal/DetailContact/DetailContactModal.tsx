@@ -10,15 +10,7 @@ import {
   ContactStatus,
   IContact,
 } from '@/modules/contacts/contacts-geral/interfaces/contacts';
-import {
-  Calendar,
-  Phone,
-  Pencil,
-  User,
-  UserRound,
-  Users,
-  X,
-} from 'lucide-react';
+import { Calendar, Pencil, Phone, User, UserRound, Users } from 'lucide-react';
 
 const dateFormatter = new Intl.DateTimeFormat('pt-PT', {
   day: '2-digit',
@@ -91,15 +83,6 @@ export function DetailContactModal({
               </p>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Fechar"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-content transition-colors hover:bg-surface-raised hover:text-primary-content"
-          >
-            <X size={18} />
-          </button>
         </div>
 
         <div className="flex flex-col gap-4 p-5">
@@ -161,23 +144,24 @@ export function DetailContactModal({
           </div>
 
           <div className="flex items-center justify-end gap-2 border-t border-dashed border-border-ui pt-4">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="rounded-lg border border-border-ui bg-surface-raised px-4 py-2 text-sm text-secondary-content transition-colors hover:bg-item-hover hover:text-primary-content"
-            >
-              Fechar
-            </button>
             {onEdit && (
               <button
                 type="button"
                 onClick={() => onEdit(contact)}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 m-auto rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
                 <Pencil className="h-4 w-4" />
-                Editar
+                Editar Informações
               </button>
             )}
+            <button
+              type="button"
+              onClick={handleClose}
+              aria-label="Fechar"
+              className="inline-flex items-center gap-2 m-auto rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            >
+              Cancelar
+            </button>
           </div>
         </div>
       </div>

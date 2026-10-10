@@ -6,10 +6,6 @@ const withNextIntl = createNextIntlPlugin('./src/core/i18n/request.ts');
 const nextConfig: NextConfig = {
   output: 'standalone',
 
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
   images: {
     formats: ['image/avif', 'image/webp'],
     dangerouslyAllowSVG: true,

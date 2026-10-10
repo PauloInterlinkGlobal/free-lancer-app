@@ -5,6 +5,7 @@ import {
 } from '@/modules/contacts/contacts-groups/utils/groups-filters';
 import { GroupsFilters } from './GroupsFilters';
 import { GroupsGrid } from './GroupsGrid';
+import { GroupsStats } from './GroupsStats';
 
 interface GroupsListProps {
   data: IGroup[];
@@ -16,13 +17,15 @@ export function GroupsList({ data, filters }: GroupsListProps) {
 
   return (
     <div className="flex flex-col gap-4">
+      <GroupsStats groups={data} />
+
       <GroupsFilters />
 
       {groups.length === 0 && (
         <p className="text-sm text-muted-content">Nenhum grupo encontrado.</p>
       )}
 
-      <GroupsGrid groups={groups} />
+      <GroupsGrid groups={groups} allGroups={data} />
     </div>
   );
 }
