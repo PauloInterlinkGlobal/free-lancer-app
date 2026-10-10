@@ -1,13 +1,15 @@
 'use client';
 
-import { forwardRef, type ForwardedRef, type ReactNode } from 'react';
+import { forwardRef, useState, type ForwardedRef, type ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';
 import Pagination from '../Pagination/Pagination';
 import { TableCell } from './table-cell';
+import { TableGrid } from './table-grid';
 import { TableHeader } from './table-header';
 import { TableRow } from './table-row';
 import { TableRowMenu, type RowAction } from './table-row-menu';
 import { TableSkeleton } from './table-skeleton';
+import { ViewToggle, type ViewMode } from './view-toggle';
 
 export interface Column<T> {
   key: keyof T | string;
@@ -34,6 +36,8 @@ export interface TableProps<T> {
   onRowClick?: (item: T) => void;
   className?: string;
   pagination?: TablePagination;
+  /** Mostra o botão para alternar entre lista (tabela) e grelha (cartões). */
+  allowGrid?: boolean;
 }
 
 const alignClass = {
@@ -55,14 +59,49 @@ function TableRootInner<T extends Record<string, any>>(
     onRowClick,
     className,
     pagination,
+    allowGrid = false,
   }: TableProps<T>,
   ref: ForwardedRef<HTMLTableElement>
 ) {
-  return (
+  const [view, setView] = useState<ViewMode>('list');
+  const isGrid = allowGrid && view === 'grid';
+
+  const toggle = allowGrid && (
+    <div className="flex justify-end">
+      <ViewToggle value={view} onChange={setView} />
+    </div>
+  );
+
+  const pager = pagination && (
+    <Pagination
+      currentPage={pagination.currentPage}
+      totalPages={pagination.totalPages}
+      onPageChange={pagination.onPageChange}
+      isLoading={loading}
+    />
+  );
+
+  if (isGrid) {
+    return (
+      <TableGrid
+        columns={columns}
+        data={data}
+        loading={loading}
+        emptyMessage={emptyMessage}
+        keyExtractor={keyExtractor}
+        onRowClick={onRowClick}
+        className={className}
+        toggle={toggle}
+        pager={pager}
+      />
+    );
+  }
+
+  const tableView = (
     <div
       className={twMerge(
         'w-full overflow-hidden rounded-2xl border border-ui bg-surface shadow-sm',
-        className
+        !allowGrid && className
       )}
     >
       <div className="overflow-x-auto">
@@ -120,14 +159,16 @@ function TableRootInner<T extends Record<string, any>>(
         </table>
       </div>
 
-      {pagination && (
-        <Pagination
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          onPageChange={pagination.onPageChange}
-          isLoading={loading}
-        />
-      )}
+      {pager}
+    </div>
+  );
+
+  if (!allowGrid) return tableView;
+
+  return (
+    <div className={twMerge('flex w-full flex-col gap-3', className)}>
+      {toggle}
+      {tableView}
     </div>
   );
 }

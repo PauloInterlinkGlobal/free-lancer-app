@@ -1,8 +1,6 @@
 export type CampaignStatus =
   'COMPLETED' | 'IN_PROGRESS' | 'SCHEDULED' | 'FAILED';
 
-export type ReportExportPeriod = 'daily' | 'weekly' | 'monthly' | 'last_month';
-
 export interface IReportStatItem {
   id: string;
   label: string;
@@ -41,7 +39,6 @@ export interface ICampaignReport {
   name: string;
   sender: string;
   cost: number;
-  currency: string;
   status: CampaignStatus;
   createdAt: string;
   totalRecipients: number;

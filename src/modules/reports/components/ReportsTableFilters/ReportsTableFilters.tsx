@@ -59,7 +59,7 @@ export function ReportsTableFilters() {
     <div className="flex flex-wrap items-center gap-3">
       <div className="w-full sm:w-60">
         <Input
-          placeholder="Pesquisar campanha..."
+          placeholder="Pesquisar..."
           leftIcon={Search}
           value={search}
           onChange={(e) => setSearch(e.target.value)}

@@ -2,15 +2,23 @@
 
 import { Input } from '@/core/components/Input';
 import { Select } from '@/core/components/Select';
-import { VariablesDropdown } from '@/core/components/VariablesDropdown';
 import { useToastStore } from '@/core/store/toast.store';
-import { Plus } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Plus, Tag } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { TEMPLATE_CATEGORIES } from '../../constants/templates';
 import { ITemplate, TemplateCategory } from '../../interfaces/templates';
 import { useTemplatePreviewStore } from '../../store/useTemplatePreviewStore';
 import { extractVariables } from '../../utils/templates-filters';
 import { getSmsMetrics } from '../TemplatePreview/utils/smsMetrics';
+
+const QUICK_VARIABLES = [
+  'firstName',
+  'lastName',
+  'cidade',
+  'codigo',
+  'data',
+  'valor',
+];
 
 const selectableCategories = TEMPLATE_CATEGORIES.filter((c) => c.value !== '');
 
@@ -32,7 +40,6 @@ export function TemplateComposer({ base, baseNonce }: TemplateComposerProps) {
   const [category, setCategory] = useState<TemplateCategory>('promocional');
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const variables = extractVariables(content);
   const metrics = getSmsMetrics(content);
@@ -83,24 +90,6 @@ export function TemplateComposer({ base, baseNonce }: TemplateComposerProps) {
     reset();
   };
 
-  const insertVariableToken = (token: string) => {
-    const el = textareaRef.current;
-    if (!el) {
-      setContent((prev) => prev + token);
-      return;
-    }
-
-    const start = el.selectionStart ?? content.length;
-    const end = el.selectionEnd ?? content.length;
-    setContent(content.slice(0, start) + token + content.slice(end));
-
-    requestAnimationFrame(() => {
-      el.focus();
-      const pos = start + token.length;
-      el.setSelectionRange(pos, pos);
-    });
-  };
-
   return (
     <form
       id={TEMPLATE_COMPOSER_ID}
@@ -131,6 +120,7 @@ export function TemplateComposer({ base, baseNonce }: TemplateComposerProps) {
             setTitle(e.target.value);
             if (error) setError('');
           }}
+          autoFocus
           error={error}
         />
 
@@ -156,7 +146,6 @@ export function TemplateComposer({ base, baseNonce }: TemplateComposerProps) {
           </span>
         </div>
         <textarea
-          ref={textareaRef}
           id="template-composer-content"
           rows={4}
           value={content}
@@ -169,8 +158,21 @@ export function TemplateComposer({ base, baseNonce }: TemplateComposerProps) {
         />
       </div>
 
-      <div className="flex items-center gap-2">
-        <VariablesDropdown onSelect={insertVariableToken} />
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="flex items-center gap-1 text-xs text-muted-content">
+          <Tag size={12} />
+          Inserir variável:
+        </span>
+        {QUICK_VARIABLES.map((v) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => setContent((prev) => `${prev}{{${v}}}`)}
+            className="rounded-lg bg-primary/10 px-2 py-0.5 font-mono text-xs text-primary transition-colors hover:bg-primary/20"
+          >
+            +{`{{${v}}}`}
+          </button>
+        ))}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-dashed border-border-ui pt-4">

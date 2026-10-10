@@ -1,5 +1,3 @@
-import { DYNAMIC_VARIABLES } from '@/core/constants/dynamic-variables';
-
 const GSM_REGEX =
   /^[A-Za-z0-9 \r\n@£$¥èéùìòÇØøÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ!"#¤%&'()*+,\-./:;<=>?¡ÄÖÑÜ§¿äöñüà^{}\\[~\]|€]*$/;
 
@@ -23,39 +21,21 @@ export function removeAccents(text: string) {
   return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-export function formatKz(value: number) {
+export function formatSms(value: number) {
   return `${new Intl.NumberFormat('pt-PT', {
-    maximumFractionDigits: 2,
-  }).format(value)} Kz`;
+    maximumFractionDigits: 0,
+  }).format(value)} SMS`;
 }
 
-/** Exemplo usado na pré-visualização */
+/** Exemplo usado só na pré-visualização */
 export const PREVIEW_VARIABLES: Record<string, string> = {
-  ...DYNAMIC_VARIABLES.reduce(
-    (acc, v) => {
-      acc[v.key] = v.exemplo;
-      return acc;
-    },
-    {} as Record<string, string>
-  ),
-  // Compatibilidade com chaves legadas e variáveis comuns
-  nome: 'Ana',
-  empresa: 'Sonangol',
-  cidade: 'Luanda',
+  nome: 'Maria',
+  empresa: 'a sua empresa',
 };
 
-export function fillVariables(text: string): string {
-  // 1. Substitui sintaxe nova {{ chave }} (aceita espaços internos opcionais)
-  let filled = text.replace(
-    /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g,
+export function fillVariables(text: string) {
+  return text.replace(
+    /\{(\w+)\}/g,
     (match, key: string) => PREVIEW_VARIABLES[key] ?? match
   );
-
-  // 2. Substitui sintaxe antiga { chave } para compatibilidade retroativa
-  filled = filled.replace(
-    /(?<!\{)\{([a-zA-Z0-9_]+)\}(?!\})/g,
-    (match, key: string) => PREVIEW_VARIABLES[key] ?? match
-  );
-
-  return filled;
 }

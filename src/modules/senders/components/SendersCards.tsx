@@ -1,51 +1,22 @@
 'use client';
 
 import Pagination from '@/core/components/Pagination/Pagination';
+import { ViewToggle, type ViewMode } from '@/core/components/Table';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
 import { useModalStore } from '@/core/store/useModalStore';
-import { senderStatusLabel } from '@/modules/senders/constants/senders';
-import { ISender, SenderStatus } from '@/modules/senders/interfaces/senders';
+import {
+  senderStatusBadgeStyles,
+  senderStatusIcons,
+  senderStatusLabel,
+} from '@/modules/senders/constants/senders';
+import { ISender } from '@/modules/senders/interfaces/senders';
+import { formatSenderDate } from '@/modules/senders/utils/senders-format';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { DeleteSenderModal, DetailSenderModal } from './Modal';
+import { SendersTable } from './SendersTable';
 
-import {
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  Eye,
-  MessageSquare,
-  Send,
-  Trash2,
-} from 'lucide-react';
-
-const dateFormatter = new Intl.DateTimeFormat('pt-PT', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  timeZone: 'Africa/Luanda',
-});
-
-const formatDate = (iso?: string | null) => {
-  if (!iso) return '—';
-  try {
-    return dateFormatter.format(new Date(iso));
-  } catch {
-    return '—';
-  }
-};
-
-const statusIcons: Record<SenderStatus, typeof CheckCircle2> = {
-  validated: CheckCircle2,
-  pending: Clock,
-  rejected: AlertCircle,
-};
-
-const statusBadgeBgs: Record<SenderStatus, string> = {
-  validated: 'text-emerald-600 dark:text-emerald-400',
-  pending: 'text-amber-600 dark:text-amber-400',
-  rejected: 'text-rose-600 dark:text-rose-400',
-};
+import { CheckCircle2, Eye, MessageSquare, Send, Trash2 } from 'lucide-react';
 
 interface SendersCardsProps {
   items: ISender[];
@@ -64,6 +35,7 @@ export function SendersCards({
   const { openModal } = useModalStore();
 
   const [selectedSender, setSelectedSender] = useState<ISender | null>(null);
+  const [view, setView] = useState<ViewMode>('grid');
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -103,7 +75,7 @@ export function SendersCards({
   const cards = (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {items.map((sender) => {
-        const StatusIcon = statusIcons[sender.status] || CheckCircle2;
+        const StatusIcon = senderStatusIcons[sender.status] || CheckCircle2;
         const initials = sender.sender.trim().slice(0, 2).toUpperCase() || 'ID';
 
         return (
@@ -129,7 +101,7 @@ export function SendersCards({
                 </div>
 
                 <div
-                  className={`inline-flex shrink-0 items-center gap-1.5  px-2.5 py-0.5 text-xs font-medium ${statusBadgeBgs[sender.status]}`}
+                  className={`inline-flex shrink-0 items-center gap-1.5  px-2.5 py-0.5 text-xs font-medium ${senderStatusBadgeStyles[sender.status]}`}
                 >
                   <StatusIcon className="h-3.5 w-3.5" />
                   <span>{senderStatusLabel[sender.status]}</span>
@@ -148,7 +120,7 @@ export function SendersCards({
                 <div className="flex flex-col">
                   <span className="font-medium text-text-muted">Criação:</span>
                   <span className="font-semibold text-primary-content">
-                    {formatDate(sender.createdAt)}
+                    {formatSenderDate(sender.createdAt)}
                   </span>
                 </div>
 
@@ -157,7 +129,7 @@ export function SendersCards({
                     Validação:
                   </span>
                   <span className="font-semibold text-primary-content">
-                    {formatDate(sender.validatedAt)}
+                    {formatSenderDate(sender.validatedAt)}
                   </span>
                 </div>
               </div>
@@ -200,12 +172,26 @@ export function SendersCards({
     </div>
   );
 
+  const table = (
+    <SendersTable
+      items={items}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onView={onView}
+      onDelete={onDelete}
+    />
+  );
+
   return (
     <>
       <div className="flex flex-col gap-4">
-        {items.length === 0 ? empty : cards}
+        <div className="flex justify-end">
+          <ViewToggle value={view} onChange={setView} />
+        </div>
 
-        {totalPages > 1 && (
+        {view === 'list' ? table : items.length === 0 ? empty : cards}
+
+        {view === 'grid' && totalPages > 1 && (
           <div className="overflow-hidden rounded-xl border border-border-ui">
             <Pagination
               currentPage={currentPage}

@@ -3,22 +3,10 @@ export type ContactSex = 'male' | 'female';
 
 export interface IContact {
   id: string;
-  name: string; // Primeiro nome
-  surname?: string; // Sobrenome
+  name: string;
   number: string;
-  email?: string;
-  sex?: ContactSex;
+  sex: ContactSex;
   date: string;
   groups: string[];
-  variables?: Record<string, string>;
   status: ContactStatus;
-}
-
-export interface ICreateContactInput {
-  name: string;
-  surname?: string;
-  number: string;
-  email?: string;
-  groups: string[];
-  variables: Record<string, string>;
 }

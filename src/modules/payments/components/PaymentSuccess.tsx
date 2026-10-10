@@ -12,7 +12,7 @@ interface PaymentSuccessProps {
 export function PaymentSuccess({ reference, amount }: PaymentSuccessProps) {
   const rows = [
     { label: 'Referência do pedido', value: reference },
-    { label: 'Valor', value: formatAmount(amount) },
+    { label: 'Volume', value: formatAmount(amount) },
   ];
 
   return (

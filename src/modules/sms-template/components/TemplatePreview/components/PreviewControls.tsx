@@ -1,6 +1,6 @@
 'use client';
 
-import { Moon, Sun, ToggleLeft, ToggleRight, Zap } from 'lucide-react';
+import { ToggleLeft, ToggleRight, Zap } from 'lucide-react';
 import React from 'react';
 
 interface PreviewControlsProps {
@@ -8,8 +8,6 @@ interface PreviewControlsProps {
   setPreviewSender: (sender: string) => void;
   previewType: 'normal' | 'flash';
   setPreviewType: (type: 'normal' | 'flash') => void;
-  previewTheme: 'light' | 'dark';
-  setPreviewTheme: (theme: 'light' | 'dark') => void;
   fillVariables: boolean;
   toggleFillVariables: () => void;
 }
@@ -19,8 +17,6 @@ export function PreviewControls({
   setPreviewSender,
   previewType,
   setPreviewType,
-  previewTheme,
-  setPreviewTheme,
   fillVariables,
   toggleFillVariables,
 }: PreviewControlsProps) {
@@ -41,36 +37,6 @@ export function PreviewControls({
           className="w-28 rounded-md border border-border-ui bg-surface-raised px-2 py-1 text-right font-semibold text-text-primary outline-none focus:border-primary"
           placeholder="SMSillico"
         />
-      </div>
-
-      <div className="flex items-center justify-between border-t border-border-ui/40 pt-2">
-        <span className="text-text-muted">Tema do visor:</span>
-        <div className="flex gap-1 rounded-lg border border-border-ui bg-surface-raised p-0.5">
-          <button
-            type="button"
-            onClick={() => setPreviewTheme('light')}
-            className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-medium transition-all ${
-              previewTheme === 'light'
-                ? 'bg-primary text-white shadow-xs'
-                : 'text-text-muted hover:text-text-primary'
-            }`}
-          >
-            <Sun className="h-3 w-3" />
-            Claro
-          </button>
-          <button
-            type="button"
-            onClick={() => setPreviewTheme('dark')}
-            className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-medium transition-all ${
-              previewTheme === 'dark'
-                ? 'bg-neutral-800 text-white shadow-xs'
-                : 'text-text-muted hover:text-text-primary'
-            }`}
-          >
-            <Moon className="h-3 w-3" />
-            Escuro
-          </button>
-        </div>
       </div>
 
       <div className="flex items-center justify-between border-t border-border-ui/40 pt-2">

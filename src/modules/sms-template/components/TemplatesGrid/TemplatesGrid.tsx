@@ -2,11 +2,13 @@
 
 import { DeleteModal } from '@/core/components/Modal';
 import { useToastStore } from '@/core/store/toast.store';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ITemplate } from '../../interfaces/templates';
 import { useTemplatePreviewStore } from '../../store/useTemplatePreviewStore';
 import { EditTemplateModal } from '../Modal/EditTemplateModal';
 import { TemplateCard } from '../TemplateCard/TemplateCard';
+
+const PAGE_SIZE = 5;
 
 interface TemplatesGridProps {
   initialTemplates: ITemplate[];
@@ -31,6 +33,23 @@ export function TemplatesGrid({
   );
   const [deletingTemplate, setDeletingTemplate] = useState<ITemplate | null>(
     null
+  );
+
+  const [page, setPage] = useState(1);
+
+  const sortedByRecent = useMemo(
+    () =>
+      [...templates].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ),
+    [templates]
+  );
+  const totalPages = Math.max(1, Math.ceil(sortedByRecent.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = sortedByRecent.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
   );
 
   // Set default preview template if none selected or if list changes
@@ -63,6 +82,16 @@ export function TemplatesGrid({
     setDeletingTemplate(null);
   };
 
+  const renderCard = (template: ITemplate) => (
+    <TemplateCard
+      key={template.id}
+      template={template}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      onUseAsBase={onUseAsBase}
+    />
+  );
+
   if (templates.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-ui bg-surface p-12 text-center">
@@ -76,16 +105,32 @@ export function TemplatesGrid({
   return (
     <>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {templates.map((template) => (
-          <TemplateCard
-            key={template.id}
-            template={template}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onUseAsBase={onUseAsBase}
-          />
-        ))}
+        {pageItems.map(renderCard)}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button
+            type="button"
+            disabled={currentPage === 1}
+            onClick={() => setPage(currentPage - 1)}
+            className="rounded-lg border border-border-ui bg-surface px-3 py-1.5 text-sm font-medium text-text-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-text-muted">
+            {currentPage} / {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={currentPage === totalPages}
+            onClick={() => setPage(currentPage + 1)}
+            className="rounded-lg border border-border-ui bg-surface px-3 py-1.5 text-sm font-medium text-text-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            Seguinte
+          </button>
+        </div>
+      )}
 
       <EditTemplateModal
         isOpen={Boolean(editingTemplate)}

@@ -3,10 +3,9 @@
 import { Input } from '@/core/components/Input';
 import { Modal } from '@/core/components/Modal';
 import { Select } from '@/core/components/Select';
-import { VariablesDropdown } from '@/core/components/VariablesDropdown';
 import { useToastStore } from '@/core/store/toast.store';
-import { Check, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Check, Tag, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { TEMPLATE_CATEGORIES } from '../../constants/templates';
 import { ITemplate, TemplateCategory } from '../../interfaces/templates';
 import { extractVariables } from '../../utils/templates-filters';
@@ -30,7 +29,6 @@ export function EditTemplateModal({
   const [category, setCategory] = useState<TemplateCategory>('promocional');
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (template) {
@@ -48,22 +46,8 @@ export function EditTemplateModal({
     onClose();
   };
 
-  const insertVariableToken = (token: string) => {
-    const el = textareaRef.current;
-    if (!el) {
-      setContent((prev) => prev + token);
-      return;
-    }
-
-    const start = el.selectionStart ?? content.length;
-    const end = el.selectionEnd ?? content.length;
-    setContent(content.slice(0, start) + token + content.slice(end));
-
-    requestAnimationFrame(() => {
-      el.focus();
-      const pos = start + token.length;
-      el.setSelectionRange(pos, pos);
-    });
+  const insertVariable = (variableName: string) => {
+    setContent((prev) => `${prev}{{${variableName}}}`);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -126,6 +110,7 @@ export function EditTemplateModal({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-5">
           <Input
+            autoFocus
             label="Título do Modelo"
             placeholder="Ex: Promoção Luanda"
             value={title}
@@ -134,7 +119,6 @@ export function EditTemplateModal({
               if (error) setError('');
             }}
             error={error}
-            autoFocus
           />
 
           <Select
@@ -156,7 +140,6 @@ export function EditTemplateModal({
             </div>
 
             <textarea
-              ref={textareaRef}
               rows={4}
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -165,8 +148,32 @@ export function EditTemplateModal({
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <VariablesDropdown onSelect={insertVariableToken} />
+          {/* Quick Variable suggestions */}
+          <div className="flex flex-col gap-1.5">
+            <span className="flex items-center gap-1 text-xs font-medium text-text-muted">
+              <Tag size={12} />
+              Inserir variáveis rápidas:
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                'firstName',
+                'lastName',
+                'cidade',
+                'ano',
+                'codigo',
+                'data',
+                'valor',
+              ].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => insertVariable(v)}
+                  className="rounded-md border border-border-ui/60 bg-surface-raised px-2 py-0.5 font-mono text-xs text-primary transition-colors hover:bg-primary-500/10"
+                >
+                  +{`{{${v}}}`}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Actions */}

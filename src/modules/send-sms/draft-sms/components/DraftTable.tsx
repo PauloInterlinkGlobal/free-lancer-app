@@ -163,6 +163,7 @@ export function DraftTable({
   return (
     <>
       <Table<IDraftSms>
+        allowGrid
         columns={columns(handleView, handleEdit, handleDelete)}
         data={data}
         loading={loading}

@@ -53,7 +53,7 @@ const columns = (
   },
   {
     key: 'amount',
-    header: 'Valor',
+    header: 'Volume',
     render: (payment) => formatAmount(payment.amount),
   },
   {
@@ -126,6 +126,7 @@ export function PaymentsTable({
 
   return (
     <Table<IPayment>
+      allowGrid
       columns={columns(handleView, handleUpload)}
       data={data}
       loading={loading}

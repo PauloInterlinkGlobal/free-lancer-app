@@ -33,7 +33,7 @@ export function PaymentDetailsClient({ payment }: { payment: IPayment }) {
   const rows = [
     { label: 'Referência', value: payment.reference },
     { label: 'Método', value: methodLabel[payment.method] },
-    { label: 'Valor', value: formatAmount(payment.amount) },
+    { label: 'Volume', value: formatAmount(payment.amount) },
     { label: 'Data', value: dateFormatter.format(new Date(payment.createdAt)) },
     ...(payment.transferReference
       ? [

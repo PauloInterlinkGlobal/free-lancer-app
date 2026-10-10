@@ -3,6 +3,8 @@ import { create } from 'zustand';
 export type ModalType =
   | 'ADD_CONTACT'
   | 'EDIT_CONTACT'
+  | 'DETAIL_CONTACT'
+  | 'DELETE_CONTACT'
   | 'ADD_SENDER'
   | 'ADD_MEMBER'
   | 'ADD_BLACKLIST'
@@ -15,15 +17,9 @@ export type ModalType =
   | 'UPDATE_GROUP'
   | 'DETAIL_DRAFT_SMS'
   | 'DELETE_DRAFT_SMS'
+  | 'DETAIL_HISTORY_SMS'
   | 'DETAIL_SCHEDULED_SMS'
   | 'DELETE_SCHEDULED_SMS'
-  | 'GENERATE_DASHBOARD_REPORT'
-  | 'GENERATE_REPORT'
-  | 'ADD_LINK'
-  | 'DELETE_LINK'
-  | 'PICK_GROUPS'
-  | 'PICK_TEMPLATES'
-  | 'PICK_LINKS'
   | null;
 
 type State = {

@@ -2,6 +2,7 @@
 
 import { Table, type Column } from '@/core/components/Table';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
+import { useModalStore } from '@/core/store/useModalStore';
 import {
   sexLabel,
   statusLabel,
@@ -12,6 +13,12 @@ import {
 } from '@/modules/contacts/contacts-geral/interfaces/contacts';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import {
+  DeleteContactModal,
+  DetailContactModal,
+  EditContactModal,
+} from './Modal';
 
 const MAX_VISIBLE_GROUPS = 2;
 
@@ -38,38 +45,18 @@ const columns = (
   {
     key: 'name',
     header: 'Nome do contacto',
-    render: (contact) => {
-      const fullName = contact.surname
-        ? `${contact.name} ${contact.surname}`
-        : contact.name;
-      return (
-        <span className="font-medium text-primary-content">{fullName}</span>
-      );
-    },
+    render: (contact) => (
+      <span className="font-medium text-primary-content">{contact.name}</span>
+    ),
   },
   {
     key: 'number',
     header: 'Número',
-    render: (contact) => (
-      <div className="flex flex-col">
-        <span className="font-mono text-sm text-primary-content">
-          {contact.number}
-        </span>
-        {contact.email && (
-          <span
-            className="truncate max-w-[200px] text-xs text-muted-content"
-            title={contact.email}
-          >
-            {contact.email}
-          </span>
-        )}
-      </div>
-    ),
   },
   {
     key: 'sex',
     header: 'Sexo',
-    render: (contact) => (contact.sex ? sexLabel[contact.sex] : '—'),
+    render: (contact) => sexLabel[contact.sex],
   },
   {
     key: 'date',
@@ -154,6 +141,9 @@ export function ContactsTable({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { openModal } = useModalStore();
+
+  const [selectedContact, setSelectedContact] = useState<IContact | null>(null);
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -165,23 +155,46 @@ export function ContactsTable({
     router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
-  const handleView = (contact: IContact) => console.log('Ver', contact.id);
-  const handleEdit = (contact: IContact) => console.log('Editar', contact.id);
-  const handleDelete = (contact: IContact) =>
-    console.log('Eliminar', contact.id);
+  const handleView = (contact: IContact) => {
+    setSelectedContact(contact);
+    openModal('DETAIL_CONTACT');
+  };
+
+  const handleEdit = (contact: IContact) => {
+    setSelectedContact(contact);
+    openModal('EDIT_CONTACT');
+  };
+
+  const handleDelete = (contact: IContact) => {
+    setSelectedContact(contact);
+    openModal('DELETE_CONTACT');
+  };
+
+  const clearSelection = () => setSelectedContact(null);
 
   return (
-    <Table<IContact>
-      columns={columns(handleView, handleEdit, handleDelete)}
-      data={data}
-      loading={loading}
-      keyExtractor={(contact) => contact.id}
-      emptyMessage="Não existem contactos."
-      pagination={{
-        currentPage,
-        totalPages,
-        onPageChange: handlePageChange,
-      }}
-    />
+    <>
+      <Table<IContact>
+        allowGrid
+        columns={columns(handleView, handleEdit, handleDelete)}
+        data={data}
+        loading={loading}
+        keyExtractor={(contact) => contact.id}
+        emptyMessage="Não existem contactos."
+        pagination={{
+          currentPage,
+          totalPages,
+          onPageChange: handlePageChange,
+        }}
+      />
+
+      <DetailContactModal
+        contact={selectedContact}
+        onClose={clearSelection}
+        onEdit={handleEdit}
+      />
+      <EditContactModal contact={selectedContact} onClose={clearSelection} />
+      <DeleteContactModal contact={selectedContact} onClose={clearSelection} />
+    </>
   );
 }

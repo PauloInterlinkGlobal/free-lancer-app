@@ -37,9 +37,7 @@ const formatDate = (iso: string) => {
   }
 };
 
-const formatCost = (val: number, currency = 'Kz') => {
-  return `${val.toFixed(2).replace('.', ',')} ${currency}`;
-};
+const formatCost = (val: number) => `${val.toLocaleString('pt-PT')} SMS`;
 
 const columns = (
   onView?: (item: ICampaignReport) => void,
@@ -47,7 +45,7 @@ const columns = (
 ): Column<ICampaignReport>[] => [
   {
     key: 'name',
-    header: 'Campanha',
+    header: 'SMS em Massa',
     render: (item) => (
       <div className="flex items-center gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-raised border border-ui text-muted-content">
@@ -105,9 +103,9 @@ const columns = (
   },
   {
     key: 'cost',
-    header: 'Custo',
+    header: 'Consumo',
     className: 'font-semibold text-primary-content tracking-tight',
-    render: (item) => formatCost(item.cost, item.currency),
+    render: (item) => formatCost(item.cost),
   },
   {
     key: 'status',
@@ -149,7 +147,7 @@ export function ReportsCampaignTable({
   };
 
   const handleExport = (item: ICampaignReport) => {
-    console.log('Exportar relatório da campanha:', item.name);
+    console.log('Baixar relatório:', item.name);
   };
 
   return (
@@ -168,11 +166,12 @@ export function ReportsCampaignTable({
       </div>
 
       <Table<ICampaignReport>
+        allowGrid
         columns={columns(handleView, handleExport)}
         data={data}
         loading={loading}
         keyExtractor={(item) => item.id}
-        emptyMessage="Nenhuma campanha encontrada com os filtros selecionados."
+        emptyMessage="Nenhuma SMS em massa encontrada com os filtros selecionados."
         className="rounded-none border-none shadow-none"
         pagination={{
           currentPage,

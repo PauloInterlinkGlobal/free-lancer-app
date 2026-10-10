@@ -2,27 +2,15 @@
 
 import { SelectPopup } from '@/core/components/Select';
 import { useModalStore } from '@/core/store/useModalStore';
-import { collectCustomVariableKeys } from '@/modules/contacts/contacts-geral/utils/collectCustomVariableKeys';
 import type { IContact } from '@/modules/contacts/contacts-geral/interfaces/contacts';
-import type { ILink } from '@/modules/links/interfaces/links';
 import { SelectContactsModal } from '@/modules/send-sms/send-sms-geral/components/Modal/AddContactsModal';
-import { ItemPickerModal } from '@/modules/send-sms/send-sms-geral/components/Modal/ItemPickerModal';
 import { MessageEditor } from '@/modules/send-sms/send-sms-geral/components/SmsForm/MessageEditor';
 import {
   fillVariables,
-  formatKz,
   getSmsInfo,
+  formatSms,
 } from '@/modules/send-sms/send-sms-geral/sms-utils';
-import {
-  FileText,
-  Link2,
-  MessageSquare,
-  Send,
-  UserPlus,
-  UsersRound,
-  X,
-  Zap,
-} from 'lucide-react';
+import { MessageSquare, Send, UserPlus, X, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import type {
@@ -33,7 +21,6 @@ import type {
   SmsType,
 } from '../../interfaces';
 import { GroupsCard } from '../Cards/GroupsCard';
-import { LinksCard } from '../Cards/LinksCard';
 import { TemplatesCard } from '../Cards/TemplatesCard';
 import { PhonePreview } from '../PhonePreview';
 import { SectionCard } from '../SectionCard';
@@ -44,9 +31,7 @@ interface SmsFormProps {
   groups: IContactGroup[];
   templates: ISmsTemplate[];
   availableContacts: IContact[];
-  links?: ILink[];
   loading?: boolean;
-  pricePerSms?: number;
   balance?: number;
   onSendTest?: (message: string) => void | Promise<void>;
   onSubmit: (payload: ISendSmsPayload) => void | Promise<void>;
@@ -67,7 +52,6 @@ const SMS_TYPES = [
   },
 ] as const;
 
-const MAX_VISIBLE_CONTACTS = 6;
 const labelClass = 'text-sm font-medium text-primary-content';
 
 export function SmsForm({
@@ -75,19 +59,16 @@ export function SmsForm({
   groups,
   templates,
   loading,
-  pricePerSms,
   balance,
   onSendTest,
   onSubmit,
   availableContacts,
-  links,
 }: SmsFormProps) {
   const [type, setType] = useState<SmsType>('normal');
   const [senderId, setSenderId] = useState('');
   const [groupIds, setGroupIds] = useState<string[]>([]);
   const [contacts, setContacts] = useState<string[]>([]);
   const [message, setMessage] = useState('');
-  const [pendingTemplate, setPendingTemplate] = useState<string | null>(null);
   const [scheduled, setScheduled] = useState(false);
   const [scheduledDate, setScheduledDate] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
@@ -122,15 +103,10 @@ export function SmsForm({
       .filter((g) => groupIds.includes(g.id))
       .reduce((sum, g) => sum + g.total, 0) + contacts.length;
 
-  const visibleContacts = contacts.slice(0, MAX_VISIBLE_CONTACTS);
-  const hiddenContactsCount = contacts.length - MAX_VISIBLE_CONTACTS;
-
   const totalSms = info.segments * totalRecipients;
-  const hasPricing = typeof pricePerSms === 'number';
-  const cost = hasPricing ? totalSms * pricePerSms : 0;
-  const balanceAfter = typeof balance === 'number' ? balance - cost : undefined;
-  const insufficientBalance =
-    hasPricing && balanceAfter !== undefined && balanceAfter < 0;
+  const balanceAfter =
+    typeof balance === 'number' ? balance - totalSms : undefined;
+  const insufficientBalance = balanceAfter !== undefined && balanceAfter < 0;
 
   const canSend =
     !!senderId &&
@@ -152,31 +128,6 @@ export function SmsForm({
   function handleConfirmContacts(numbers: string[]) {
     setContacts(numbers);
     closeModal();
-  }
-
-  function handleInsertLink(url: string) {
-    setMessage((prev) => {
-      const trimmed = prev.trim();
-      return trimmed ? `${trimmed} ${url}` : url;
-    });
-  }
-
-  function handleConfirmLinks(linkIds: string[]) {
-    const selectedUrls = (links || [])
-      .filter((l) => linkIds.includes(l.id))
-      .map((l) => l.url);
-
-    if (selectedUrls.length > 0) {
-      handleInsertLink(selectedUrls.join(' '));
-    }
-  }
-
-  function handleSelectTemplate(content: string) {
-    if (message.trim().length > 0 && message.trim() !== content.trim()) {
-      setPendingTemplate(content);
-    } else {
-      setMessage(content);
-    }
   }
 
   async function handleSendTest() {
@@ -205,9 +156,6 @@ export function SmsForm({
     { label: 'Destinatários', value: totalRecipients },
     { label: 'SMS por contacto', value: info.segments },
     { label: 'Total de SMS', value: totalSms },
-    ...(hasPricing
-      ? [{ label: 'Custo', value: formatKz(cost), accent: true }]
-      : []),
   ];
 
   return (
@@ -294,23 +242,16 @@ export function SmsForm({
           />
 
           <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <span className={labelClass}>Números avulsos</span>
-              {contacts.length > 0 && (
-                <span className="text-xs text-muted-content">
-                  {contacts.length} número{contacts.length === 1 ? '' : 's'} adicionado{contacts.length === 1 ? '' : 's'}
-                </span>
-              )}
-            </div>
+            <span className={labelClass}>Números avulsos</span>
 
-            <div className="flex min-h-[56px] flex-wrap items-center gap-2 rounded-xl border border-dashed border-border-ui bg-surface-raised/40 p-3">
+            <div className="flex max-h-32 min-h-[56px] flex-wrap items-center gap-2 overflow-y-auto rounded-xl border border-dashed border-border-ui bg-surface-raised/40 p-3">
               {contacts.length === 0 && (
-                <span className="text-xs text-muted-content">
+                <span className="text-sm text-muted-content">
                   Nenhum contacto adicionado
                 </span>
               )}
 
-              {visibleContacts.map((contact) => (
+              {contacts.map((contact) => (
                 <span
                   key={contact}
                   className="inline-flex items-center gap-1.5 rounded-full bg-surface py-1 pl-3 pr-2 text-xs font-medium text-primary-content shadow-sm ring-1 ring-border-ui"
@@ -327,23 +268,12 @@ export function SmsForm({
                 </span>
               ))}
 
-              {hiddenContactsCount > 0 && (
-                <button
-                  type="button"
-                  onClick={() => openModal('SELECT_CONTACT_SMS')}
-                  title={`Mais ${hiddenContactsCount} contacto${hiddenContactsCount === 1 ? '' : 's'}. Clique para gerir todos.`}
-                  className="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary ring-1 ring-primary/20 shadow-sm transition-all hover:bg-primary/20 active:scale-95 cursor-pointer"
-                >
-                  +{hiddenContactsCount}
-                </button>
-              )}
-
               <button
                 type="button"
                 onClick={() => openModal('SELECT_CONTACT_SMS')}
-                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-xs font-medium text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow active:scale-95 cursor-pointer"
+                className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
               >
-                <UserPlus size={13} aria-hidden />
+                <UserPlus size={14} aria-hidden />
                 Adicionar
               </button>
             </div>
@@ -356,19 +286,13 @@ export function SmsForm({
           title="Mensagem"
           description="Escreva o texto ou parta de um modelo."
         >
-          <TemplatesCard
-            templates={templates}
-            onSelect={handleSelectTemplate}
-          />
-
-          <LinksCard links={links} onInsertLink={handleInsertLink} />
+          <TemplatesCard templates={templates} onSelect={setMessage} />
 
           <MessageEditor
             value={message}
             onChange={setMessage}
             onSendTest={onSendTest ? handleSendTest : undefined}
             testing={testing}
-            customKeys={collectCustomVariableKeys(availableContacts)}
           />
         </SectionCard>
 
@@ -407,13 +331,13 @@ export function SmsForm({
             ))}
           </dl>
 
-          {hasPricing && balanceAfter !== undefined && (
+          {balanceAfter !== undefined && (
             <p
               className={`text-xs ${
                 insufficientBalance ? 'text-red-500' : 'text-muted-content'
               }`}
             >
-              Saldo depois do envio: <strong>{formatKz(balanceAfter)}</strong>
+              Saldo depois do envio: <strong>{formatSms(balanceAfter)}</strong>
             </p>
           )}
 
@@ -421,7 +345,7 @@ export function SmsForm({
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-600 dark:text-red-400">
               <span>
                 Saldo insuficiente: faltam{' '}
-                {formatKz(Math.abs(balanceAfter ?? 0))} para este envio.
+                {formatSms(Math.abs(balanceAfter ?? 0))} para este envio.
               </span>
               <Link
                 href="/payments"
@@ -486,102 +410,6 @@ export function SmsForm({
         selected={contacts}
         onConfirm={handleConfirmContacts}
       />
-
-      <ItemPickerModal
-        id="PICK_GROUPS"
-        title="Selecionar grupos de contactos"
-        description="Escolha os grupos que devem receber esta mensagem SMS."
-        icon={UsersRound}
-        items={groups.map((g) => ({
-          id: g.id,
-          title: g.name,
-          subtitle: `${g.total} contacto${g.total === 1 ? '' : 's'}`,
-          meta: `${g.total}`,
-        }))}
-        selectedIds={groupIds}
-        mode="multiple"
-        confirmLabel="Aplicar grupos"
-        onConfirm={(ids) => setGroupIds(ids)}
-      />
-
-      <ItemPickerModal
-        id="PICK_TEMPLATES"
-        title="Modelos de mensagem"
-        description="Selecione um modelo pré-definido para preencher a sua mensagem."
-        icon={FileText}
-        items={templates.map((t) => ({
-          id: t.id,
-          title: t.title,
-          subtitle: t.content,
-        }))}
-        selectedIds={[]}
-        mode="single"
-        confirmLabel="Aplicar modelo"
-        onConfirm={(ids) => {
-          const t = templates.find((item) => item.id === ids[0]);
-          if (t) {
-            handleSelectTemplate(t.content);
-          }
-        }}
-      />
-
-      <ItemPickerModal
-        id="PICK_LINKS"
-        title="Inserir links na mensagem"
-        description="Escolha os links que pretende anexar ao texto do SMS."
-        icon={Link2}
-        items={(links || []).map((l) => ({
-          id: l.id,
-          title: l.description,
-          subtitle: l.url,
-          meta: l.url.replace(/^https?:\/\//, '').split('/')[0],
-        }))}
-        selectedIds={[]}
-        mode="multiple"
-        confirmLabel="Inserir links"
-        onConfirm={handleConfirmLinks}
-      />
-
-      {/* Confirmação de substituição de texto quando a mensagem já tem conteúdo */}
-      {pendingTemplate !== null && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="confirm-replace-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in"
-        >
-          <div className="w-full max-w-md rounded-2xl border border-border-ui bg-surface p-6 shadow-2xl">
-            <h3
-              id="confirm-replace-title"
-              className="text-base font-semibold text-primary-content"
-            >
-              Substituir mensagem atual?
-            </h3>
-            <p className="mt-2 text-xs leading-relaxed text-muted-content">
-              A sua mensagem já contém texto escrito. Ao aplicar este modelo, o conteúdo atual será substituído.
-            </p>
-            <div className="mt-5 flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setPendingTemplate(null)}
-                className="rounded-lg border border-border-ui bg-surface px-4 py-2 text-xs font-medium text-primary-content transition-colors hover:bg-item-hover"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMessage(pendingTemplate);
-                  setPendingTemplate(null);
-                }}
-                className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90 active:scale-[0.98]"
-              >
-                Substituir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </form>
   );
 }

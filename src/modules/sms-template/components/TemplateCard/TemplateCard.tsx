@@ -1,7 +1,6 @@
 'use client';
 
-import { Calendar, Eye } from 'lucide-react';
-import React from 'react';
+import { Calendar } from 'lucide-react';
 import { CATEGORY_BADGE_STYLES } from '../../constants/templates';
 import { useTemplatePreviewStore } from '../../store/useTemplatePreviewStore';
 import { TemplateCardHighlight } from './components/TemplateCardHighlight';

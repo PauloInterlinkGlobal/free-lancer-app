@@ -25,7 +25,7 @@ export function HeaderBreadcrumb() {
             {item.href ? (
               <Link
                 href={item.href}
-                className="truncate rounded-lg px-2 py-1 text-muted-content transition-colors hover:bg-item-hover hover:text-primary-content"
+                className="truncate rounded-lg mr-auto px-2 py-1 text-muted-content transition-colors hover:bg-item-hover hover:text-primary-content"
               >
                 {item.label}
               </Link>

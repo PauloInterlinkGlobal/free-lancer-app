@@ -26,9 +26,8 @@ export const bankDetails = {
 };
 
 const amountFormatter = new Intl.NumberFormat('pt-PT', {
-  style: 'currency',
-  currency: 'AOA',
   maximumFractionDigits: 0,
 });
 
-export const formatAmount = (value: number) => amountFormatter.format(value);
+export const formatAmount = (value: number) =>
+  `${amountFormatter.format(value)} SMS`;

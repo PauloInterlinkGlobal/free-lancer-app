@@ -65,14 +65,6 @@ export async function getDashboardStats(): Promise<IDashboardStats> {
         delivered: 780,
         date: '20 Ago 2026',
       },
-      {
-        id: '4',
-        name: 'Campanha Black Friday',
-        status: 'active',
-        sent: 2100,
-        delivered: 2050,
-        date: '15 Ago 2026',
-      },
     ],
   };
 }

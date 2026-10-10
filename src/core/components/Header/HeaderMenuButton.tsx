@@ -1,19 +1,22 @@
 'use client';
 
-import { useRouter } from '@/core/i18n/navigation';
+import { useSidebarStore } from '@/core/store/sidebar.store';
 import { Menu } from 'lucide-react';
 
 export function HeaderMenuButton() {
-  const router = useRouter();
+  const { toggleSidebar, isOpen } = useSidebarStore();
 
   return (
     <button
       type="button"
-      onClick={() => router.push('/menu')}
-      aria-label="Abrir menu"
-      className="-ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-primary-content transition-colors hover:bg-surface-raised active:bg-surface-subtle lg:hidden"
+      onClick={toggleSidebar}
+      aria-label={
+        isOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'
+      }
+      aria-expanded={isOpen}
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-muted-content transition-colors hover:bg-item-hover hover:text-primary-content lg:hidden"
     >
-      <Menu size={22} aria-hidden />
+      <Menu className="h-5 w-5" />
     </button>
   );
 }

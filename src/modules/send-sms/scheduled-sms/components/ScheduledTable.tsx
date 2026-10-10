@@ -141,6 +141,7 @@ export function ScheduledTable({
   return (
     <>
       <Table<IScheduledSms>
+        allowGrid
         columns={columns(handleView, handleEdit, handleDelete)}
         data={data}
         loading={loading}

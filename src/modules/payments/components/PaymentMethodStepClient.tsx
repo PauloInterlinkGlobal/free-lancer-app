@@ -14,7 +14,7 @@ import { useState } from 'react';
 const generateReference = () =>
   `PAG-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`;
 
-const QUICK_AMOUNTS = [5000, 10000, 25000, 50000];
+const QUICK_AMOUNTS = [1000, 5000, 10000, 50000];
 
 const steps = [
   'Escolha o método e o valor',
@@ -33,7 +33,7 @@ export function PaymentMethodStepClient() {
 
   const handleContinue = () => {
     if (!value || value < MIN_AMOUNT) {
-      setError(`O valor mínimo é ${formatAmount(MIN_AMOUNT)}.`);
+      setError(`O volume mínimo é ${formatAmount(MIN_AMOUNT)}.`);
       return;
     }
 
@@ -105,7 +105,7 @@ export function PaymentMethodStepClient() {
 
         <div className="flex flex-col gap-3">
           <h2 className="text-base font-semibold text-primary-content">
-            Valor a carregar
+            Volume a carregar
           </h2>
 
           <div className="flex flex-col gap-1">
@@ -113,7 +113,7 @@ export function PaymentMethodStepClient() {
               type="text"
               inputMode="numeric"
               autoComplete="off"
-              label="Valor (Kz)"
+              label="Volume (SMS)"
               placeholder={`Mínimo ${formatDigits(String(MIN_AMOUNT))}`}
               value={formatDigits(amount)}
               onChange={(e) => {
@@ -152,7 +152,7 @@ export function PaymentMethodStepClient() {
         <div className="flex flex-col gap-5">
           <div className="rounded-xl bg-surface-raised p-4">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-content">
-              Total a carregar
+              Total de SMS a carregar
             </p>
             <p className="mt-1 text-3xl font-bold text-primary-content">
               {formatAmount(value)}

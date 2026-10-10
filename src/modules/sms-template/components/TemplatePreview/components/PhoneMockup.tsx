@@ -1,8 +1,6 @@
 'use client';
 
 import { ArrowLeft, CheckCheck, Info, Mic, Plus } from 'lucide-react';
-import React from 'react';
-import { FlashOverlay } from './FlashOverlay';
 
 interface PhoneMockupProps {
   initials: string;
@@ -10,8 +8,7 @@ interface PhoneMockupProps {
   currentTime: string;
   renderedContent: string;
   hasTemplate: boolean;
-  isFlash: boolean;
-  theme?: 'light' | 'dark';
+  theme?: 'light' | 'dark' | 'system';
 }
 
 export function PhoneMockup({
@@ -20,8 +17,7 @@ export function PhoneMockup({
   currentTime,
   renderedContent,
   hasTemplate,
-  isFlash,
-  theme = 'light',
+  theme = 'system',
 }: PhoneMockupProps) {
   const isDark = theme === 'dark';
 
@@ -30,16 +26,15 @@ export function PhoneMockup({
       <div
         className={`relative overflow-hidden rounded-[2.5rem] border-[8px] shadow-2xl transition-colors duration-200 ${
           isDark
-            ? 'border-neutral-800 bg-neutral-900 shadow-neutral-950/50'
-            : 'border-neutral-800 bg-white shadow-xl'
+            ? 'border-neutral-800 bg-neutral-900'
+            : 'border-neutral-800 bg-white'
         }`}
       >
         <div className="absolute left-1/2 top-0 z-20 flex h-4 w-24 -translate-x-1/2 items-center justify-center rounded-b-xl bg-neutral-800">
           <div className="h-1 w-8 rounded-full bg-neutral-600" />
         </div>
 
-        <div className="relative flex h-[500px] flex-col">
-          {/* Top Bar */}
+        <div className="relative flex h-[clamp(300px,calc(100vh-27rem),500px)] flex-col">
           <div
             className={`flex items-center gap-2.5 border-b px-3 pb-2.5 pt-7 transition-colors ${
               isDark
@@ -80,7 +75,6 @@ export function PhoneMockup({
             />
           </div>
 
-          {/* Conversation Screen */}
           <div
             className={`flex flex-1 flex-col gap-3 overflow-y-auto px-3 py-3.5 transition-colors ${
               isDark ? 'bg-neutral-950' : 'bg-[#f8fafc]'
@@ -100,7 +94,6 @@ export function PhoneMockup({
               Hoje {currentTime}
             </p>
 
-            {/* Received Message Bubble */}
             <div
               className={`w-fit max-w-[90%] rounded-2xl rounded-tl-sm border px-3.5 py-2.5 shadow-sm transition-colors ${
                 isDark
@@ -130,7 +123,6 @@ export function PhoneMockup({
               </div>
             </div>
 
-            {/* Sent Message Bubble */}
             <div className="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-primary px-3 py-2 text-white shadow-sm">
               <p className="whitespace-pre-wrap break-words text-xs leading-relaxed">
                 Recebido, obrigado!
@@ -142,7 +134,6 @@ export function PhoneMockup({
             </div>
           </div>
 
-          {/* Bottom Composer Bar */}
           <div
             className={`flex items-center gap-2 border-t px-3 py-2 transition-colors ${
               isDark
@@ -172,14 +163,6 @@ export function PhoneMockup({
               }`}
             />
           </div>
-
-          {isFlash && (
-            <FlashOverlay
-              previewSender={previewSender}
-              renderedContent={renderedContent}
-              theme={theme}
-            />
-          )}
         </div>
       </div>
     </div>

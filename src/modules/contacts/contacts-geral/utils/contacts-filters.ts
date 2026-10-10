@@ -35,11 +35,9 @@ export function filterContacts(
 
   return data
     .filter((contact) => {
-      const fullName = `${contact.name} ${contact.surname || ''}`.toLowerCase();
       const matchesSearch =
         !search ||
-        fullName.includes(search) ||
-        (contact.email && contact.email.toLowerCase().includes(search)) ||
+        contact.name.toLowerCase().includes(search) ||
         (searchDigits !== '' &&
           contact.number.replace(/\D/g, '').includes(searchDigits));
       const matchesStatus =
@@ -48,9 +46,7 @@ export function filterContacts(
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
-      const nameA = `${a.name} ${a.surname || ''}`;
-      const nameB = `${b.name} ${b.surname || ''}`;
-      const diff = nameA.localeCompare(nameB, 'pt', { sensitivity: 'base' });
+      const diff = a.name.localeCompare(b.name, 'pt', { sensitivity: 'base' });
       return filters.sort === 'asc' ? diff : -diff;
     });
 }

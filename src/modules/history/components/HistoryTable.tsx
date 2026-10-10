@@ -2,6 +2,7 @@
 
 import { Table, type Column } from '@/core/components/Table';
 import { usePathname, useRouter } from '@/core/i18n/navigation';
+import { useModalStore } from '@/core/store/useModalStore';
 import {
   sendingTypeLabel,
   smsTypeLabel,
@@ -13,6 +14,8 @@ import {
 } from '@/modules/history/interfaces/history';
 import { Eye } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { DetailHistoryModal } from './Modal';
 
 const smsTypeStyles: Record<HistorySmsType, string> = {
   scheduled: 'bg-primary/10 text-primary',
@@ -123,6 +126,9 @@ export function HistoryTable({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { openModal } = useModalStore();
+
+  const [selectedSms, setSelectedSms] = useState<IHistorySms | null>(null);
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -134,20 +140,28 @@ export function HistoryTable({
     router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
-  const handleView = (sms: IHistorySms) => console.log('Ver', sms.id);
+  const handleView = (sms: IHistorySms) => {
+    setSelectedSms(sms);
+    openModal('DETAIL_HISTORY_SMS');
+  };
 
   return (
-    <Table<IHistorySms>
-      columns={columns(handleView)}
-      data={data}
-      loading={loading}
-      keyExtractor={(sms) => sms.id}
-      emptyMessage="Não existem SMS no histórico."
-      pagination={{
-        currentPage,
-        totalPages,
-        onPageChange: handlePageChange,
-      }}
-    />
+    <>
+      <Table<IHistorySms>
+        allowGrid
+        columns={columns(handleView)}
+        data={data}
+        loading={loading}
+        keyExtractor={(sms) => sms.id}
+        emptyMessage="Não existem SMS no histórico."
+        pagination={{
+          currentPage,
+          totalPages,
+          onPageChange: handlePageChange,
+        }}
+      />
+
+      <DetailHistoryModal sms={selectedSms} />
+    </>
   );
 }

@@ -60,6 +60,7 @@ export function RecentCampaignsTable({
 }: RecentCampaignsTableProps) {
   return (
     <Table<ICampaign>
+      allowGrid
       columns={columns}
       data={campaigns}
       loading={loading}

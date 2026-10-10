@@ -9,6 +9,7 @@ import { TableHeader } from '@/core/components/Table/table-header';
 import { TableRow } from '@/core/components/Table/table-row';
 import type { RowAction } from '@/core/components/Table/table-row-menu';
 
+export { ViewToggle, type ViewMode } from '@/core/components/Table/view-toggle';
 export type { Column, RowAction, TableProps };
 
 interface TableComponent {

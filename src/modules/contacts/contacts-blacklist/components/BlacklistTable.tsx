@@ -82,6 +82,7 @@ export function BlacklistTable({
 
   return (
     <Table<IBlacklist>
+      allowGrid
       columns={columns(handleDelete)}
       data={data}
       loading={loading}

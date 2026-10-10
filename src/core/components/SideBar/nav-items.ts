@@ -9,7 +9,6 @@ import {
   FileUp,
   History,
   LayoutDashboard,
-  Link2,
   MessageSquare,
   PenLine,
   Send,
@@ -118,13 +117,6 @@ export const navItems: NavItem[] = [
       'Crie textos reutilizáveis para enviar mensagens mais depressa.',
     href: '/sms-template',
     icon: FileText,
-    ...base,
-  },
-  {
-    label: 'Links',
-    description: 'Gere os links utilizados nas suas mensagens.',
-    href: '/links',
-    icon: Link2,
     ...base,
   },
   {

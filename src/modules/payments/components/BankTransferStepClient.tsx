@@ -103,7 +103,7 @@ export function BankTransferStepClient({
 
         <div className="rounded-xl bg-surface-raised p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-content">
-            Valor a transferir
+            Volume a carregar
           </p>
           <p className="mt-1 text-3xl font-bold text-primary-content">
             {formatAmount(amount)}

@@ -33,7 +33,7 @@ export function TemplatesWorkspace({ templates }: { templates: ITemplate[] }) {
         />
       </div>
 
-      <div className="lg:sticky lg:top-6">
+      <div className="lg:sticky lg:top-0">
         <TemplatePhonePreview />
       </div>
     </div>

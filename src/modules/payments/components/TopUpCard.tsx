@@ -83,7 +83,7 @@ export function TopUpCard({ pendingCount }: TopUpCardProps) {
         <div className="flex flex-col gap-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-muted-content">
-              Valor mínimo
+              Volume mínimo
             </p>
             <p className="text-2xl font-bold text-primary-content">
               {formatAmount(MIN_AMOUNT)}

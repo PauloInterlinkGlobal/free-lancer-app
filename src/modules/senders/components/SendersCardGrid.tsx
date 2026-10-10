@@ -6,7 +6,6 @@ import {
 } from '@/modules/senders/utils/senders-filters';
 import { SendersCards } from './SendersCards';
 import { SendersFilters } from './SendersFilters';
-import { SendersHeader } from './SendersHeader';
 import { SendersStats } from './SendersStats';
 import { SendersWrapper } from './SendersWrapper';
 
@@ -22,8 +21,6 @@ export function SendersCardGrid({ data, filters }: SendersCardGridProps) {
   return (
     <SendersWrapper>
       <div className="flex flex-col gap-6">
-        <SendersHeader />
-
         <SendersStats senders={data} />
 
         <SendersFilters />
