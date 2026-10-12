@@ -4,7 +4,7 @@ import { DeleteModal } from '@/core/components/Modal/DeleteModal';
 import { useToastStore } from '@/core/store/toast.store';
 import { contactsMock } from '@/modules/contacts/contacts-geral/mocks/contacts.mock';
 import { CreateGroupModal } from '@/modules/contacts/contacts-groups/components/create/CreateGroupModal';
-import type { GroupFormValues } from '@/modules/contacts/contacts-groups/components/GroupForm';
+import type { GroupFormValues } from '@/modules/contacts/contacts-groups/components/groupForm';
 import { UpdateGroupModal } from '@/modules/contacts/contacts-groups/components/update/UpdateGroupModal';
 import { IGroup } from '@/modules/contacts/contacts-groups/interfaces/groups';
 import {

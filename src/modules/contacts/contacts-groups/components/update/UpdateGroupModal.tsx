@@ -3,7 +3,7 @@
 import { Modal } from '@/core/components/Modal';
 import type { IContact } from '@/modules/contacts/contacts-geral/interfaces/contacts';
 import { X } from 'lucide-react';
-import { GroupForm, type GroupFormValues } from '../GroupForm';
+import { GroupForm, type GroupFormValues } from '../groupForm';
 
 interface UpdateGroupModalProps {
   isOpen: boolean;
