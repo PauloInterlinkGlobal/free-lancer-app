@@ -20,7 +20,10 @@ interface LinksListClientProps {
   filters: LinksFiltersValue;
 }
 
-export function LinksListClient({ initialData, filters }: LinksListClientProps) {
+export function LinksListClient({
+  initialData,
+  filters,
+}: LinksListClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

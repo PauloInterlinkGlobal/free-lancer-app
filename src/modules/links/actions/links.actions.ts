@@ -1,11 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import {
-  createLink,
-  deleteLink,
-  getLinks,
-} from '../services/links.service';
+import { createLink, deleteLink, getLinks } from '../services/links.service';
 import {
   normalizeUrl,
   validateLinkInput,
@@ -103,9 +99,7 @@ export async function createLinkAction(
  * Server Action para eliminar um link pelo id.
  * Valida o identificador no servidor, elimina e revalida a listagem.
  */
-export async function deleteLinkAction(
-  id: string
-): Promise<{ ok: boolean }> {
+export async function deleteLinkAction(id: string): Promise<{ ok: boolean }> {
   const trimmedId = typeof id === 'string' ? id.trim() : '';
 
   if (!trimmedId) {

@@ -39,13 +39,13 @@ export function ReportsStatsCard({ stat }: ReportsStatsCardProps) {
   const { icon: Icon, color } = iconMap[stat.type] || iconMap.sms;
 
   return (
-    <div className="flex flex-col justify-between bg-surface p-5 shadow-sm transition-all hover:border-primary/30">
-      <div className="flex items-center justify-between">
-        <div
-          className={`flex h-11 w-11 items-center justify-center rounded-xl ${color}`}
+    <div className="flex flex-col gap-4 rounded-2xl bg-surface p-5 shadow-sm">
+      <div className="flex items-center justify-between gap-2">
+        <span
+          className={`flex h-12 w-12 items-center justify-center rounded-xl ${color}`}
         >
-          <Icon size={20} />
-        </div>
+          <Icon size={24} aria-hidden />
+        </span>
 
         <div
           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -55,30 +55,23 @@ export function ReportsStatsCard({ stat }: ReportsStatsCardProps) {
           }`}
         >
           {stat.trendUp ? (
-            <TrendingUp size={13} className="shrink-0" />
+            <TrendingUp size={13} aria-hidden className="shrink-0" />
           ) : (
-            <TrendingDown size={13} className="shrink-0" />
+            <TrendingDown size={13} aria-hidden className="shrink-0" />
           )}
           <span>{stat.trend}</span>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-col">
-        <span className="text-xs font-medium text-muted-content">
-          {stat.label}
-        </span>
-        <span className="mt-1 text-2xl font-bold tracking-tight text-primary-content">
+      <div className="min-w-0">
+        <p className="text-sm text-muted-content">{stat.label}</p>
+        <p className="mt-1 truncate text-2xl font-bold text-primary-content">
           {stat.value}
-        </span>
+        </p>
+        {stat.subValue && (
+          <p className="mt-1 text-xs text-muted-content">{stat.subValue}</p>
+        )}
       </div>
-
-      {stat.subValue && (
-        <div className="mt-3  pt-2.5">
-          <p className="text-xs font-medium text-muted-content">
-            {stat.subValue}
-          </p>
-        </div>
-      )}
     </div>
   );
 }

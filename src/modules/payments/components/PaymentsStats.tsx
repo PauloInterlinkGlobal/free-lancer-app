@@ -25,7 +25,7 @@ export function PaymentsStats({ data }: PaymentsStatsProps) {
 
   const items: Stat[] = [
     {
-      label: 'Saldo de SMS',
+      label: 'Volume de SMS',
       value: formatAmount(stats.totalApproved),
       icon: Wallet,
       iconColor: 'text-green-500',

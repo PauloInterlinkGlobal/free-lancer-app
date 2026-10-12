@@ -92,9 +92,7 @@ export function ItemPickerList({
                   }`}
                   aria-hidden
                 >
-                  {isSelected && (
-                    <Check className="h-3.5 w-3.5 stroke-[3]" />
-                  )}
+                  {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                 </div>
 
                 {/* Conteúdo textual */}

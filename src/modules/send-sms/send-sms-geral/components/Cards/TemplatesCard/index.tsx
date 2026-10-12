@@ -29,7 +29,9 @@ export function TemplatesCard({
 
       {!selected ? (
         <div className="flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border-ui bg-surface/50 px-4 py-5 text-center">
-          <p className="text-sm text-muted-content">Nenhum modelo seleccionado.</p>
+          <p className="text-sm text-muted-content">
+            Nenhum modelo seleccionado.
+          </p>
           <p className="text-xs text-muted-content">
             Clique em «Ver todos» para escolher um modelo.
           </p>

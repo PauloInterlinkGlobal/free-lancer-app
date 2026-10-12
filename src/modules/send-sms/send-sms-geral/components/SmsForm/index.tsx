@@ -1,5 +1,6 @@
 'use client';
 
+import { Modal } from '@/core/components/Modal';
 import { SelectPopup } from '@/core/components/Select';
 import { useModalStore } from '@/core/store/useModalStore';
 import type { IContact } from '@/modules/contacts/contacts-geral/interfaces/contacts';
@@ -82,8 +83,14 @@ export function SmsForm({
   const [type, setType] = useState<SmsType>('normal');
   const [senderId, setSenderId] = useState('');
   const [groupIds, setGroupIds] = useState<string[]>([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
+    null
+  );
   const [selectedLinkIds, setSelectedLinkIds] = useState<string[]>([]);
+  const [pendingTemplate, setPendingTemplate] = useState<ISmsTemplate | null>(
+    null
+  );
+  const [isConfirmReplaceOpen, setIsConfirmReplaceOpen] = useState(false);
   const [contacts, setContacts] = useState<string[]>([]);
   const [message, setMessage] = useState('');
   const [scheduled, setScheduled] = useState(false);
@@ -133,6 +140,30 @@ export function SmsForm({
   function handleConfirmContacts(numbers: string[]) {
     setContacts(numbers);
     closeModal();
+  }
+
+  function applyTemplate(tpl: ISmsTemplate) {
+    if (message.trim() && message.trim() !== tpl.content) {
+      setPendingTemplate(tpl);
+      setIsConfirmReplaceOpen(true);
+    } else {
+      setSelectedTemplateId(tpl.id);
+      setMessage(tpl.content);
+    }
+  }
+
+  function handleConfirmReplace() {
+    if (pendingTemplate) {
+      setSelectedTemplateId(pendingTemplate.id);
+      setMessage(pendingTemplate.content);
+      setPendingTemplate(null);
+    }
+    setIsConfirmReplaceOpen(false);
+  }
+
+  function handleCancelReplace() {
+    setPendingTemplate(null);
+    setIsConfirmReplaceOpen(false);
   }
 
   function handleInsertLink(url: string) {
@@ -321,8 +352,11 @@ export function SmsForm({
             templates={templates}
             selectedId={selectedTemplateId}
             onSelect={(tpl) => {
-              setSelectedTemplateId(tpl?.id ?? null);
-              if (tpl) setMessage(tpl.content);
+              if (tpl) {
+                applyTemplate(tpl);
+              } else {
+                setSelectedTemplateId(null);
+              }
             }}
           />
 
@@ -450,7 +484,6 @@ export function SmsForm({
         </div>
       </aside>
 
-      
       <ItemPickerModal
         id="PICK_GROUPS"
         title="Seleccionar grupos"
@@ -476,7 +509,8 @@ export function SmsForm({
         items={templates.map((t) => ({
           id: t.id,
           title: t.title,
-          subtitle: t.content,
+          subtitle:
+            t.content.length > 70 ? `${t.content.slice(0, 70)}...` : t.content,
         }))}
         selectedIds={selectedTemplateId ? [selectedTemplateId] : []}
         mode="single"
@@ -484,9 +518,12 @@ export function SmsForm({
         emptyMessage="Nenhum modelo disponível."
         onConfirm={(ids) => {
           const id = ids[0] ?? null;
-          setSelectedTemplateId(id);
           const tpl = templates.find((t) => t.id === id);
-          if (tpl) setMessage(tpl.content);
+          if (tpl) {
+            applyTemplate(tpl);
+          } else {
+            setSelectedTemplateId(null);
+          }
         }}
       />
 
@@ -504,7 +541,13 @@ export function SmsForm({
         mode="multiple"
         confirmLabel="Confirmar links"
         emptyMessage="Nenhum link aprovado disponível."
-        onConfirm={setSelectedLinkIds}
+        onConfirm={(ids) => {
+          setSelectedLinkIds(ids);
+          const chosen = (links ?? []).filter((l) => ids.includes(l.id));
+          chosen.forEach((l) => {
+            handleInsertLink(l.url);
+          });
+        }}
       />
 
       <SelectContactsModal
@@ -512,6 +555,47 @@ export function SmsForm({
         selected={contacts}
         onConfirm={handleConfirmContacts}
       />
+
+      {/* Confirmação de substituição de mensagem existente ao seleccionar modelo */}
+      <Modal isOpen={isConfirmReplaceOpen} onClose={handleCancelReplace}>
+        <div className="w-full max-w-md overflow-hidden rounded-2xl border border-border-ui bg-surface p-6 shadow-2xl">
+          <div className="flex items-start gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <FileText size={20} aria-hidden />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base font-semibold text-primary-content">
+                Substituir mensagem atual?
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm text-muted-content leading-relaxed">
+                A sua mensagem já contém texto. Tem a certeza de que pretende
+                substituí-la pelo modelo{' '}
+                <strong className="text-primary-content">
+                  «{pendingTemplate?.title}»
+                </strong>
+                ?
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={handleCancelReplace}
+              className="rounded-lg border border-border-ui bg-surface px-4 py-2 text-sm font-medium text-primary-content transition-colors hover:bg-item-hover"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmReplace}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90 active:scale-[0.98]"
+            >
+              Substituir
+            </button>
+          </div>
+        </div>
+      </Modal>
     </form>
   );
 }

@@ -126,9 +126,7 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
                   >
                     <Icon
                       size={18}
-                      className={
-                        active ? 'text-primary' : 'text-muted-content'
-                      }
+                      className={active ? 'text-primary' : 'text-muted-content'}
                       aria-hidden
                     />
                     <span className="min-w-0 flex-1">
@@ -164,7 +162,8 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {FORMAT_OPTIONS.map((option) => {
                 const active = format === option.value;
-                const Icon = option.value === 'xlsx' ? FileSpreadsheet : FileText;
+                const Icon =
+                  option.value === 'xlsx' ? FileSpreadsheet : FileText;
                 return (
                   <button
                     key={option.value}
@@ -178,9 +177,7 @@ export function GenerateReportModal({ campaigns }: GenerateReportModalProps) {
                   >
                     <Icon
                       size={18}
-                      className={
-                        active ? 'text-primary' : 'text-muted-content'
-                      }
+                      className={active ? 'text-primary' : 'text-muted-content'}
                       aria-hidden
                     />
                     <span className="min-w-0 flex-1">

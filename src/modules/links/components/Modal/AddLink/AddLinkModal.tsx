@@ -1,10 +1,9 @@
 'use client';
 
-import { Input } from '@/core/components/Input';
 import { Modal } from '@/core/components/Modal';
 import { useToastStore } from '@/core/store/toast.store';
 import { useModalStore } from '@/core/store/useModalStore';
-import { Info, Link2, X } from 'lucide-react';
+import { ChevronDown, Info, Link2, X } from 'lucide-react';
 import { useState } from 'react';
 import {
   isValidUrl,
@@ -13,7 +12,7 @@ import {
   normalizeUrl,
 } from '../../../utils/link-validation';
 
-const DEFAULT_URL_PREFIX = 'https://';
+type UrlProtocol = 'https://' | 'http://';
 
 interface AddLinkModalProps {
   existingUrls: string[];
@@ -29,13 +28,15 @@ export function AddLinkModal({
   const { closeModal } = useModalStore();
   const { success } = useToastStore();
 
-  const [url, setUrl] = useState(DEFAULT_URL_PREFIX);
+  const [protocol, setProtocol] = useState<UrlProtocol>('https://');
+  const [path, setPath] = useState('');
   const [description, setDescription] = useState('');
   const [urlError, setUrlError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
 
   const resetForm = () => {
-    setUrl(DEFAULT_URL_PREFIX);
+    setProtocol('https://');
+    setPath('');
     setDescription('');
     setUrlError('');
     setDescriptionError('');
@@ -47,8 +48,17 @@ export function AddLinkModal({
     onClose?.();
   };
 
-  const handleUrlChange = (val: string) => {
-    setUrl(val);
+  const handlePathChange = (val: string) => {
+    let cleaned = val;
+    const trimmed = val.trim();
+    if (trimmed.toLowerCase().startsWith('https://')) {
+      setProtocol('https://');
+      cleaned = trimmed.slice(8);
+    } else if (trimmed.toLowerCase().startsWith('http://')) {
+      setProtocol('http://');
+      cleaned = trimmed.slice(7);
+    }
+    setPath(cleaned);
     if (urlError) setUrlError('');
   };
 
@@ -62,12 +72,13 @@ export function AddLinkModal({
 
     let hasError = false;
 
-    const rawUrl = url.trim();
-    if (!rawUrl || rawUrl === 'https://' || rawUrl === 'http://') {
+    const trimmedPath = path.trim();
+    if (!trimmedPath) {
       setUrlError('O URL é obrigatório.');
       hasError = true;
     } else {
-      const normalized = normalizeUrl(rawUrl);
+      const fullUrl = `${protocol}${trimmedPath}`;
+      const normalized = normalizeUrl(fullUrl);
       if (!isValidUrl(normalized)) {
         setUrlError('Insira um URL válido com protocolo http ou https.');
         hasError = true;
@@ -101,7 +112,8 @@ export function AddLinkModal({
 
     if (hasError) return;
 
-    const normalizedUrl = normalizeUrl(rawUrl);
+    const fullUrl = `${protocol}${trimmedPath}`;
+    const normalizedUrl = normalizeUrl(fullUrl);
 
     // TODO(api): substituir pela chamada ao serviço de criação de links.
     onCreate({ url: normalizedUrl, description: trimmedDescription });
@@ -143,17 +155,63 @@ export function AddLinkModal({
           className="flex flex-col gap-4 px-5 py-4"
           noValidate
         >
-          <div className="flex flex-col gap-1.5">
-            <Input
-              id="link-url"
-              name="url"
-              label="URL"
-              placeholder="https://exemplo.ao/campanha"
-              value={url}
-              onChange={(e) => handleUrlChange(e.target.value)}
-              error={urlError}
-              autoFocus
-            />
+          {/* Caixa de texto com select de protocolo prefixado */}
+          <div className="flex flex-col gap-1.5 w-full">
+            <label
+              htmlFor="link-url-path"
+              className="text-sm font-medium text-primary-content"
+            >
+              URL *
+            </label>
+            <div
+              className={`relative flex w-full items-center rounded-lg border bg-surface transition-colors ${
+                urlError
+                  ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-1 focus-within:ring-rose-500'
+                  : 'border-border-ui focus-within:border-primary focus-within:ring-1 focus-within:ring-primary'
+              }`}
+            >
+              <div className="relative flex items-center border-r border-border-ui bg-surface-raised shrink-0 rounded-l-lg select-none">
+                <select
+                  id="link-url-protocol"
+                  aria-label="Protocolo do URL"
+                  value={protocol}
+                  onChange={(e) => {
+                    setProtocol(e.target.value as UrlProtocol);
+                    if (urlError) setUrlError('');
+                  }}
+                  className="cursor-pointer appearance-none bg-transparent py-2.5 pl-3 pr-7 text-xs font-semibold text-primary-content outline-none transition-colors hover:text-primary focus:text-primary"
+                >
+                  <option value="https://">https://</option>
+                  <option value="http://">http://</option>
+                </select>
+                <ChevronDown
+                  size={12}
+                  className="pointer-events-none absolute right-2 text-muted-content"
+                  aria-hidden
+                />
+              </div>
+
+              <input
+                id="link-url-path"
+                name="urlPath"
+                type="text"
+                autoFocus
+                value={path}
+                onChange={(e) => handlePathChange(e.target.value)}
+                placeholder="exemplo.ao/campanha"
+                aria-invalid={Boolean(urlError)}
+                aria-describedby={urlError ? 'link-url-error' : undefined}
+                className="min-w-0 flex-1 w-full bg-transparent px-3 py-2.5 text-sm font-mono text-primary-content placeholder:text-muted-content outline-none"
+              />
+            </div>
+            {urlError && (
+              <p
+                id="link-url-error"
+                className="text-xs text-rose-500 font-medium"
+              >
+                {urlError}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -162,7 +220,7 @@ export function AddLinkModal({
                 htmlFor="link-description"
                 className="text-sm font-medium text-neutral-900 dark:text-neutral-200"
               >
-                Descrição
+                Descrição *
               </label>
               <span
                 className={`text-[11px] tabular-nums ${

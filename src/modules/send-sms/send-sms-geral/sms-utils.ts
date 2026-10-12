@@ -44,17 +44,24 @@ export const PREVIEW_VARIABLES: Record<string, string> = {
   cidade: 'Luanda',
 };
 
-export function fillVariables(text: string): string {
+export function fillVariables(
+  text: string,
+  customVars?: Record<string, string>
+): string {
+  const varsMap: Record<string, string> = customVars
+    ? { ...PREVIEW_VARIABLES, ...customVars }
+    : PREVIEW_VARIABLES;
+
   // 1. Substitui sintaxe nova {{ chave }} (aceita espaços internos opcionais)
   let filled = text.replace(
     /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g,
-    (match, key: string) => PREVIEW_VARIABLES[key] ?? match
+    (match, key: string) => varsMap[key] ?? match
   );
 
   // 2. Substitui sintaxe antiga { chave } para compatibilidade retroativa
   filled = filled.replace(
     /(?<!\{)\{([a-zA-Z0-9_]+)\}(?!\})/g,
-    (match, key: string) => PREVIEW_VARIABLES[key] ?? match
+    (match, key: string) => varsMap[key] ?? match
   );
 
   return filled;

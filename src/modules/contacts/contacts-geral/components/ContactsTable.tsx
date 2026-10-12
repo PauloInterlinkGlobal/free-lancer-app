@@ -176,8 +176,7 @@ export function ContactsTable({
   };
 
   const handleView = (contact: IContact) => {
-    setSelectedContact(contact);
-    openModal('DETAIL_CONTACT');
+    router.push(`/contacts/${contact.id}`);
   };
 
   const handleEdit = (contact: IContact) => {

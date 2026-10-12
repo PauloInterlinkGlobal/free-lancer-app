@@ -4,8 +4,10 @@ import { Input } from '@/core/components/Input';
 import { Select } from '@/core/components/Select';
 import { VariablesDropdown } from '@/core/components/VariablesDropdown';
 import { useToastStore } from '@/core/store/toast.store';
+import { contactsMock } from '@/modules/contacts/contacts-geral/mocks/contacts.mock';
+import { collectCustomVariableKeys } from '@/modules/contacts/contacts-geral/utils/collectCustomVariableKeys';
 import { Plus } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { TEMPLATE_CATEGORIES } from '../../constants/templates';
 import { ITemplate, TemplateCategory } from '../../interfaces/templates';
 import { useTemplatePreviewStore } from '../../store/useTemplatePreviewStore';
@@ -36,6 +38,11 @@ export function TemplateComposer({ base, baseNonce }: TemplateComposerProps) {
 
   const variables = extractVariables(content);
   const metrics = getSmsMetrics(content);
+
+  const availableCustomKeys = useMemo(
+    () => collectCustomVariableKeys(contactsMock),
+    []
+  );
 
   useEffect(() => {
     if (!base) return;
@@ -171,7 +178,10 @@ export function TemplateComposer({ base, baseNonce }: TemplateComposerProps) {
       </div>
 
       <div className="flex items-center gap-2">
-        <VariablesDropdown onSelect={insertVariableToken} />
+        <VariablesDropdown
+          onSelect={insertVariableToken}
+          customKeys={availableCustomKeys}
+        />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-dashed border-border-ui pt-4">
